@@ -145,3 +145,14 @@ This prototype uses synthetically generated data modelled on Indian alternate da
 | Consent-based data flow | DPDP-compliant per-source consent screen |
 | Privacy & encryption compliance | No PII stored, derived scores only, purpose limitation enforced |
 | Responsible lending practices | Hard blocks, DIR fairness audit, SHAP rejection explanations |
+
+---
+
+## Known Limitations
+
+**Synthetic data only.** All data sources (UPI, telecom, e-commerce, geolocation, psychometric, merchant/GST) are Faker-generated with realistic biased distributions. No real Account Aggregator, CERSAI, or telecom API access exists at this stage. Production deployment requires RBI Financial Information User registration and live AA integration.
+
+**Session-based consent.** Consent selections are stored in-browser for the duration of the session and passed to the scoring endpoint as request parameters. There is no server-side consent persistence, withdrawal audit trail, or consent receipt generation. A production system would store consent records in PostgreSQL with timestamps, purpose codes, and revocation history per DPDP Act 2023 Section 6.
+
+**Gemini API key required for advisor.** The RAG-based credit advisor requires a valid `GEMINI_API_KEY` environment variable (Gemini 2.5 Flash). Without it, the advisor endpoint returns a 503 response. ChromaDB collections must be indexed via `POST /advisor/ingest` before the advisor can answer questions. The advisor reduces but does not eliminate the risk of inaccurate responses.
+

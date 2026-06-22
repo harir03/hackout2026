@@ -1,0 +1,73 @@
+RBI MASTER DIRECTION ON FAIR PRACTICES CODE FOR LENDERS
+(RBI/DOR/2021-22/58, Updated: March 2024)
+
+CHAPTER I: PRELIMINARY
+
+1.1 These directions are issued under Sections 21, 35A, and 56 of the Banking Regulation Act, 1949, and Sections 45L and 45MA of the Reserve Bank of India Act, 1934.
+
+1.2 These directions are applicable to all commercial banks (including regional rural banks, small finance banks, and local area banks), co-operative banks, all-India financial institutions (EXIM Bank, NABARD, NHB, SIDBI, and NaBFID), and all non-banking financial companies (including housing finance companies).
+
+CHAPTER II: LOAN APPLICATION AND PROCESSING
+
+2.1 Loan application forms shall include information about the fees, charges, and penalties applicable. The lender shall provide an acknowledgement for receipt of all loan applications.
+
+2.2 Lenders shall convey in writing to the borrower, within a reasonable time, the decision on the loan application. If the loan application is rejected, the lender must communicate the reasons for rejection in writing.
+
+2.3 The lender shall communicate the following to the borrower at the time of sanction:
+(a) Amount of loan sanctioned along with the terms and conditions
+(b) Annualized rate of interest and method of application
+(c) Processing fee and other charges levied
+(d) Pre-payment options and charges, if any
+
+CHAPTER III: LOAN APPRAISAL AND TERMS
+
+3.1 Lenders shall not discriminate on the basis of sex, caste, or religion in the matter of lending. Lending decisions shall be based on economic criteria and creditworthiness assessment.
+
+3.2 For alternate credit scoring models, the following principles apply:
+(a) Data sources used for scoring must be transparent and disclosed to the applicant upon request.
+(b) The applicant has the right to know which data categories contributed positively or negatively to their score.
+(c) Scoring methodologies must not use protected characteristics (gender, religion, caste, ethnicity) as direct inputs.
+(d) Where alternate data sources yield conflicting signals, the lender must document the resolution methodology and make it available for regulatory audit.
+
+3.3 The lender must ensure that the interest rate, processing charges, and other charges are justified and not excessive. The Board of Directors shall lay down appropriate internal principles and procedures for determining interest rates and charges.
+
+3.4 DSCR (Debt Service Coverage Ratio) and EMI-to-income ratio must be evaluated for all credit decisions. Loans shall not be sanctioned where the projected EMI burden exceeds 50% of documented monthly income unless exceptional circumstances apply and are documented.
+
+CHAPTER IV: DISBURSEMENT OF LOANS
+
+4.1 Disbursal shall be made only after the borrower has been informed of the terms and conditions of the loan and has provided written acceptance.
+
+4.2 Lenders shall not levy any charges that are not disclosed at the time of sanction.
+
+CHAPTER V: POST-DISBURSEMENT SUPERVISION
+
+5.1 Lenders shall not interfere in the affairs of the borrower except for the purposes agreed to in the loan agreement.
+
+5.2 Lenders shall release all securities on repayment of all dues or on realization of the outstanding amount of the loan, subject to any legitimate right of lien for any other claim.
+
+CHAPTER VI: GENERAL PROVISIONS
+
+6.1 GRIEVANCE REDRESSAL: Every lender shall have a grievance redressal mechanism. The name and contact details of the Grievance Redressal Officer shall be displayed prominently.
+
+6.2 WILFUL DEFAULTERS: Lenders shall follow the Reserve Bank of India guidelines on identification and reporting of wilful defaulters. A borrower classified as a wilful defaulter shall not be eligible for additional credit facilities. The classification must follow due process including a show cause notice and an opportunity for the borrower to present their case before a committee.
+
+6.3 RIGHT TO EXPLANATION: Applicants whose loan applications are rejected or whose credit scores are below the lender's threshold have the right to:
+(a) A written explanation of the primary factors that contributed to the score
+(b) Information about which data sources were consulted
+(c) The opportunity to dispute inaccuracies in the data used for scoring
+(d) A reassessment after correction of disputed data
+
+6.4 DATA RETENTION: Credit scoring data shall be retained for the period required by applicable law but shall not be used beyond the purpose for which it was collected without fresh consent.
+
+6.5 TRANSPARENCY IN ALTERNATE SCORING: When alternate data sources (UPI transaction history, telecom payment records, e-commerce behaviour, geolocation data, psychometric assessments) are used for credit scoring:
+(a) The applicant must provide explicit, informed consent for each data source separately.
+(b) The consent form must clearly state what data will be collected, how it will be used, and for how long it will be retained.
+(c) The applicant may withdraw consent for any individual data source at any time, though this may affect the scoring outcome.
+(d) The scoring model must be periodically audited for bias across demographic groups, and audit results must be made available to the regulator upon request.
+(e) Where two or more data sources provide conflicting assessments, the resolution must favor the applicant unless the negative signal comes from a verified, authoritative source (e.g., RBI's wilful defaulter list).
+
+CHAPTER VII: RECOVERY OF LOANS
+
+7.1 Recovery agents engaged by lenders must follow the Indian Banks' Association code and shall not resort to intimidation, harassment, or use of muscle power.
+
+7.2 Lenders shall ensure that recovery efforts do not violate the privacy of the borrower.

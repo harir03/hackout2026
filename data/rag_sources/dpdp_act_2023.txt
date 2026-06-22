@@ -1,0 +1,112 @@
+DIGITAL PERSONAL DATA PROTECTION ACT, 2023
+(Act No. 22 of 2023, Gazette of India, 11 August 2023)
+
+CHAPTER I: PRELIMINARY
+
+Section 2 — Definitions
+
+(1) "consent" means free, specific, informed, unconditional and unambiguous consent, with a clear affirmative action, signifying an agreement to the processing of personal data of the Data Principal for the specified purpose.
+
+(7) "Data Fiduciary" means any person who alone or in conjunction with other persons determines the purpose and means of processing of personal data.
+
+(8) "Data Principal" means the individual to whom the personal data relates.
+
+(9) "Data Processor" means any person who processes personal data on behalf of a Data Fiduciary.
+
+(17) "personal data" means any data about an individual who is identifiable by or in relation to such data.
+
+(22) "processing" in relation to personal data means a wholly or partly automated operation or set of operations performed on digital personal data, and includes collection, recording, organisation, structuring, storage, adaptation, retrieval, use, alignment or combination, indexing, sharing, disclosure by transmission, dissemination or otherwise making available, restriction, erasure or destruction.
+
+CHAPTER II: OBLIGATIONS OF DATA FIDUCIARY
+
+Section 4 — Grounds for processing personal data
+
+(1) A person may process the personal data of a Data Principal only in accordance with the provisions of this Act and for a lawful purpose—
+(a) for which the Data Principal has given her consent; or
+(b) for certain legitimate uses.
+
+Section 5 — Notice
+
+(1) Before seeking consent, every Data Fiduciary shall give to the Data Principal a notice containing—
+(a) a description of personal data sought to be collected and the purpose of processing;
+(b) the manner in which the Data Principal may exercise her rights;
+(c) the manner in which the Data Principal may make a complaint to the Board.
+
+Section 6 — Consent
+
+(1) Consent given by the Data Principal shall be free, specific, informed, unconditional and unambiguous with a clear affirmative action.
+(2) Consent shall be limited to such personal data as is necessary for the specified purpose.
+(3) The Data Principal may withdraw her consent at any time with the ease of doing so being comparable to the ease with which consent was given.
+(4) The consequences of withdrawal of consent shall be borne by the Data Principal.
+
+Section 7 — Certain legitimate uses
+
+Processing of personal data for specified legitimate uses without consent includes:
+(a) where the Data Principal voluntarily provides her personal data and it is reasonably expected that she would provide such data;
+(b) for the State to provide any benefit, service, certificate, licence or permit;
+(c) for compliance with any judgment or order under any law;
+(d) for responding to a medical emergency;
+(e) for taking measures to ensure safety during a disaster or breakdown of public order.
+
+CHAPTER III: RIGHTS AND DUTIES OF DATA PRINCIPAL
+
+Section 11 — Right to access information about personal data
+
+(1) The Data Principal shall have the right to obtain from the Data Fiduciary—
+(a) a summary of the personal data being processed and the processing activities undertaken;
+(b) the identities of all Data Fiduciaries and Data Processors with whom the personal data has been shared;
+(c) any other information as may be prescribed.
+
+Section 12 — Right to correction and erasure of personal data
+
+(1) The Data Principal shall have the right to correction of inaccurate or misleading personal data, completion of incomplete personal data, updating of personal data, and erasure of personal data no longer necessary for the purpose for which it was collected.
+
+Section 13 — Right to grievance redressal
+
+(1) The Data Principal shall have the right to have readily available means of grievance redressal provided by the Data Fiduciary or Consent Manager.
+
+Section 14 — Right to nominate
+
+(1) The Data Principal shall have the right to nominate any other individual who shall exercise the rights of the Data Principal in the event of death or incapacity.
+
+CHAPTER IV: SPECIAL PROVISIONS
+
+Section 16 — Processing of personal data of children
+
+(1) The Data Fiduciary shall, before processing any personal data of a child, obtain verifiable consent of the parent of such child.
+(2) The Data Fiduciary shall not undertake tracking, behavioural monitoring or targeted advertising directed at children.
+
+CHAPTER V: OBLIGATIONS OF DATA FIDUCIARY (ADDITIONAL)
+
+Section 8 — General obligations
+
+(1) A Data Fiduciary shall make reasonable efforts to ensure the completeness, accuracy and consistency of personal data.
+(2) A Data Fiduciary shall implement appropriate technical and organisational measures to ensure effective observance of the provisions of this Act.
+(3) A Data Fiduciary shall protect personal data in its possession or under its control by taking reasonable security safeguards to prevent personal data breach.
+(4) In the event of a personal data breach, the Data Fiduciary shall give the Board and each affected Data Principal intimation of such breach.
+(5) A Data Fiduciary shall, unless retention is necessary for the specified purpose or for compliance with any law, erase personal data upon the Data Principal ceasing to be a customer or upon withdrawal of consent, whichever is earlier.
+
+Section 9 — Additional obligations of Significant Data Fiduciary
+
+A Significant Data Fiduciary shall:
+(a) appoint a Data Protection Officer based in India;
+(b) appoint an independent data auditor to evaluate compliance;
+(c) undertake a Data Protection Impact Assessment (DPIA);
+(d) undertake periodic audits.
+
+CHAPTER VI: APPLICABILITY TO CREDIT SCORING
+
+For the purposes of credit scoring and alternate data assessment:
+
+Data processed for credit scoring constitutes processing under Section 2(22). The credit scoring entity is a Data Fiduciary under Section 2(7). The applicant whose credit is being assessed is the Data Principal under Section 2(8).
+
+Consent requirements under Section 6 apply to each data source independently. An applicant consenting to share UPI transaction data does not automatically consent to sharing telecom payment history or e-commerce purchase records. Each data source requires separate, specific consent.
+
+The Data Principal's right to access (Section 11) includes the right to know:
+- Which alternate data sources were used in their assessment
+- A summary of what data was processed from each source
+- How each data source contributed to the final credit decision
+
+The right to correction (Section 12) applies to alternate credit data. If an applicant identifies inaccuracies in the data used for scoring (e.g., incorrect telecom payment records), they have the right to request correction and reassessment.
+
+The erasure obligations under Section 8(5) require that alternate credit data be deleted when the applicant is no longer a customer or withdraws consent, unless retention is required by another law (e.g., RBI data retention requirements).

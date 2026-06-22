@@ -1,0 +1,11 @@
+{
+  "demographic_parity_ratio": 0.9654,
+  "threshold": 0.8,
+  "flagged": false,
+  "favorable_score_cutoff": 550,
+  "group_approval_rates": {
+    "F": 0.7625,
+    "M": 0.7769,
+    "NB": 0.75
+  }
+}

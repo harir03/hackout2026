@@ -1,0 +1,82 @@
+[
+  {
+    "ticket_id": "LP-2024-001",
+    "category": "score_dispute",
+    "applicant_profile": "First-time borrower, 26-year-old freelancer with no traditional credit history",
+    "issue": "Applicant scored 380 (Not Eligible) despite consistent UPI income of Rs 45,000/month for 18 months. Disputed the score citing stable earnings.",
+    "investigation": "SHAP analysis revealed telecom_missed_payments contributed -85 pts and ecom_return_rate contributed -62 pts. Bank/UPI worker was strongly positive (+110 pts) confirming stable income. Cross-worker conflict flagged between Bank/UPI and Telecom.",
+    "resolution": "Score was accurate per model. Advised applicant to clear outstanding telecom dues (3 missed payments in last 6 months) and reduce e-commerce returns. Projected score improvement of 80-120 points within 6 months if telecom payments become regular.",
+    "rbi_reference": "Section 6.3 — Right to Explanation: applicant was provided written breakdown of all contributing factors per Fair Practices Code.",
+    "outcome": "Applicant accepted explanation and committed to improving telecom payment regularity. Follow-up assessment scheduled for 6 months."
+  },
+  {
+    "ticket_id": "LP-2024-002",
+    "category": "data_consent_withdrawal",
+    "applicant_profile": "32-year-old small business owner applying for working capital loan",
+    "issue": "Applicant withdrew consent for e-commerce data source after initial scoring. Requested rescoring with remaining 5 data sources only.",
+    "investigation": "Original Tier 2 score was 620 using all 6 sources. E-commerce worker contributed +45 pts net. Removing e-commerce data would move applicant to a modified Tier 2 assessment with 5 sources.",
+    "resolution": "Applicant was informed per DPDP Act Section 6(4) that consequences of consent withdrawal would be borne by them. Score was recalculated without e-commerce data, resulting in a score of 575 (moved from Fair to Below Average band). Applicant was given the choice to reinstate e-commerce consent.",
+    "rbi_reference": "DPDP Act Section 6(3) — right to withdraw consent; Section 6(4) — consequences borne by Data Principal. RBI Section 6.5(c) — withdrawal may affect scoring outcome.",
+    "outcome": "Applicant chose to reinstate e-commerce consent and retained the original 620 score."
+  },
+  {
+    "ticket_id": "LP-2024-003",
+    "category": "wilful_defaulter_dispute",
+    "applicant_profile": "45-year-old business owner previously classified as wilful defaulter by another bank",
+    "issue": "Applicant scored 200 (hard cap applied) despite strong alternate data signals. Bank/UPI showed Rs 2,50,000/month inflow, all telecom payments current, strong merchant GST filings.",
+    "investigation": "RBI wilful defaulter classification verified against central database. Hard cap at 200 is non-negotiable per regulatory requirement. Model would have scored applicant at 710 without the cap.",
+    "resolution": "Applicant informed that wilful defaulter classification must be resolved with the original classifying bank first. Provided RBI's wilful defaulter dispute process reference. Score cannot be overridden regardless of alternate data strength.",
+    "rbi_reference": "RBI Section 6.2 — Wilful defaulter classification follows due process including show cause notice. Classification must be resolved through proper channels before credit eligibility can be restored.",
+    "outcome": "Applicant directed to the original classifying bank's grievance mechanism. Case kept open pending resolution of wilful defaulter status."
+  },
+  {
+    "ticket_id": "LP-2024-004",
+    "category": "conflicting_signals",
+    "applicant_profile": "28-year-old salaried employee with side business",
+    "issue": "Applicant scored 520 (Below Average) with multiple signal conflicts flagged. Strong Bank/UPI data (+95 pts) from salary but weak Merchant/GST data (-88 pts) from side business with irregular GST filings.",
+    "investigation": "Consolidator detected Bank/UPI vs Merchant/GST conflict (combined magnitude 183 pts). The salary income was stable but the side business had only 3 GST returns filed in 12 months and low merchant rating (2.8/5).",
+    "resolution": "Applicant advised that the score reflects combined assessment of all consented data sources. Improvement path: file GST returns regularly for the side business (projected +40 pts if 6 consecutive returns filed) and improve merchant platform rating. Alternatively, if the side business is dormant, applicant can withdraw merchant/GST consent and be scored without it.",
+    "rbi_reference": "RBI Section 3.2(d) — conflicting signals between data sources must have documented resolution methodology. Section 6.5(e) — conflict resolution must favor applicant unless negative signal comes from verified authoritative source.",
+    "outcome": "Applicant chose to keep all data sources and work on improving GST filing regularity. Score improvement target: 600+ within 4 months."
+  },
+  {
+    "ticket_id": "LP-2024-005",
+    "category": "data_correction",
+    "applicant_profile": "35-year-old professional with incorrect telecom records",
+    "issue": "Applicant scored 490 and identified that telecom data showed 6 missed payments when actual missed payments were 2 (carrier billing system error).",
+    "investigation": "Telecom worker contributed -72 pts to the score. Verified with telecom provider that billing records contained errors for 4 payments that were actually made on time but recorded late due to a system migration.",
+    "resolution": "Telecom data corrected per DPDP Act Section 12 (right to correction). Score recalculated with corrected data: new score 580. Applicant moved from Not Eligible to Below Average band.",
+    "rbi_reference": "DPDP Act Section 12 — right to correction of inaccurate personal data and reassessment. RBI Section 6.3(c) — opportunity to dispute inaccuracies in scoring data.",
+    "outcome": "Score updated to 580. Applicant informed of remaining improvement areas (e-commerce category diversity and location stability)."
+  },
+  {
+    "ticket_id": "LP-2024-006",
+    "category": "emi_burden_cap",
+    "applicant_profile": "40-year-old with existing home loan and car loan seeking personal loan",
+    "issue": "Applicant scored 350 (EMI burden cap applied). Model score would have been 680 but existing loan EMI commitments exceeded 50% of documented income.",
+    "investigation": "Existing EMI burden: home loan Rs 28,000 + car loan Rs 12,000 = Rs 40,000/month against documented income of Rs 72,000/month (55.5% EMI-to-income ratio). Additional personal loan EMI would push ratio further.",
+    "resolution": "Applicant informed that EMI burden cap per RBI guidelines limits score when projected EMI exceeds 50% threshold. Two improvement paths: (1) increase documented income or (2) close one existing loan to bring EMI ratio below 50%.",
+    "rbi_reference": "RBI Section 3.4 — DSCR and EMI-to-income ratio must be evaluated. Loans shall not be sanctioned where projected EMI burden exceeds 50% of documented monthly income unless exceptional circumstances apply.",
+    "outcome": "Applicant planned to prepay car loan (6 EMIs remaining) and reapply. Expected score without EMI cap: 680."
+  },
+  {
+    "ticket_id": "LP-2024-007",
+    "category": "score_improvement",
+    "applicant_profile": "23-year-old recent graduate with thin credit file",
+    "issue": "Applicant scored 440 (Not Eligible) on Tier 1 assessment (zero traditional history). Asked what specific actions would improve their score.",
+    "investigation": "Tier 1 scoring used D2 (telecom), D4 (location), D5 (questionnaire) features only. Key negative drivers: telecom_active_months=4 (-35 pts, account too new), loc_years_at_current=0.5 (-28 pts, recent move), psych_mean_answer=2.8 (-18 pts, below-average financial literacy responses).",
+    "resolution": "Provided specific improvement roadmap: (1) maintain telecom account for 12+ months without missed payments (projected +50 pts), (2) maintain current address for 12+ months (projected +25 pts), (3) retake psychometric questionnaire after improving financial literacy (projected +15 pts). Total projected improvement: 90 pts over 12 months, bringing score to ~530 (Below Average, potentially eligible for small credit lines).",
+    "rbi_reference": "RBI Section 6.3 — right to explanation of primary factors. Section 3.2(b) — applicant has right to know which data categories contributed positively or negatively.",
+    "outcome": "Applicant received personalized improvement plan with timeline. Opt-in reminder set for 6-month reassessment."
+  },
+  {
+    "ticket_id": "LP-2024-008",
+    "category": "bias_audit_inquiry",
+    "applicant_profile": "Regulatory inquiry from RBI examiner during periodic audit",
+    "issue": "Examiner requested evidence that the alternate credit scoring model does not discriminate based on gender, religion, or caste as required by Fair Practices Code Section 3.1.",
+    "investigation": "Provided fairness audit report showing demographic parity ratio of 0.9654 across gender groups (well above the 0.8 four-fifths rule threshold). Confirmed that gender, religion, caste, and ethnicity are excluded from all model feature sets (Tier 1: 16 features, Tier 2: 34 features — none are protected characteristics). Provided SHAP-based feature importance showing no proxy discrimination.",
+    "resolution": "Audit passed. Examiner confirmed model complies with Section 3.1 non-discrimination requirements and Section 6.5(d) periodic bias audit obligations.",
+    "rbi_reference": "RBI Section 3.1 — no discrimination on basis of sex, caste, religion. Section 6.5(d) — scoring model must be periodically audited for bias, results available to regulator.",
+    "outcome": "Clean audit. Next scheduled review in 12 months."
+  }
+]
