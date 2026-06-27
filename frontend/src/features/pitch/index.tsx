@@ -16,6 +16,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { StarBorder } from '@/components/ui/star-border'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -303,9 +304,17 @@ export function PitchDeckPage() {
           <span className='font-mono'>Diet Code</span>
           <span className='h-3 w-px bg-[#333]' />
           <span className='font-mono'>HACK-1D598347</span>
-          <Button onClick={() => navigate({ to: '/' })} className='rounded-md bg-white text-black hover:bg-white/90 text-xs px-4 h-8 font-medium ml-4'>
-            Sandbox Portal
-          </Button>
+          <StarBorder
+            as="button"
+            onClick={() => navigate({ to: '/dashboard' })}
+            color="white"
+            speed="5s"
+            thickness={1}
+            className="rounded-md overflow-hidden ml-4"
+            innerClassName="bg-black text-white text-xs px-4 py-1.5 rounded-md border border-[#222] font-medium transition-colors hover:bg-neutral-900"
+          >
+            Dashboard
+          </StarBorder>
         </div>
       </header>
 
