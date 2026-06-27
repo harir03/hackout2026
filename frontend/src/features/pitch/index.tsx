@@ -521,7 +521,10 @@ export function PitchDeckPage() {
           <div className='relative mt-12 w-full flex flex-col items-center justify-center border-t border-[#222] pt-16 select-none'>
             
             {/* Hidden SVG defining the text clipPath */}
-            <svg className='absolute w-0 h-0 pointer-events-none' style={{ width: 0, height: 0 }}>
+            <svg 
+              className='absolute inset-0 pointer-events-none opacity-0 w-full h-full' 
+              viewBox='0 0 1000 240'
+            >
               <defs>
                 <clipPath id="text-clip">
                   <text 
@@ -533,7 +536,7 @@ export function PitchDeckPage() {
                     fontFamily="system-ui, -apple-system, sans-serif" 
                     letterSpacing="8"
                   >
-                    ALT GRADE
+                    ALTGRADE
                   </text>
                 </clipPath>
               </defs>
