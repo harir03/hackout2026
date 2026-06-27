@@ -29,6 +29,7 @@ Thumbs.db
 .agents/
 .gemini/
 GEMINI.md
+AGENTS.md
 
 # ChromaDB local store
 chroma_db/
@@ -39,3 +40,4 @@ backend/chroma_db/
 
 # Misc
 *.log
+DESIGN.md

@@ -1,0 +1,50 @@
+{
+  "e906ad9e-1b54-4502-a2c2-4ccd1e63a439": {
+    "consent_id": "e906ad9e-1b54-4502-a2c2-4ccd1e63a439",
+    "user_id": "applicant-1782328378848",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-24T19:16:07.450856+00:00"
+  },
+  "689758d1-6887-4c24-b6fe-5451f210734b": {
+    "consent_id": "689758d1-6887-4c24-b6fe-5451f210734b",
+    "user_id": "applicant-1782328711265",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-24T19:19:30.668217+00:00"
+  },
+  "5095d13d-ef62-4765-8cc7-529f3c08ff36": {
+    "consent_id": "5095d13d-ef62-4765-8cc7-529f3c08ff36",
+    "user_id": "applicant-1782328889300",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-24T19:21:59.504019+00:00"
+  },
+  "3f4439a4-983e-4f77-afbd-0243fea79f24": {
+    "consent_id": "3f4439a4-983e-4f77-afbd-0243fea79f24",
+    "user_id": "applicant-1782328983416",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-24T19:23:30.598762+00:00"
+  }
+}

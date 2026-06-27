@@ -20,18 +20,18 @@ function StepIndicator({ currentPath }: { currentPath: string }) {
           <div key={step.path} className='flex items-center gap-2'>
             {i > 0 && (
               <div
-                className={`h-px w-8 sm:w-12 ${
-                  isComplete ? 'bg-primary' : 'bg-border'
+                className={`h-px w-8 transition-colors duration-300 sm:w-12 ${
+                  isComplete ? 'bg-foreground' : 'bg-border'
                 }`}
               />
             )}
             <div className='flex items-center gap-1.5'>
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-foreground text-background'
                     : isComplete
-                      ? 'bg-primary/20 text-primary'
+                      ? 'bg-foreground/10 text-foreground'
                       : 'bg-muted text-muted-foreground'
                 }`}
               >
@@ -42,7 +42,7 @@ function StepIndicator({ currentPath }: { currentPath: string }) {
                 )}
               </div>
               <span
-                className={`hidden text-sm sm:inline ${
+                className={`hidden text-sm tracking-[-0.01em] sm:inline ${
                   isActive
                     ? 'font-semibold text-foreground'
                     : 'text-muted-foreground'
@@ -64,13 +64,13 @@ export function ApplicantLayout() {
 
   return (
     <div className='min-h-svh bg-background'>
-      <header className='sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-        <div className='mx-auto flex h-14 max-w-4xl items-center justify-between px-4'>
-          <div className='flex items-center gap-2'>
-            <div className='flex h-7 w-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground'>
+      <header className='sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60'>
+        <div className='mx-auto flex h-16 max-w-4xl items-center justify-between px-4'>
+          <div className='flex items-center gap-2.5'>
+            <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
               IC
             </div>
-            <span className='text-sm font-semibold'>IntelliCredit</span>
+            <span className='text-sm font-semibold tracking-[-0.02em]'>IntelliCredit</span>
           </div>
           <StepIndicator currentPath={currentPath} />
         </div>

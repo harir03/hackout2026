@@ -13,7 +13,6 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import { sidebarData } from './layout/data/sidebar-data'
-import { ScrollArea } from './ui/scroll-area'
 
 export function CommandMenu() {
   const navigate = useNavigate()
@@ -32,7 +31,7 @@ export function CommandMenu() {
     <CommandDialog modal open={open} onOpenChange={setOpen}>
       <CommandInput placeholder='Type a command or search...' />
       <CommandList>
-        <ScrollArea type='hover' className='h-72 pe-1'>
+        <div className='h-72 overflow-y-auto pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
           {sidebarData.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
@@ -84,7 +83,7 @@ export function CommandMenu() {
               <span>System</span>
             </CommandItem>
           </CommandGroup>
-        </ScrollArea>
+        </div>
       </CommandList>
     </CommandDialog>
   )

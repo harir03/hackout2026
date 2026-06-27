@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173"]
     debug: bool = True
     gemini_api_key: str = ""
+    google_client_id: str = ""
+    google_client_secret: str = ""
 
     model_config = {"env_prefix": "ICA_", "env_file": ".env", "env_file_encoding": "utf-8"}
 

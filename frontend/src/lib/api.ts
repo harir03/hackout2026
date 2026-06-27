@@ -5,19 +5,35 @@ const api = axios.create({ baseURL: '/api' })
 
 export async function fetchScore(
   userId: string,
-  consentedSources: string[]
+  consentedSources: string[],
+  consentId?: string
 ): Promise<ScoreResponse> {
   const { data } = await api.post<ScoreResponse>('/score', {
+    user_id: userId,
+    consented_sources: consentedSources,
+    consent_id: consentId,
+  })
+  return data
+}
+
+export async function fetchScoreById(userId: string, consentId?: string): Promise<ScoreResponse> {
+  const { data } = await api.get<ScoreResponse>(`/score/${userId}`, {
+    params: { consent_id: consentId },
+  })
+  return data
+}
+
+export async function submitConsent(
+  userId: string,
+  consentedSources: string[]
+): Promise<{ consent_id: string; status: string }> {
+  const { data } = await api.post<{ consent_id: string; status: string }>('/consent', {
     user_id: userId,
     consented_sources: consentedSources,
   })
   return data
 }
 
-export async function fetchScoreById(userId: string): Promise<ScoreResponse> {
-  const { data } = await api.get<ScoreResponse>(`/score/${userId}`)
-  return data
-}
 
 export async function askAdvisor(
   userId: string,

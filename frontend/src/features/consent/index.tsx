@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
   Landmark,
@@ -7,6 +7,10 @@ import {
   MapPin,
   Brain,
   Store,
+  Loader2,
+  Mail,
+  Lock,
+  CheckCircle2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,6 +22,7 @@ import {
 } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { submitConsent } from '@/lib/api'
 
 const DATA_SOURCES = [
   {
@@ -72,6 +77,10 @@ const DATA_SOURCES = [
 
 export function ConsentPage() {
   const navigate = useNavigate()
+  const [submitting, setSubmitting] = useState(false)
+  const [userId] = useState(() => `applicant-${Date.now()}`)
+  const [gmailConnected, setGmailConnected] = useState(false)
+  const [gmailConnecting, setGmailConnecting] = useState(false)
   const [consent, setConsent] = useState({
     d1_bank: false,
     d2_telecom: false,
@@ -80,6 +89,17 @@ export function ConsentPage() {
     d5_questionnaire: false,
     d6_merchant: false,
   })
+
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.data?.type === 'GMAIL_CONNECTED' && event.data?.userId === userId) {
+        setGmailConnected(true)
+        setConsent((prev) => ({ ...prev, d3_ecommerce: true }))
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [userId])
 
   const anyEnabled = Object.values(consent).some(Boolean)
   const hasBankData = consent.d1_bank
@@ -90,19 +110,55 @@ export function ConsentPage() {
     setConsent((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
-  function handleSubmit() {
-    const userId = `applicant-${Date.now()}`
-    const sources = Object.entries(consent)
+  function handleConnectGmail() {
+    if (gmailConnected) {
+      setGmailConnected(false)
+      return
+    }
+
+    setGmailConnecting(true)
+    const width = 500
+    const height = 600
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
+
+    const popup = window.open(
+      `/api/auth/google?user_id=${userId}`,
+      'Connect Gmail Account',
+      `width=${width},height=${height},top=${top},left=${left}`
+    )
+
+    const timer = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(timer)
+        setGmailConnecting(false)
+      }
+    }, 1000)
+  }
+
+  async function handleSubmit() {
+    setSubmitting(true)
+    const consentedSourcesList = Object.entries(consent)
       .filter(([, v]) => v)
       .map(([k]) => k)
-      .join(',')
-    navigate({ to: '/score', search: { userId, sources } })
+
+    try {
+      const res = await submitConsent(userId, consentedSourcesList)
+      const sources = consentedSourcesList.join(',')
+      navigate({ to: '/score', search: { userId, sources, consentId: res.consent_id } })
+    } catch (err) {
+      console.error('Consent submission failed:', err)
+      const sources = consentedSourcesList.join(',')
+      navigate({ to: '/score', search: { userId, sources } })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <div>
       <div className='mb-6'>
-        <h1 className='text-2xl font-bold tracking-tight'>
+        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
           Select Your Data Sources
         </h1>
         <p className='mt-1 text-muted-foreground'>
@@ -122,23 +178,24 @@ export function ConsentPage() {
       </div>
 
       <div className='grid gap-4 sm:grid-cols-2'>
-        {DATA_SOURCES.map((source) => {
+        {DATA_SOURCES.map((source, i) => {
           const Icon = source.icon
           const enabled = consent[source.key]
           return (
             <Card
               key={source.key}
-              className={`transition-all duration-200 ${
+              className={`animate-fade-up transition-all duration-200 ${
                 enabled
-                  ? 'border-primary/50 bg-primary/5 shadow-sm'
-                  : 'opacity-70'
+                  ? 'border-foreground bg-muted shadow-sm'
+                  : 'opacity-70 hover:opacity-100'
               }`}
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               <CardHeader className='pb-3'>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
-                    <Icon className='h-5 w-5 text-primary' />
-                    <CardTitle className='text-sm font-semibold'>
+                    <Icon className={`h-5 w-5 ${enabled ? 'text-foreground' : 'text-muted-foreground'}`} />
+                    <CardTitle className='text-sm font-semibold tracking-[-0.01em]'>
                       {source.label}
                     </CardTitle>
                   </div>
@@ -162,9 +219,70 @@ export function ConsentPage() {
         })}
       </div>
 
+      <Card className={`mt-6 border transition-all duration-300 ${
+        gmailConnected
+          ? 'border-vercel-blue bg-vercel-blue/5'
+          : 'border-dove/50 bg-fog/30 hover:border-graphite'
+      }`}>
+        <CardHeader className='pb-3'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className={`rounded-lg p-2 ${gmailConnected ? 'bg-vercel-blue/15 text-vercel-blue' : 'bg-muted text-muted-foreground'}`}>
+                <Mail className='h-5 w-5' />
+              </div>
+              <div>
+                <CardTitle className='text-base font-semibold tracking-[-0.01em] flex items-center gap-2'>
+                  Connect Gmail Account
+                  <Badge variant='secondary' className='text-[10px] font-normal tracking-normal px-2 py-0 h-4 bg-muted text-muted-foreground'>
+                    Optional
+                  </Badge>
+                </CardTitle>
+                <CardDescription className='text-xs mt-0.5 text-muted-foreground/80'>
+                  Order confirmation emails are parsed to extract real e-commerce transactional signal.
+                </CardDescription>
+              </div>
+            </div>
+            <div>
+              <Button
+                variant={gmailConnected ? 'destructive' : 'outline'}
+                size='sm'
+                onClick={handleConnectGmail}
+                disabled={gmailConnecting}
+                className='h-8 px-3 text-xs'
+              >
+                {gmailConnecting ? (
+                  <>
+                    <Loader2 className='mr-1 h-3.5 w-3.5 animate-spin' />
+                    Connecting...
+                  </>
+                ) : gmailConnected ? (
+                  'Disconnect'
+                ) : (
+                  'Link Account'
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className='flex flex-col gap-2 rounded-lg bg-fog border border-dove/20 p-3 text-xs leading-relaxed text-muted-foreground'>
+            <div className='flex items-center gap-2'>
+              <Lock className='h-3.5 w-3.5 text-graphite' />
+              <span><strong>Privacy Policy:</strong> Read-only access to transaction receipt headers from Amazon, Flipkart, and Meesho. Message bodies are not stored.</span>
+            </div>
+            {gmailConnected && (
+              <div className='flex items-center gap-2 text-vercel-blue mt-1 font-medium'>
+                <CheckCircle2 className='h-3.5 w-3.5 text-vercel-blue animate-pulse' />
+                <span>Connected as user-gmail-session. E-commerce metrics will reflect real email parser results.</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {!hasBankData && anyEnabled && (
-        <div className='mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4'>
-          <p className='text-sm text-amber-700 dark:text-amber-400'>
+        <div className='mt-4 rounded-[12px] border border-rust/20 bg-rust/5 p-4'>
+          <p className='text-sm text-rust'>
             Without Bank & UPI data, your assessment will use Tier 1 scoring
             with reduced data sources. For the most accurate assessment,
             enable Bank & UPI Transactions.
@@ -175,10 +293,17 @@ export function ConsentPage() {
       <div className='mt-6 flex justify-end'>
         <Button
           size='lg'
-          disabled={!anyEnabled}
+          disabled={!anyEnabled || submitting}
           onClick={handleSubmit}
         >
-          Submit Consent & Get Score
+          {submitting ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Submitting Consent...
+            </>
+          ) : (
+            'Submit Consent & Get Score'
+          )}
         </Button>
       </div>
     </div>

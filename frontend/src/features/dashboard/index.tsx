@@ -31,66 +31,66 @@ import { fetchDashboard } from '@/lib/api'
 import type { DashboardOverview } from '@/lib/types'
 
 const BAND_COLORS: Record<string, string> = {
-  'Excellent': 'bg-emerald-500',
-  'Good': 'bg-green-500',
-  'Fair': 'bg-yellow-500',
-  'Poor': 'bg-orange-500',
-  'Not Eligible': 'bg-red-500',
+  'Excellent': 'bg-vercel-blue',
+  'Good': 'bg-sky-wash',
+  'Fair': 'bg-graphite',
+  'Poor': 'bg-rust',
+  'Not Eligible': 'bg-destructive',
 }
 
 const BAND_BG: Record<string, string> = {
-  'Excellent': 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400',
-  'Good': 'bg-green-500/20 text-green-700 dark:text-green-400',
-  'Fair': 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400',
-  'Poor': 'bg-orange-500/20 text-orange-700 dark:text-orange-400',
-  'Not Eligible': 'bg-red-500/20 text-red-700 dark:text-red-400',
+  'Excellent': 'bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30',
+  'Good': 'bg-sky-wash/40 text-graphite border-sky-wash/60',
+  'Fair': 'bg-graphite/15 text-graphite border-graphite/30',
+  'Poor': 'bg-rust/15 text-rust border-rust/30',
+  'Not Eligible': 'bg-destructive/15 text-destructive border-destructive/30',
 }
 
 function StatsCards({ data }: { data: DashboardOverview }) {
   return (
     <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-      <Card>
+      <Card className='animate-fade-up'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Total Scored</CardTitle>
           <Users className='h-4 w-4 text-muted-foreground' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold'>{data.total_scored}</div>
+          <div className='text-2xl font-bold tracking-[-0.04em]'>{data.total_scored}</div>
           <p className='text-xs text-muted-foreground'>Applicants assessed</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className='animate-fade-up [animation-delay:50ms]'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Approval Rate</CardTitle>
-          <CheckCircle2 className='h-4 w-4 text-emerald-500' />
+          <CheckCircle2 className='h-4 w-4 text-vercel-blue' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold'>{data.approval_rate}%</div>
+          <div className='text-2xl font-bold tracking-[-0.04em]'>{data.approval_rate}%</div>
           <p className='text-xs text-muted-foreground'>Score ≥ 500 (Good or above)</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className='animate-fade-up [animation-delay:100ms]'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Contradiction Review</CardTitle>
-          <AlertTriangle className='h-4 w-4 text-amber-500' />
+          <AlertTriangle className='h-4 w-4 text-rust' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold'>{data.conflict_count}</div>
+          <div className='text-2xl font-bold tracking-[-0.04em]'>{data.conflict_count}</div>
           <p className='text-xs text-muted-foreground'>
             Flagged for conflicting signals
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className='animate-fade-up [animation-delay:150ms]'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Hard Blocked</CardTitle>
-          <ShieldAlert className='h-4 w-4 text-red-500' />
+          <ShieldAlert className='h-4 w-4 text-[var(--destructive)]' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold'>{data.hard_cap_count}</div>
+          <div className='text-2xl font-bold tracking-[-0.04em]'>{data.hard_cap_count}</div>
           <p className='text-xs text-muted-foreground'>
             Wilful defaulter or EMI burden cap
           </p>
@@ -121,7 +121,7 @@ function DistributionChart({ data }: { data: DashboardOverview }) {
               <div className='flex flex-1 items-center gap-2'>
                 <div className='relative h-6 flex-1 rounded-md bg-muted'>
                   <div
-                    className={`absolute left-0 top-0 h-full rounded-md transition-all ${BAND_COLORS[band.band] ?? 'bg-muted-foreground'}`}
+                    className={`absolute left-0 top-0 h-full rounded-md transition-all duration-500 ${BAND_COLORS[band.band] ?? 'bg-muted-foreground'}`}
                     style={{ width: `${(band.count / maxCount) * 100}%` }}
                   />
                 </div>
@@ -143,7 +143,7 @@ function ConflictsTable({ data }: { data: DashboardOverview }) {
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center gap-2 text-base'>
-          <AlertTriangle className='h-4 w-4 text-amber-500' />
+          <AlertTriangle className='h-4 w-4 text-[var(--vercel-warning)]' />
           Applicants Flagged for Contradiction Review
         </CardTitle>
         <CardDescription>
@@ -177,7 +177,7 @@ function ConflictsTable({ data }: { data: DashboardOverview }) {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant='secondary'
+                      variant='outline'
                       className={BAND_BG[applicant.band] ?? ''}
                     >
                       {applicant.band}
@@ -206,7 +206,7 @@ function FairnessCard({ data }: { data: DashboardOverview }) {
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center gap-2 text-base'>
-          <ShieldCheck className='h-4 w-4 text-emerald-500' />
+          <ShieldCheck className='h-4 w-4 text-vercel-blue' />
           Fairness Audit
         </CardTitle>
         <CardDescription>
@@ -216,7 +216,7 @@ function FairnessCard({ data }: { data: DashboardOverview }) {
       <CardContent className='space-y-3'>
         <div className='flex items-center justify-between'>
           <span className='text-sm'>Disparate Impact Ratio</span>
-          <span className='text-lg font-bold'>
+          <span className='text-lg font-bold tracking-[-0.02em]'>
             {f.demographic_parity_ratio.toFixed(4)}
           </span>
         </div>
@@ -297,7 +297,7 @@ export function LoanOfficerDashboard() {
 
       <Main>
         <div className='mb-6'>
-          <h1 className='text-2xl font-bold tracking-tight'>
+          <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
             Loan Officer Dashboard
           </h1>
           <p className='text-sm text-muted-foreground'>

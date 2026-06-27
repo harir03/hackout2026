@@ -27,6 +27,8 @@ export interface ScoreResponse {
   tier1_reweight: string | null
   has_conflicts: boolean
   has_hard_cap: boolean
+  consent_id?: string
+  ecom_source?: string
 }
 
 export interface SourceChunk {

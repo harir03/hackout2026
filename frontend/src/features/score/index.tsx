@@ -16,14 +16,22 @@ import { fetchScore, fetchScoreById } from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
 function bandColor(band: string): string {
-  if (band === 'Excellent') return 'text-emerald-500'
-  if (band === 'Good') return 'text-green-500'
-  if (band === 'Fair') return 'text-yellow-500'
-  if (band === 'Poor') return 'text-orange-500'
-  return 'text-red-500'
+  const colors: Record<string, string> = {
+    Excellent: 'text-vercel-blue',
+    Good: 'text-graphite',
+    Fair: 'text-slate',
+    Poor: 'text-rust',
+  }
+  return colors[band] || 'text-destructive'
 }
 
-function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) {
+function scoreGradient(score: number): string {
+  if (score >= 700) return 'url(#gradient-develop)'
+  if (score >= 500) return 'url(#gradient-preview)'
+  return 'url(#gradient-ship)'
+}
+
+function ShapBar({ feature, maxAbs, ecomSource }: { feature: ShapFeature; maxAbs: number; ecomSource?: string }) {
   const pct = Math.min((Math.abs(feature.points) / maxAbs) * 100, 100)
   const positive = feature.points > 0
 
@@ -37,12 +45,12 @@ function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) 
           <div className='absolute left-1/2 h-full w-px bg-border' />
           {positive ? (
             <div
-              className='absolute left-1/2 h-4 rounded-r bg-emerald-500/80'
+              className='absolute left-1/2 h-4 rounded-r bg-vercel-blue/80'
               style={{ width: `${pct / 2}%` }}
             />
           ) : (
             <div
-              className='absolute h-4 rounded-l bg-red-500/80'
+              className='absolute h-4 rounded-l bg-rust/80'
               style={{
                 width: `${pct / 2}%`,
                 right: '50%',
@@ -55,25 +63,26 @@ function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) 
         <span
           className={`text-xs font-semibold ${
             positive
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-red-600 dark:text-red-400'
+              ? 'text-vercel-blue'
+              : 'text-rust'
           }`}
         >
           {feature.points > 0 ? '+' : ''}
           {feature.points.toFixed(1)}
         </span>
       </div>
-      <Badge variant='outline' className='w-24 justify-center text-xs'>
-        {feature.worker}
+      <Badge variant='outline' className='w-28 justify-center text-xs'>
+        {feature.worker === 'E-commerce' && ecomSource === 'gmail' ? 'E-commerce (Gmail)' : feature.worker}
       </Badge>
     </div>
   )
 }
 
 export function ScorePage() {
-  const search = useSearch({ strict: false }) as { userId?: string; sources?: string }
+  const search = useSearch({ strict: false }) as { userId?: string; sources?: string; consentId?: string }
   const userId = search.userId || 'test-user-001'
   const consentedSources = search.sources?.split(',').filter(Boolean) ?? []
+  const consentId = search.consentId
 
   const [data, setData] = useState<ScoreResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -82,8 +91,8 @@ export function ScorePage() {
   useEffect(() => {
     setLoading(true)
     const request = consentedSources.length > 0
-      ? fetchScore(userId, consentedSources)
-      : fetchScoreById(userId)
+      ? fetchScore(userId, consentedSources, consentId)
+      : fetchScoreById(userId, consentId)
     request
       .then(setData)
       .catch((err) => setError(err.message))
@@ -106,7 +115,7 @@ export function ScorePage() {
     return (
       <div className='space-y-4'>
         <div className='flex flex-col items-center gap-3 py-12'>
-          <div className='h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent' />
+          <div className='h-10 w-10 animate-spin rounded-full border-4 border-foreground border-t-transparent' />
           <p className='text-sm text-muted-foreground'>
             Scoring your application across consented data sources…
           </p>
@@ -132,7 +141,7 @@ export function ScorePage() {
   return (
     <div>
       <div className='mb-6'>
-        <h1 className='text-2xl font-bold tracking-tight'>Your Credit Score</h1>
+        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>Your Credit Score</h1>
         <p className='text-sm text-muted-foreground'>
           {data.tier} assessment
         </p>
@@ -143,12 +152,26 @@ export function ScorePage() {
           <CardContent className='flex flex-col items-center justify-center py-8'>
             <div className='relative flex h-40 w-40 items-center justify-center'>
               <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
+                <defs>
+                  <linearGradient id='gradient-develop' x1='0%' y1='0%' x2='100%' y2='0%'>
+                    <stop offset='0%' stopColor='#007cf0' />
+                    <stop offset='100%' stopColor='#a3a6af' />
+                  </linearGradient>
+                  <linearGradient id='gradient-preview' x1='0%' y1='0%' x2='100%' y2='0%'>
+                    <stop offset='0%' stopColor='#a3a6af' />
+                    <stop offset='100%' stopColor='#5d2a1a' />
+                  </linearGradient>
+                  <linearGradient id='gradient-ship' x1='0%' y1='0%' x2='100%' y2='0%'>
+                    <stop offset='0%' stopColor='#5d2a1a' />
+                    <stop offset='100%' stopColor='#ee0000' />
+                  </linearGradient>
+                </defs>
                 <circle
                   cx='50' cy='50' r='42'
                   fill='none'
                   stroke='currentColor'
                   strokeWidth='6'
-                  className='text-muted/20'
+                  className='text-muted'
                 />
                 <circle
                   cx='50' cy='50' r='42'
@@ -156,20 +179,16 @@ export function ScorePage() {
                   strokeWidth='6'
                   strokeLinecap='round'
                   strokeDasharray={`${(data.score / 850) * 264} 264`}
-                  style={{
-                    stroke: data.score >= 700 ? '#10b981' :
-                           data.score >= 500 ? '#22c55e' :
-                           data.score >= 400 ? '#eab308' :
-                           data.score >= 300 ? '#f97316' : '#ef4444',
-                  }}
+                  stroke={scoreGradient(data.score)}
+                  className='transition-all duration-1000'
                 />
               </svg>
               <div className='text-center'>
-                <div className='text-4xl font-bold'>{data.score}</div>
+                <div className='text-4xl font-bold tracking-[-0.04em]'>{data.score}</div>
                 <div className='text-xs text-muted-foreground'>of 850</div>
               </div>
             </div>
-            <div className={`mt-4 text-xl font-bold ${bandColor(data.risk_band)}`}>
+            <div className={`mt-4 text-xl font-bold tracking-[-0.02em] ${bandColor(data.risk_band)}`}>
               {data.risk_band}
             </div>
             <Badge variant='outline' className='mt-2'>
@@ -187,7 +206,7 @@ export function ScorePage() {
           </CardHeader>
           <CardContent className='max-h-[400px] overflow-y-auto'>
             {sortedShap.map((feat) => (
-              <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} />
+              <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} ecomSource={data.ecom_source} />
             ))}
           </CardContent>
         </Card>
@@ -206,9 +225,9 @@ export function ScorePage() {
       )}
 
       {data.has_conflicts && (
-        <Card className='mt-4 border-amber-500/30'>
+        <Card className='mt-4 border-rust/30 shadow-none'>
           <CardHeader>
-            <CardTitle className='flex items-center gap-2 text-base text-amber-600 dark:text-amber-400'>
+            <CardTitle className='flex items-center gap-2 text-base text-rust'>
               <AlertTriangle className='h-4 w-4' />
               Conflicting Signals
             </CardTitle>
@@ -220,14 +239,14 @@ export function ScorePage() {
             {data.signal_conflicts.map((conflict, i) => (
               <div
                 key={i}
-                className='flex items-center justify-between rounded-lg border border-amber-500/20 bg-amber-500/5 p-3'
+                className='flex items-center justify-between rounded-lg border border-rust/20 bg-rust/5 p-3'
               >
                 <div className='flex items-center gap-2'>
-                  <Badge className='bg-emerald-500/20 text-emerald-700 dark:text-emerald-400'>
+                  <Badge className='bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30' variant='outline'>
                     {conflict.positive_worker}: {conflict.positive_net_points > 0 ? '+' : ''}{conflict.positive_net_points.toFixed(1)} pts
                   </Badge>
                   <span className='text-xs text-muted-foreground'>vs</span>
-                  <Badge className='bg-red-500/20 text-red-700 dark:text-red-400'>
+                  <Badge className='bg-rust/15 text-rust border-rust/30' variant='outline'>
                     {conflict.negative_worker}: {conflict.negative_net_points.toFixed(1)} pts
                   </Badge>
                 </div>

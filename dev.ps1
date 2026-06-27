@@ -15,13 +15,13 @@ switch ($Command) {
     "migrate" {
         Write-Host "Running Alembic migration..." -ForegroundColor Cyan
         Push-Location "$ROOT\backend"
-        python -m alembic upgrade head
+        .\.venv\Scripts\python -m alembic upgrade head
         Pop-Location
     }
     "backend" {
         Write-Host "Starting FastAPI backend..." -ForegroundColor Cyan
         Push-Location "$ROOT\backend"
-        python -m uvicorn app.main:app --reload --port 8000
+        .\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
         Pop-Location
     }
     "frontend" {
@@ -35,7 +35,7 @@ switch ($Command) {
         Write-Host "1. docker compose up" -ForegroundColor DarkGray
         docker compose up -d
         Write-Host "2. Backend on :8000" -ForegroundColor DarkGray
-        Start-Process powershell -ArgumentList "-Command", "cd '$ROOT\backend'; python -m uvicorn app.main:app --reload --port 8000"
+        Start-Process powershell -ArgumentList "-Command", "cd '$ROOT\backend'; .\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000"
         Write-Host "3. Frontend on :5173" -ForegroundColor DarkGray
         Start-Process powershell -ArgumentList "-Command", "cd '$ROOT\frontend'; npm run dev"
         Write-Host "Dev stack started. Backend: http://localhost:8000  Frontend: http://localhost:5173" -ForegroundColor Green

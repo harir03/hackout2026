@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   BadgeCheck,
   Bell,
@@ -6,7 +7,6 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react'
-import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -35,7 +35,7 @@ type NavUserProps = {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
-  const [open, setOpen] = useDialogState()
+  const [open, setOpen] = React.useState(false)
 
   return (
     <>

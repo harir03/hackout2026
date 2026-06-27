@@ -30,9 +30,13 @@ class ScoreResponse(BaseModel):
     tier1_reweight: str | None = None
     has_conflicts: bool
     has_hard_cap: bool
+    consent_id: str | None = None
+    ecom_source: str | None = None
 
 
 class ScoreRequest(BaseModel):
     user_id: str
     consented_sources: list[str]
+    consent_id: str | None = None
+
 
