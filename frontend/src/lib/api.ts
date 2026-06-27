@@ -94,3 +94,31 @@ export async function checkLiveness(
   const { data } = await api.post('/identity/liveness', { image })
   return data
 }
+
+export async function submitDecision(
+  userId: string,
+  decision: string,
+  interestRate: number,
+  terms: string
+): Promise<{ status: string; user_id: string; decision: string }> {
+  const { data } = await api.post('/dashboard/decision', {
+    user_id: userId,
+    decision,
+    interest_rate: interestRate,
+    terms,
+  })
+  return data
+}
+
+export async function submitKnowledge(
+  userId: string,
+  officerNotes: string,
+  chatHistory: Array<{ role: string; content: string }>
+): Promise<{ status: string; user_id: string }> {
+  const { data } = await api.post('/dashboard/knowledge', {
+    user_id: userId,
+    officer_notes: officerNotes,
+    chat_history: chatHistory,
+  })
+  return data
+}

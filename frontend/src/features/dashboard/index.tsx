@@ -27,8 +27,20 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { fetchDashboard } from '@/lib/api'
-import type { DashboardOverview } from '@/lib/types'
+import { fetchDashboard, submitDecision, submitKnowledge } from '@/lib/api'
+import type { DashboardOverview, ConflictApplicant } from '@/lib/types'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 
 const BAND_COLORS: Record<string, string> = {
   'Excellent': 'bg-vercel-blue',
@@ -138,7 +150,15 @@ function DistributionChart({ data }: { data: DashboardOverview }) {
   )
 }
 
-function ConflictsTable({ data }: { data: DashboardOverview }) {
+function ConflictsTable({
+  data,
+  completedDecisions,
+  onReview,
+}: {
+  data: DashboardOverview
+  completedDecisions: Record<string, 'approved' | 'rejected'>
+  onReview: (applicant: ConflictApplicant) => void
+}) {
   return (
     <Card>
       <CardHeader>
@@ -164,34 +184,59 @@ function ConflictsTable({ data }: { data: DashboardOverview }) {
                 <TableHead>Score</TableHead>
                 <TableHead>Band</TableHead>
                 <TableHead>Conflicting Workers</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.flagged_applicants.map((applicant) => (
-                <TableRow key={applicant.user_id}>
-                  <TableCell className='font-mono text-sm'>
-                    {applicant.user_id}
-                  </TableCell>
-                  <TableCell className='font-semibold'>
-                    {applicant.score}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant='outline'
-                      className={BAND_BG[applicant.band] ?? ''}
-                    >
-                      {applicant.band}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className='max-w-xs'>
-                    {applicant.conflicts.map((c, i) => (
-                      <p key={i} className='text-xs text-muted-foreground'>
-                        {c}
-                      </p>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.flagged_applicants.map((applicant) => {
+                const decision = completedDecisions[applicant.user_id]
+                return (
+                  <TableRow key={applicant.user_id}>
+                    <TableCell className='font-mono text-sm'>
+                      {applicant.user_id}
+                    </TableCell>
+                    <TableCell className='font-semibold'>
+                      {applicant.score}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant='outline'
+                        className={BAND_BG[applicant.band] ?? ''}
+                      >
+                        {applicant.band}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='max-w-xs'>
+                      {applicant.conflicts.map((c, i) => (
+                        <p key={i} className='text-xs text-muted-foreground'>
+                          {c}
+                        </p>
+                      ))}
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      {decision ? (
+                        <Badge
+                          variant='outline'
+                          className={
+                            decision === 'approved'
+                              ? 'bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30'
+                              : 'bg-destructive/15 text-destructive border-destructive/30'
+                          }
+                        >
+                          {decision.toUpperCase()}
+                        </Badge>
+                      ) : (
+                        <button
+                          onClick={() => onReview(applicant)}
+                          className='rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-900 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:bg-neutral-900'
+                        >
+                          Review
+                        </button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         )}
@@ -281,11 +326,52 @@ export function LoanOfficerDashboard() {
   const [data, setData] = useState<DashboardOverview | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Review states
+  const [selectedApplicant, setSelectedApplicant] = useState<ConflictApplicant | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [decision, setDecision] = useState<'approved' | 'rejected'>('approved')
+  const [interestRate, setInterestRate] = useState(10.5)
+  const [terms, setTerms] = useState('36 months')
+  const [notes, setNotes] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [completedDecisions, setCompletedDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
+
   useEffect(() => {
     fetchDashboard()
       .then(setData)
       .finally(() => setLoading(false))
   }, [])
+
+  function handleReview(applicant: ConflictApplicant) {
+    setSelectedApplicant(applicant)
+    setDecision(applicant.score >= 600 ? 'approved' : 'rejected')
+    setInterestRate(10.5)
+    setTerms('36 months')
+    setNotes('')
+    setDialogOpen(true)
+  }
+
+  async function handleDecisionSubmit() {
+    if (!selectedApplicant) return
+    setSubmitting(true)
+    try {
+      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms)
+      await submitKnowledge(selectedApplicant.user_id, notes, [
+        { role: 'system', content: `Applicant core score: ${selectedApplicant.score}. Conflicting signals: ${selectedApplicant.conflicts.join(', ')}` },
+        { role: 'officer', content: `Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` }
+      ])
+      
+      setCompletedDecisions((prev) => ({
+        ...prev,
+        [selectedApplicant.user_id]: decision,
+      }))
+      setDialogOpen(false)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <>
@@ -320,10 +406,116 @@ export function LoanOfficerDashboard() {
               <FairnessCard data={data} />
             </div>
 
-            <ConflictsTable data={data} />
+            <ConflictsTable
+              data={data}
+              completedDecisions={completedDecisions}
+              onReview={handleReview}
+            />
           </div>
         )}
       </Main>
+
+      {selectedApplicant && (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className='sm:max-w-[480px]'>
+            <DialogHeader>
+              <DialogTitle className='tracking-tight'>Review Credit Application</DialogTitle>
+              <DialogDescription>
+                Resolve contradictory indicators and log final officer decision parameters.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className='space-y-4 py-2 text-sm'>
+              <div className='rounded-lg bg-neutral-50 p-3.5 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 space-y-2.5'>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-500 font-medium'>Applicant UUID</span>
+                  <span className='font-mono font-medium'>{selectedApplicant.user_id.slice(0, 18)}...</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-500 font-medium'>Model Score</span>
+                  <span className='font-bold'>{selectedApplicant.score} / 850</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-neutral-500 font-medium'>Risk Band</span>
+                  <span className='font-semibold'>{selectedApplicant.band}</span>
+                </div>
+                <div className='space-y-1 pt-1.5 border-t border-neutral-100 dark:border-neutral-800'>
+                  <span className='text-neutral-500 font-medium block'>Conflicting Signals</span>
+                  {selectedApplicant.conflicts.map((c, i) => (
+                    <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className='space-y-3.5'>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='decision'>Officer Credit Decision</Label>
+                  <select
+                    id='decision'
+                    value={decision}
+                    onChange={(e) => setDecision(e.target.value as 'approved' | 'rejected')}
+                    className='w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-50'
+                  >
+                    <option value='approved'>Approve Loan</option>
+                    <option value='rejected'>Reject Loan</option>
+                  </select>
+                </div>
+
+                {decision === 'approved' && (
+                  <div className='grid grid-cols-2 gap-3.5'>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='rate'>Interest Rate (%)</Label>
+                      <Input
+                        id='rate'
+                        type='number'
+                        step='0.1'
+                        value={interestRate}
+                        onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='terms'>Repayment Terms</Label>
+                      <Input
+                        id='terms'
+                        value={terms}
+                        onChange={(e) => setTerms(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className='space-y-1.5'>
+                  <Label htmlFor='notes'>Decision Notes & Reasoning</Label>
+                  <Textarea
+                    id='notes'
+                    placeholder='Explain rationale for override, collateral status, or mitigating factors...'
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className='border-t border-neutral-100 dark:border-neutral-800 pt-3.5 mt-2'>
+              <Button
+                variant='outline'
+                onClick={() => setDialogOpen(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDecisionSubmit}
+                disabled={submitting || !notes.trim()}
+                className='bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200'
+              >
+                {submitting ? 'Submitting...' : 'Submit Decision'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }
