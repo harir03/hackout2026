@@ -155,7 +155,7 @@ export function PitchDeckPage() {
       <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none' />
 
       {/* GLASSMORPHISM PILL NAVBAR WITH LIGHTNING BORDER */}
-      <div className='fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-3xl pointer-events-auto'>
+      <div className='fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl pointer-events-auto'>
         <StarBorder
           as="header"
           color="white"
@@ -164,20 +164,37 @@ export function PitchDeckPage() {
           className="rounded-full overflow-hidden w-full !block"
           innerClassName="flex items-center justify-between px-5 py-2 rounded-full bg-black/40 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] w-full"
         >
-          <div className='flex items-center gap-2'>
-            <div className='h-6 w-6 rounded-full bg-white flex items-center justify-center text-black font-bold text-xs'>▲</div>
+          <div className='flex items-center'>
             <span className='font-signifier text-sm font-semibold tracking-tight'>AltGrade</span>
           </div>
-          <div className='flex items-center gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
+          <div className='flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
             <span>Diet Code</span>
             <span className='h-3 w-px bg-white/10' />
             <span>HACK-1D598347</span>
-            <button
-              onClick={() => navigate({ to: '/dashboard' })}
-              className="bg-black text-white text-[10px] sm:text-xs px-4 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer"
-            >
-              Dashboard
-            </button>
+            <div className='flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2'>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
+              >
+                Canva PPT
+              </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
+              >
+                Git Repo
+              </a>
+              <button
+                onClick={() => navigate({ to: '/dashboard' })}
+                className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
+              >
+                Dashboard
+              </button>
+            </div>
           </div>
         </StarBorder>
       </div>
