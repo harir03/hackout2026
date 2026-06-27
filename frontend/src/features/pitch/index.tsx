@@ -187,7 +187,7 @@ export function PitchDeckPage() {
         {/* Lightfall background */}
         <div className='absolute inset-0 pointer-events-none opacity-20 z-0'>
           <Lightfall
-            colors={['#ffffff', '#a3a3a3', '#525252']}
+            colors={['#ededed']}
             backgroundColor='#000000'
             speed={0.4}
             streakCount={4}
