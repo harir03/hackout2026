@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Interactive 3D Canvas Particle Sphere
+// Interactive 3D Canvas Particle Sphere (Monochrome)
 export function ThreeDOrb() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -106,8 +106,8 @@ export function ThreeDOrb() {
         projected.push({ x: xProjected, y: yProjected, scale, z: z2 })
       })
 
-      // Draw wireframe grid lines
-      ctx.strokeStyle = 'rgba(0, 112, 243, 0.08)'
+      // Draw wireframe grid lines (monochrome)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
       ctx.lineWidth = 0.5
       for (let i = 0; i < projected.length; i++) {
         for (let j = i + 1; j < projected.length; j++) {
@@ -123,25 +123,24 @@ export function ThreeDOrb() {
         }
       }
 
-      // Draw sphere particles
+      // Draw sphere particles (monochrome)
       projected.forEach((p) => {
         const r = Math.max(1, p.scale * 2.2)
         const alpha = Math.max(0.1, Math.min(1, p.scale - 0.2))
         
-        // Draw glow effect for front particles
         if (p.z < 0) {
-          ctx.shadowBlur = 10
-          ctx.shadowColor = '#0070f3'
+          ctx.shadowBlur = 8
+          ctx.shadowColor = '#ffffff'
         } else {
           ctx.shadowBlur = 0
         }
 
-        ctx.fillStyle = `rgba(0, 112, 243, ${alpha})`
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
         ctx.beginPath()
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
         ctx.fill()
       })
-      ctx.shadowBlur = 0 // reset shadow
+      ctx.shadowBlur = 0 
 
       animationId = requestAnimationFrame(render)
     }
@@ -261,13 +260,13 @@ export function PitchDeckPage() {
   }, { scope: containerRef })
 
   return (
-    <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-[#0070f3] selection:text-white overflow-x-hidden'>
+    <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden'>
       {/* Vercel Stark Background Grids */}
       <div className='absolute inset-0 bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)] bg-[size:5rem_5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none' />
 
-      {/* Vercel Ambient Glows */}
-      <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[30rem] rounded-full bg-[#0070f3]/10 blur-[130px] pointer-events-none' />
-      <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-[#0070f3]/5 blur-[150px] pointer-events-none' />
+      {/* Vercel Ambient Glows (Monochrome) */}
+      <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[30rem] rounded-full bg-white/[0.02] blur-[130px] pointer-events-none' />
+      <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none' />
 
       {/* HEADER NAVBAR */}
       <header className='fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-[#222] py-4 px-6 flex items-center justify-between bg-black/50'>
@@ -290,14 +289,14 @@ export function PitchDeckPage() {
         <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10'>
           
           <div className='lg:col-span-7 space-y-6 text-left'>
-            <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-[#0070f3] font-mono hero-fade-in'>
+            <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-white font-mono hero-fade-in'>
               <Sparkles className='h-3.5 w-3.5' />
               PSB HACKATHON 2026 • WORKFLOW SPEC
             </div>
             
             <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase'>
               <span className='block hero-title-char overflow-hidden'>Alternate</span>
-              <span className='block hero-title-char overflow-hidden text-transparent bg-clip-text bg-gradient-to-r from-[#0070f3] via-sky-400 to-white'>Credit Scoring</span>
+              <span className='block hero-title-char overflow-hidden text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-400 to-neutral-600'>Credit Scoring</span>
               <span className='block hero-title-char overflow-hidden'>For India</span>
             </h1>
 
@@ -306,7 +305,7 @@ export function PitchDeckPage() {
             </p>
 
             <div className='flex flex-wrap items-center gap-4 hero-fade-in pt-4'>
-              <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-[#0070f3] text-white hover:bg-[#0070f3]/90 px-8 h-12 font-medium flex items-center gap-2 group'>
+              <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-white text-black hover:bg-white/90 px-8 h-12 font-medium flex items-center gap-2 group'>
                 Enter Sandbox App
                 <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
               </Button>
@@ -318,7 +317,7 @@ export function PitchDeckPage() {
 
           <div className='lg:col-span-5 flex justify-center hero-fade-in'>
             <div className='relative flex items-center justify-center'>
-              <div className='absolute inset-0 bg-[#0070f3]/10 blur-[80px] rounded-full pointer-events-none' />
+              <div className='absolute inset-0 bg-white/[0.02] blur-[80px] rounded-full pointer-events-none' />
               <ThreeDOrb />
             </div>
           </div>
@@ -330,7 +329,7 @@ export function PitchDeckPage() {
       <section id='stats' className='min-h-screen py-24 px-8 relative flex flex-col justify-center border-t border-[#1a1a1a]'>
         <div className='max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center'>
           <div className='space-y-6'>
-            <span className='text-xs font-mono text-[#0070f3] uppercase tracking-widest'>The Credit Gap</span>
+            <span className='text-xs font-mono text-white uppercase tracking-widest'>The Credit Gap</span>
             <h2 className='text-4xl sm:text-5xl font-signifier tracking-tight leading-[1.1] uppercase'>
               The cascading failure of bureau exclusion
             </h2>
@@ -375,7 +374,7 @@ export function PitchDeckPage() {
           <section className='horizontal-panel w-screen h-screen bg-black flex flex-col justify-center px-8 relative border-r border-[#1a1a1a]'>
             <div className='max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center'>
               <div className='space-y-6'>
-                <span className='text-[#0070f3] font-mono text-xs uppercase tracking-widest'>Slide 01</span>
+                <span className='text-white font-mono text-xs uppercase tracking-widest'>Slide 01</span>
                 <h3 className='text-4xl sm:text-5xl font-signifier tracking-tighter uppercase leading-[1.0]'>
                   6 PARALLEL DATA WORKERS
                 </h3>
@@ -383,17 +382,17 @@ export function PitchDeckPage() {
                   IntelliCredit runs 6 decoupled data collection threads concurrently, capturing digital indicators across the applicant's lifecycle under explicit user consent.
                 </p>
                 <ul className='grid grid-cols-2 gap-3 text-xs text-muted-foreground font-mono'>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> UPI transaction volumes</li>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> Telecom bill punctuality</li>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> Ecommerce spend depth</li>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> Geolocation history</li>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> Psychometric inputs</li>
-                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-[#0070f3]' /> GST merchant logs</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> UPI transaction volumes</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> Telecom bill punctuality</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> Ecommerce spend depth</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> Geolocation history</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> Psychometric inputs</li>
+                  <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> GST merchant logs</li>
                 </ul>
               </div>
               <div className='flex items-center justify-center p-8 bg-white/[0.01] border border-[#222] rounded-lg relative'>
-                <div className='absolute inset-0 bg-[#0070f3]/5 blur-[50px] pointer-events-none' />
-                <Database className='h-40 w-40 text-[#0070f3]/20' />
+                <div className='absolute inset-0 bg-white/[0.01] blur-[50px] pointer-events-none' />
+                <Database className='h-40 w-40 text-white/10' />
               </div>
             </div>
           </section>
@@ -402,7 +401,7 @@ export function PitchDeckPage() {
           <section className='horizontal-panel w-screen h-screen bg-[#050505] flex flex-col justify-center px-8 relative border-r border-[#1a1a1a]'>
             <div className='max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center'>
               <div className='space-y-6'>
-                <span className='text-[#0070f3] font-mono text-xs uppercase tracking-widest'>Slide 02</span>
+                <span className='text-white font-mono text-xs uppercase tracking-widest'>Slide 02</span>
                 <h3 className='text-4xl sm:text-5xl font-signifier tracking-tighter uppercase leading-[1.0]'>
                   TWO-TIER SCORECARD ENGINE
                 </h3>
@@ -412,14 +411,14 @@ export function PitchDeckPage() {
                 <div className='space-y-4'>
                   <div className='p-4 bg-white/[0.01] border border-[#222] rounded-md'>
                     <h4 className='text-xs font-semibold text-white flex items-center gap-2'>
-                      <Layers className='h-4 w-4 text-[#0070f3]' />
+                      <Layers className='h-4 w-4 text-white' />
                       Tier 1: Zero-History Scorecard
                     </h4>
                     <p className='text-[10px] text-muted-foreground mt-1'>Evaluates applicants with zero banking records using telecom payments, location stability, and psychometrics.</p>
                   </div>
                   <div className='p-4 bg-white/[0.01] border border-[#222] rounded-md'>
                     <h4 className='text-xs font-semibold text-white flex items-center gap-2'>
-                      <Cpu className='h-4 w-4 text-[#0070f3]' />
+                      <Cpu className='h-4 w-4 text-white' />
                       Tier 2: Full alternate Scorecard
                     </h4>
                     <p className='text-[10px] text-muted-foreground mt-1'>Blends all 6 indicators including UPI flow, e-commerce purchases, and GST returns for comprehensive scoring.</p>
@@ -427,8 +426,8 @@ export function PitchDeckPage() {
                 </div>
               </div>
               <div className='flex items-center justify-center p-8 bg-white/[0.01] border border-[#222] rounded-lg relative'>
-                <div className='absolute inset-0 bg-[#0070f3]/5 blur-[50px] pointer-events-none' />
-                <Cpu className='h-40 w-40 text-[#0070f3]/20' />
+                <div className='absolute inset-0 bg-white/[0.01] blur-[50px] pointer-events-none' />
+                <Cpu className='h-40 w-40 text-white/10' />
               </div>
             </div>
           </section>
@@ -437,7 +436,7 @@ export function PitchDeckPage() {
           <section className='horizontal-panel w-screen h-screen bg-black flex flex-col justify-center px-8 relative border-r border-[#1a1a1a]'>
             <div className='max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center'>
               <div className='space-y-6'>
-                <span className='text-[#0070f3] font-mono text-xs uppercase tracking-widest'>Slide 03</span>
+                <span className='text-white font-mono text-xs uppercase tracking-widest'>Slide 03</span>
                 <h3 className='text-4xl sm:text-5xl font-signifier tracking-tighter uppercase leading-[1.0]'>
                   SHAP EXPLAINABILITY & RAG ADVISOR
                 </h3>
@@ -447,15 +446,15 @@ export function PitchDeckPage() {
                 <div className='space-y-3 font-mono text-xs text-muted-foreground'>
                   <div className='flex justify-between border-b border-[#222] pb-1'>
                     <span>Telecom billing punctuality</span>
-                    <span className='text-[#0070f3]'>+42 points</span>
+                    <span className='text-white'>+42 points</span>
                   </div>
                   <div className='flex justify-between border-b border-[#222] pb-1'>
                     <span>Address volatility</span>
-                    <span className='text-[#f44336]'>-18 points</span>
+                    <span className='text-muted-foreground'>-18 points</span>
                   </div>
                   <div className='flex justify-between border-b border-[#222] pb-1'>
                     <span>UPI transaction frequency</span>
-                    <span className='text-[#0070f3]'>+55 points</span>
+                    <span className='text-white'>+55 points</span>
                   </div>
                 </div>
                 <div className='text-xs text-muted-foreground bg-white/[0.02] border border-[#222] p-3 rounded-md'>
@@ -463,8 +462,8 @@ export function PitchDeckPage() {
                 </div>
               </div>
               <div className='flex items-center justify-center p-8 bg-white/[0.01] border border-[#222] rounded-lg relative'>
-                <div className='absolute inset-0 bg-[#0070f3]/5 blur-[50px] pointer-events-none' />
-                <FileText className='h-40 w-40 text-[#0070f3]/20' />
+                <div className='absolute inset-0 bg-white/[0.01] blur-[50px] pointer-events-none' />
+                <FileText className='h-40 w-40 text-white/10' />
               </div>
             </div>
           </section>
@@ -473,7 +472,7 @@ export function PitchDeckPage() {
           <section className='horizontal-panel w-screen h-screen bg-[#080808] flex flex-col justify-center px-8 relative'>
             <div className='max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center'>
               <div className='space-y-6'>
-                <span className='text-[#0070f3] font-mono text-xs uppercase tracking-widest'>Slide 04</span>
+                <span className='text-white font-mono text-xs uppercase tracking-widest'>Slide 04</span>
                 <h3 className='text-4xl sm:text-5xl font-signifier tracking-tighter uppercase leading-[1.0]'>
                   BIAS CORRECTION & FAIRNESS
                 </h3>
@@ -482,16 +481,16 @@ export function PitchDeckPage() {
                 </p>
                 <div className='grid grid-cols-2 gap-4 text-center'>
                   <div className='p-4 bg-white/[0.01] border border-[#222] rounded-md'>
-                    <div className='text-2xl font-bold text-[#f44336] flex items-center justify-center gap-1'>
+                    <div className='text-2xl font-bold text-muted-foreground flex items-center justify-center gap-1'>
                       0.71
                       <TrendingDown className='h-4 w-4' />
                     </div>
                     <div className='text-[10px] text-muted-foreground mt-1'>Uncorrected Parity Ratio</div>
                   </div>
-                  <div className='p-4 bg-[#0070f3]/10 border border-[#0070f3]/20 rounded-md'>
+                  <div className='p-4 bg-white/10 border border-white/20 rounded-md'>
                     <div className='text-2xl font-bold text-white flex items-center justify-center gap-1'>
                       0.96
-                      <ShieldCheck className='h-4 w-4 text-[#0070f3]' />
+                      <ShieldCheck className='h-4 w-4 text-white' />
                     </div>
                     <div className='text-[10px] text-muted-foreground mt-1'>Fairness Corrected Ratio</div>
                   </div>
@@ -501,8 +500,8 @@ export function PitchDeckPage() {
                 </p>
               </div>
               <div className='flex items-center justify-center p-8 bg-white/[0.01] border border-[#222] rounded-lg relative'>
-                <div className='absolute inset-0 bg-[#0070f3]/5 blur-[50px] pointer-events-none' />
-                <ShieldCheck className='h-40 w-40 text-[#0070f3]/20' />
+                <div className='absolute inset-0 bg-white/[0.01] blur-[50px] pointer-events-none' />
+                <ShieldCheck className='h-40 w-40 text-white/10' />
               </div>
             </div>
           </section>
@@ -514,7 +513,7 @@ export function PitchDeckPage() {
       <section className='min-h-screen py-24 px-8 relative flex flex-col justify-center border-t border-[#1a1a1a] bg-black'>
         <div className='max-w-4xl mx-auto space-y-12 text-center'>
           <div className='space-y-4'>
-            <span className='text-xs font-mono text-[#0070f3] uppercase tracking-widest'>Impact & compliance</span>
+            <span className='text-xs font-mono text-white uppercase tracking-widest'>Impact & compliance</span>
             <h2 className='text-4xl sm:text-5xl font-signifier tracking-tight uppercase leading-[1.1]'>
               COMPLIANT BY DESIGN. SECURED FOR LENDERS.
             </h2>
@@ -522,21 +521,21 @@ export function PitchDeckPage() {
 
           <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 text-left'>
             <div className='p-6 bg-white/[0.01] border border-[#222] rounded-md space-y-3'>
-              <ShieldCheck className='h-8 w-8 text-[#0070f3]' />
+              <ShieldCheck className='h-8 w-8 text-white' />
               <h4 className='text-sm font-semibold text-white'>DPDP Act 2023</h4>
               <p className='text-xs text-muted-foreground leading-relaxed font-light'>
                 Strict per-source granular consent flows prevent unauthorized scraping and keep applicant information secure.
               </p>
             </div>
             <div className='p-6 bg-white/[0.01] border border-[#222] rounded-md space-y-3'>
-              <Cpu className='h-8 w-8 text-[#0070f3]' />
+              <Cpu className='h-8 w-8 text-white' />
               <h4 className='text-sm font-semibold text-white'>Audit Persistence</h4>
               <p className='text-xs text-muted-foreground leading-relaxed font-light'>
                 Decisions are committed to PostgreSQL audit trails for verification, ensuring full internal traceability.
               </p>
             </div>
             <div className='p-6 bg-white/[0.01] border border-[#222] rounded-md space-y-3'>
-              <AlertCircle className='h-8 w-8 text-[#0070f3]' />
+              <AlertCircle className='h-8 w-8 text-white' />
               <h4 className='text-sm font-semibold text-white'>Fraud Mitigation</h4>
               <p className='text-xs text-muted-foreground leading-relaxed font-light'>
                 Wilful defaulters and high EMI burden applicants trigger immediate hard-cap limits to insulate lenders from risk.
@@ -556,7 +555,7 @@ export function PitchDeckPage() {
             IntelliCredit is ready to deploy. Explore the fully functional sandbox application, link mock details, and run the real data pipelines.
           </p>
           <div className='flex flex-wrap items-center justify-center gap-4 pt-4'>
-            <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-[#0070f3] text-white hover:bg-[#0070f3]/90 px-8 h-12 font-medium flex items-center gap-2 group'>
+            <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-white text-black hover:bg-white/90 px-8 h-12 font-medium flex items-center gap-2 group'>
               Launch Sandbox Application
               <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
             </Button>

@@ -7,9 +7,9 @@
   --color-dove: rgba(255, 255, 255, 0.06);
   --color-slate: #464a4d;
   --color-obsidian: #000000;
-  --color-rust: #ff801f;
-  --color-apricot-wash: rgba(255, 89, 0, 0.12);
-  --color-sky-wash: rgba(0, 117, 255, 0.15);
+  --color-rust: #ffffff;
+  --color-apricot-wash: rgba(255, 255, 255, 0.05);
+  --color-sky-wash: rgba(255, 255, 255, 0.05);
 
   --font-signifier: 'Source Serif 4', ui-serif, Georgia, serif;
   --font-sohne: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -28,18 +28,18 @@
   --secondary-foreground: #fcfdff;
   --muted: #101012;
   --muted-foreground: #888e90;
-  --accent: rgba(255, 89, 0, 0.12);
-  --accent-foreground: #ff801f;
-  --destructive: #ff2047;
+  --accent: rgba(255, 255, 255, 0.05);
+  --accent-foreground: #ffffff;
+  --destructive: #888e90;
   --border: rgba(255, 255, 255, 0.06);
   --input: rgba(255, 255, 255, 0.06);
   --ring: rgba(255, 255, 255, 0.14);
 
-  --chart-1: #3b9eff;
-  --chart-2: #ff801f;
-  --chart-3: #11ff99;
-  --chart-4: #ff2047;
-  --chart-5: #ffc53d;
+  --chart-1: #ffffff;
+  --chart-2: #e5e5e5;
+  --chart-3: #a3a3a3;
+  --chart-4: #525252;
+  --chart-5: #262626;
 
   --sidebar: #06060a;
   --sidebar-foreground: #fcfdff;
@@ -50,10 +50,10 @@
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-ring: var(--ring);
 
-  --vercel-blue: #3b9eff;
-  --vercel-cyan: #11ff99;
-  --vercel-pink: #ff2047;
-  --vercel-warning: #ffc53d;
+  --vercel-blue: #ffffff;
+  --vercel-cyan: #e5e5e5;
+  --vercel-pink: #a3a3a3;
+  --vercel-warning: #525252;
 }
 
 .dark {
@@ -69,18 +69,18 @@
   --secondary-foreground: #fcfdff;
   --muted: #101012;
   --muted-foreground: #888e90;
-  --accent: rgba(255, 89, 0, 0.12);
-  --accent-foreground: #ff801f;
-  --destructive: #ff2047;
+  --accent: rgba(255, 255, 255, 0.05);
+  --accent-foreground: #ffffff;
+  --destructive: #888e90;
   --border: rgba(255, 255, 255, 0.06);
   --input: rgba(255, 255, 255, 0.06);
   --ring: rgba(255, 255, 255, 0.14);
 
-  --chart-1: #3b9eff;
-  --chart-2: #ff801f;
-  --chart-3: #11ff99;
-  --chart-4: #ff2047;
-  --chart-5: #ffc53d;
+  --chart-1: #ffffff;
+  --chart-2: #e5e5e5;
+  --chart-3: #a3a3a3;
+  --chart-4: #525252;
+  --chart-5: #262626;
 
   --sidebar: #06060a;
   --sidebar-foreground: #fcfdff;
