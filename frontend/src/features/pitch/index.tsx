@@ -21,148 +21,7 @@ import { Lightfall } from '@/components/ui/lightfall'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Interactive 3D Canvas Particle Sphere (Monochrome)
-export function ThreeDOrb() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let width = canvas.width = 400
-    let height = canvas.height = 400
-
-    const particles: Array<{ x: number; y: number; z: number }> = []
-    const numParticles = 140
-    const radius = 130
-
-    for (let i = 0; i < numParticles; i++) {
-      const theta = Math.acos(Math.random() * 2 - 1)
-      const phi = Math.random() * Math.PI * 2
-      particles.push({
-        x: radius * Math.sin(theta) * Math.cos(phi),
-        y: radius * Math.sin(theta) * Math.sin(phi),
-        z: radius * Math.cos(theta),
-      })
-    }
-
-    let angleX = 0.003
-    let angleY = 0.003
-    let isMouseOver = false
-    let mouseX = 0
-    let mouseY = 0
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      mouseX = e.clientX - rect.left - width / 2
-      mouseY = e.clientY - rect.top - height / 2
-      isMouseOver = true
-    }
-
-    const handleMouseLeave = () => {
-      isMouseOver = false
-    }
-
-    canvas.addEventListener('mousemove', handleMouseMove)
-    canvas.addEventListener('mouseleave', handleMouseLeave)
-
-    let animationId: number
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height)
-
-      let rotX = angleX
-      let rotY = angleY
-      if (isMouseOver) {
-        rotX = mouseY * 0.00015
-        rotY = mouseX * 0.00015
-      }
-
-      const cosX = Math.cos(rotX)
-      const sinX = Math.sin(rotX)
-      const cosY = Math.cos(rotY)
-      const sinY = Math.sin(rotY)
-
-      const projected: Array<{ x: number; y: number; scale: number; z: number }> = []
-
-      particles.forEach((p) => {
-        // Rotate X
-        let y1 = p.y * cosX - p.z * sinX
-        let z1 = p.z * cosX + p.y * sinX
-
-        // Rotate Y
-        let x2 = p.x * cosY - z1 * sinY
-        let z2 = z1 * cosY + p.x * sinY
-
-        p.x = x2
-        p.y = y1
-        p.z = z2
-
-        const depth = 350
-        const scale = depth / (depth + z2)
-        const xProjected = x2 * scale + width / 2
-        const yProjected = y1 * scale + height / 2
-
-        projected.push({ x: xProjected, y: yProjected, scale, z: z2 })
-      })
-
-      // Draw wireframe grid lines (monochrome)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
-      ctx.lineWidth = 0.5
-      for (let i = 0; i < projected.length; i++) {
-        for (let j = i + 1; j < projected.length; j++) {
-          const dx = projected[i].x - projected[j].x
-          const dy = projected[i].y - projected[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 65) {
-            ctx.beginPath()
-            ctx.moveTo(projected[i].x, projected[i].y)
-            ctx.lineTo(projected[j].x, projected[j].y)
-            ctx.stroke()
-          }
-        }
-      }
-
-      // Draw sphere particles (monochrome)
-      projected.forEach((p) => {
-        const r = Math.max(1, p.scale * 2.2)
-        const alpha = Math.max(0.1, Math.min(1, p.scale - 0.2))
-        
-        if (p.z < 0) {
-          ctx.shadowBlur = 8
-          ctx.shadowColor = '#ffffff'
-        } else {
-          ctx.shadowBlur = 0
-        }
-
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
-        ctx.fill()
-      })
-      ctx.shadowBlur = 0 
-
-      animationId = requestAnimationFrame(render)
-    }
-
-    render()
-
-    return () => {
-      cancelAnimationFrame(animationId)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseleave', handleMouseLeave)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className='w-[320px] h-[320px] sm:w-[400px] h-[400px] cursor-pointer max-w-full mx-auto'
-    />
-  )
-}
 
 export function PitchDeckPage() {
   const navigate = useNavigate()
@@ -343,7 +202,7 @@ export function PitchDeckPage() {
         </div>
         <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10'>
           
-          <div className='lg:col-span-7 space-y-6 text-left'>
+          <div className='lg:col-span-9 space-y-6 text-left'>
             <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-white font-mono hero-fade-in'>
               <Sparkles className='h-3.5 w-3.5' />
               PSB HACKATHON 2026 • WORKFLOW SPEC
@@ -367,13 +226,6 @@ export function PitchDeckPage() {
               <a href='#stats' className='text-xs text-muted-foreground border border-[#333] rounded-md px-6 h-12 flex items-center hover:bg-white/5 transition-all font-mono'>
                 [ Scroll for Pitch ]
               </a>
-            </div>
-          </div>
-
-          <div className='lg:col-span-5 flex justify-center hero-fade-in'>
-            <div className='relative flex items-center justify-center'>
-              <div className='absolute inset-0 bg-white/[0.02] blur-[80px] rounded-full pointer-events-none' />
-              <ThreeDOrb />
             </div>
           </div>
 
