@@ -545,24 +545,90 @@ export function PitchDeckPage() {
         </div>
       </section>
 
-      {/* FUTURE SCOPE & CALL TO ACTION */}
-      <section className='min-h-screen py-24 px-8 relative flex flex-col justify-center border-t border-[#1a1a1a] bg-black'>
-        <div className='max-w-4xl mx-auto text-center space-y-8 relative z-10'>
-          <h2 className='text-5xl sm:text-7xl font-signifier tracking-tighter uppercase leading-[1.0]'>
-            THE FUTURE OF INCLUSIVE CREDIT
-          </h2>
-          <p className='text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light'>
-            IntelliCredit is ready to deploy. Explore the fully functional sandbox application, link mock details, and run the real data pipelines.
-          </p>
-          <div className='flex flex-wrap items-center justify-center gap-4 pt-4'>
-            <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-white text-black hover:bg-white/90 px-8 h-12 font-medium flex items-center gap-2 group'>
-              Launch Sandbox Application
-              <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
-            </Button>
-            <Button onClick={() => navigate({ to: '/dashboard' })} variant='outline' size='lg' className='rounded-md border-[#333] hover:bg-white/5 text-xs text-muted-foreground h-12 px-6 font-mono'>
-              [ dashboard ]
-            </Button>
+      {/* INTERACTIVE TRIONN-STYLE FOOTER */}
+      <section className='border-t border-[#222] bg-black pt-24 pb-12 px-8 relative overflow-hidden'>
+        <div className='max-w-6xl mx-auto space-y-16 relative z-10'>
+          
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 items-start'>
+            {/* Left Brand block */}
+            <div className='lg:col-span-6 space-y-4'>
+              <span className='text-[10px] text-muted-foreground font-mono tracking-widest uppercase block'>
+                LET'S BUILD CREDIT THAT INSPIRES.
+              </span>
+              <h2 className='text-4xl sm:text-6xl font-signifier tracking-tight leading-[1.0] uppercase'>
+                Ready to score<br />something bold?
+              </h2>
+              <p className='text-xs text-muted-foreground font-mono mt-4'>
+                © DIET CODE 2026
+              </p>
+            </div>
+
+            {/* Right details block */}
+            <div className='lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-left sm:pt-6'>
+              <div className='space-y-3'>
+                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>COLLABORATION</h4>
+                <Button 
+                  onClick={() => navigate({ to: '/' })}
+                  variant='link' 
+                  className='p-0 h-auto text-xs text-white hover:text-white/80 font-mono font-normal flex items-center gap-1 group'
+                >
+                  START APP SANDBOX
+                  <ArrowRight className='h-3 w-3 transition-transform group-hover:translate-x-1' />
+                </Button>
+                <Button 
+                  onClick={() => navigate({ to: '/dashboard' })}
+                  variant='link' 
+                  className='p-0 h-auto text-xs text-white hover:text-white/80 font-mono font-normal flex items-center gap-1 group'
+                >
+                  OFFICER PANEL
+                  <ArrowRight className='h-3 w-3 transition-transform group-hover:translate-x-1' />
+                </Button>
+              </div>
+
+              <div className='space-y-2'>
+                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>BUSINESS ENQUIRY</h4>
+                <p className='text-xs font-mono text-muted-foreground'>
+                  E. <a href='mailto:hello@intellicredit.in' className='text-white hover:underline'>hello@intellicredit.in</a>
+                </p>
+                <p className='text-xs font-mono text-muted-foreground'>
+                  P. <span className='text-white'>+91 98765 43210</span>
+                </p>
+              </div>
+
+              <div className='space-y-2'>
+                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>SOCIAL</h4>
+                <div className='grid grid-cols-2 gap-2 text-xs font-mono text-white'>
+                  <a href='#' className='hover:underline'>Linkedin</a>
+                  <a href='#' className='hover:underline'>Github</a>
+                  <a href='#' className='hover:underline'>Dribbble</a>
+                  <a href='#' className='hover:underline'>Twitter</a>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Interactive Stacked Lines slice block */}
+          <div className='relative mt-16 flex flex-col justify-center items-center w-full group/lines select-none cursor-pointer border-t border-[#111] pt-12'>
+            <p className='text-[8px] sm:text-[9px] text-muted-foreground font-mono tracking-widest mb-6 opacity-60 group-hover/lines:opacity-100 transition-opacity'>
+              HOVER THE LINES TO ILLUMINATE BRAND
+            </p>
+            
+            <div className='w-full flex flex-col gap-[3px] z-10 relative'>
+              {Array.from({ length: 24 }).map((_, idx) => (
+                <div 
+                  key={idx}
+                  className='h-[1.5px] bg-[#111] w-full group-hover/lines:bg-neutral-800 hover:!bg-white hover:!shadow-[0_0_10px_#fff] transition-all duration-300 transform hover:scale-y-150 origin-center'
+                />
+              ))}
+            </div>
+
+            <div className='absolute inset-0 flex items-center justify-center pointer-events-none z-0 pt-16'>
+              <h3 className='text-6xl sm:text-[9rem] font-signifier font-bold uppercase tracking-widest text-[#111] group-hover/lines:text-white transition-all duration-700 select-none opacity-40 group-hover/lines:opacity-80'>
+                INTELLICREDIT
+              </h3>
+            </div>
+          </div>
+
         </div>
       </section>
     </div>
