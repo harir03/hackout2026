@@ -122,3 +122,21 @@ export async function submitKnowledge(
   })
   return data
 }
+
+export async function uploadBankStatement(
+  userId: string,
+  consentId: string,
+  file: File
+): Promise<ScoreResponse> {
+  const formData = new FormData()
+  formData.append('user_id', userId)
+  formData.append('consent_id', consentId)
+  formData.append('file', file)
+  
+  const { data } = await api.post<ScoreResponse>('/score/upload-statement', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return data
+}

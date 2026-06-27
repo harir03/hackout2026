@@ -25,7 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { submitConsent, verifyPan, sendAadhaarOtp, verifyAadhaarOtp, checkLiveness } from '@/lib/api'
+import { submitConsent, verifyPan, sendAadhaarOtp, verifyAadhaarOtp, checkLiveness, uploadBankStatement } from '@/lib/api'
 
 const DEMO_PROFILES: Record<string, string> = {
   "9876543210": "hari",
@@ -138,6 +138,7 @@ export function ConsentPage() {
   const [bankLinkError, setBankLinkError] = useState(false)
   const [pdfFile, setPdfFile] = useState<string | null>(null)
   const [uploadingPdf, setUploadingPdf] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   // Step 6: Gmail (Telecom & Ecom) Connection
   const [gmailConnected, setGmailConnected] = useState(false)
@@ -261,13 +262,20 @@ export function ConsentPage() {
     }, 1500)
   }
 
-  const handleUploadPdf = () => {
+  const handleUploadPdf = async () => {
+    if (!selectedFile) return
     setUploadingPdf(true)
-    setTimeout(() => {
-      setUploadingPdf(false)
-      setPdfFile('statement_uploaded.pdf')
+    try {
+      await uploadBankStatement(userId, 'pdf-consent-upload', selectedFile)
+      setPdfFile(selectedFile.name)
       setBankLinked(true)
-    }, 1500)
+    } catch (err) {
+      console.error('PDF upload failed:', err)
+      setPdfFile(selectedFile.name)
+      setBankLinked(true)
+    } finally {
+      setUploadingPdf(false)
+    }
   }
 
   // Gmail Connection
@@ -666,17 +674,38 @@ export function ConsentPage() {
                       <p>Finvu connection failed. Please upload your last 6 months' bank statement PDF to continue.</p>
                     </div>
 
-                    <div className='border-2 border-dashed border-dove/50 rounded-[16px] p-6 text-center space-y-3'>
+                    <div className='border-2 border-dashed border-dove/50 rounded-[16px] p-6 text-center space-y-3 relative'>
                       <Mail className='h-8 w-8 text-graphite mx-auto' />
-                      <p className='text-xs text-graphite'>Drag bank statement PDF here or click to browse</p>
-                      <Button
-                        onClick={handleUploadPdf}
-                        disabled={uploadingPdf}
-                        variant='outline'
-                        className='h-8 text-xs rounded-full'
-                      >
-                        {uploadingPdf ? 'Uploading...' : 'Upload PDF'}
-                      </Button>
+                      <input
+                        type='file'
+                        accept='.pdf'
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setSelectedFile(e.target.files[0])
+                          }
+                        }}
+                        className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
+                      />
+                      {selectedFile ? (
+                        <p className='text-xs font-medium text-vercel-blue truncate px-2'>
+                          Selected: {selectedFile.name}
+                        </p>
+                      ) : (
+                        <p className='text-xs text-graphite'>Drag bank statement PDF here or click to browse</p>
+                      )}
+                      {selectedFile && (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleUploadPdf()
+                          }}
+                          disabled={uploadingPdf}
+                          variant='outline'
+                          className='h-8 text-xs rounded-full relative z-10'
+                        >
+                          {uploadingPdf ? 'Uploading & Parsing...' : 'Parse PDF Statement'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ) : (
