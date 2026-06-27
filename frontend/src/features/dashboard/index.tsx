@@ -26,7 +26,6 @@ import {
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { fetchDashboard, submitDecision, submitKnowledge } from '@/lib/api'
 import type { DashboardOverview, ConflictApplicant } from '@/lib/types'
 import {
@@ -323,9 +322,72 @@ function LoadingSkeleton() {
   )
 }
 
+const SIMULATED_DASHBOARD_DATA: DashboardOverview = {
+  total_scored: 1248,
+  approval_rate: 68.4,
+  conflict_count: 5,
+  hard_cap_count: 32,
+  band_distribution: [
+    { band: 'Excellent', count: 420, percentage: 33.6 },
+    { band: 'Good', count: 434, percentage: 34.7 },
+    { band: 'Fair', count: 242, percentage: 19.3 },
+    { band: 'Poor', count: 120, percentage: 9.6 },
+    { band: 'Not Eligible', count: 32, percentage: 2.5 },
+  ],
+  flagged_applicants: [
+    {
+      user_id: 'USR-8931A',
+      score: 540,
+      band: 'Fair',
+      conflicts: [
+        'E-Commerce spend is highly positive (+110 pts) but Questionnaire shows irregular seasonal income (-65 pts)',
+        'Merchant POS inflows indicate active daily trades (+85 pts) but Bank balance volatility is extremely high (-70 pts)'
+      ]
+    },
+    {
+      user_id: 'USR-1049C',
+      score: 495,
+      band: 'Poor',
+      conflicts: [
+        'Location logs show high frequency of urban metro visits (+75 pts) but Telecom recharge frequency has declined by 60% (-80 pts)'
+      ]
+    },
+    {
+      user_id: 'USR-2947F',
+      score: 615,
+      band: 'Good',
+      conflicts: [
+        'Bank statement monthly inflow exceeds 50k (+140 pts) but psychometrics flag high impulse risk behavior (-95 pts)'
+      ]
+    },
+    {
+      user_id: 'USR-5821D',
+      score: 520,
+      band: 'Fair',
+      conflicts: [
+        'E-Commerce transaction count is high (+90 pts) but Aadhaar identity verification was updated within last 30 days (-55 pts)'
+      ]
+    },
+    {
+      user_id: 'USR-7391B',
+      score: 410,
+      band: 'Poor',
+      conflicts: [
+        'Telecom data shows 5+ years of active tenure (+60 pts) but monthly debt service ratio exceeds 70% (-110 pts)'
+      ]
+    }
+  ],
+  fairness: {
+    demographic_parity_ratio: 0.8682,
+    passes_four_fifths: true,
+    last_audit: new Date().toISOString().split('T')[0]
+  }
+}
+
 export function LoanOfficerDashboard() {
   const [data, setData] = useState<DashboardOverview | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isSimulated, setIsSimulated] = useState(false)
 
   // Review states
   const [selectedApplicant, setSelectedApplicant] = useState<ConflictApplicant | null>(null)
@@ -340,7 +402,15 @@ export function LoanOfficerDashboard() {
 
   useEffect(() => {
     fetchDashboard()
-      .then(setData)
+      .then((res) => {
+        setData(res)
+        setIsSimulated(false)
+      })
+      .catch((err) => {
+        console.warn('Dashboard fetch failed, using simulated fallback.', err)
+        setData(SIMULATED_DASHBOARD_DATA)
+        setIsSimulated(true)
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -380,18 +450,24 @@ export function LoanOfficerDashboard() {
     <>
       <Header>
         <div className='me-auto' />
-        <ThemeSwitch />
         <ProfileDropdown />
       </Header>
 
       <Main>
-        <div className='mb-6'>
-          <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
-            Loan Officer Dashboard
-          </h1>
-          <p className='text-sm text-muted-foreground'>
-            Assessment population overview and contradiction review queue
-          </p>
+        <div className='mb-6 flex items-center justify-between'>
+          <div>
+            <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
+              Loan Officer Dashboard
+            </h1>
+            <p className='text-sm text-muted-foreground'>
+              Assessment population overview and contradiction review queue
+            </p>
+          </div>
+          {isSimulated && (
+            <Badge variant='outline' className='bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-3 py-1 font-mono text-xs animate-pulse'>
+              Simulated Data
+            </Badge>
+          )}
         </div>
 
         {loading || !data ? (
