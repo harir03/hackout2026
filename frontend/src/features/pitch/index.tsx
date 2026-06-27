@@ -518,52 +518,26 @@ export function PitchDeckPage() {
 
         </div>
 
-        {/* Interactive Stacked Lines slice block */}
+        {/* Full-color Brand Watermark (SYSTFLOW Style) */}
         <div className='relative mt-20 w-full flex flex-col items-center justify-center pt-4 select-none overflow-hidden'>
-
           <style>{`
-            @keyframes heartbeat-stroke {
-              0% { stroke-width: 1.5px; opacity: 0.6; }
-              15% { stroke-width: 6px; opacity: 1; filter: drop-shadow(0 0 3px #fff); }
-              30% { stroke-width: 2px; opacity: 0.7; }
-              45% { stroke-width: 4.5px; opacity: 0.9; }
-              60% { stroke-width: 1.8px; opacity: 0.7; }
-              100% { stroke-width: 1.5px; opacity: 0.6; }
-            }
-            .line-vibe {
-              stroke: rgba(255, 255, 255, 0.08);
-              transition: stroke 0.4s, stroke-width 0.4s;
-              pointer-events: auto;
+            .brand-watermark {
+              fill: rgba(255, 255, 255, 0.06);
+              stroke: rgba(255, 255, 255, 0.1);
+              stroke-width: 1.5px;
+              transition: fill 0.4s, stroke 0.4s;
               cursor: pointer;
             }
-            .line-vibe:hover {
-              animation: heartbeat-stroke 0.7s ease-in-out infinite;
-              stroke: #ffffff;
+            .brand-watermark:hover {
+              fill: rgba(255, 255, 255, 0.12);
+              stroke: rgba(255, 255, 255, 0.2);
             }
           `}</style>
-
           <div className='w-full px-0'>
             <svg 
               viewBox="0 0 1200 240" 
-              className='w-full h-auto select-none pointer-events-none'
+              className='w-full h-auto select-none'
             >
-              <defs>
-                <clipPath id="text-clip">
-                  <text 
-                    x="50%" 
-                    y="76%" 
-                    textAnchor="middle" 
-                    fontSize="200" 
-                    fontWeight="900" 
-                    fontFamily="'Inter', 'Montserrat', system-ui, sans-serif" 
-                    letterSpacing="4"
-                  >
-                    ALTGRADE
-                  </text>
-                </clipPath>
-              </defs>
-              
-              {/* Background solid watermark resembling SYSTFLOW */}
               <text 
                 x="50%" 
                 y="76%" 
@@ -572,29 +546,10 @@ export function PitchDeckPage() {
                 fontWeight="900" 
                 fontFamily="'Inter', 'Montserrat', system-ui, sans-serif" 
                 letterSpacing="4"
-                fill="rgba(255, 255, 255, 0.03)"
-                stroke="rgba(255, 255, 255, 0.06)"
-                strokeWidth="1.5"
-                className="select-none pointer-events-none"
+                className="brand-watermark"
               >
                 ALTGRADE
               </text>
-
-              <g clipPath="url(#text-clip)">
-                {Array.from({ length: 48 }).map((_, idx) => {
-                  const yPos = (idx / 47) * 230 + 5
-                  return (
-                    <line
-                      key={idx}
-                      x1="0"
-                      y1={yPos}
-                      x2="1200"
-                      y2={yPos}
-                      className="line-vibe"
-                    />
-                  )
-                })}
-              </g>
             </svg>
           </div>
         </div>
