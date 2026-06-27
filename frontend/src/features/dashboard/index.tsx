@@ -226,12 +226,13 @@ function ConflictsTable({
                           {decision.toUpperCase()}
                         </Badge>
                       ) : (
-                        <button
+                        <Button
+                          size='sm'
+                          variant='outline'
                           onClick={() => onReview(applicant)}
-                          className='rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-900 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:bg-neutral-900'
                         >
                           Review
-                        </button>
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>
