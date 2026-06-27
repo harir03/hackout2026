@@ -1,4 +1,4 @@
-import { Outlet, useMatches } from '@tanstack/react-router'
+import { Outlet, useMatches, Link } from '@tanstack/react-router'
 import { CheckCircle2 } from 'lucide-react'
 
 const STEPS = [
@@ -66,11 +66,19 @@ export function ApplicantLayout() {
     <div className='min-h-svh bg-background'>
       <header className='sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60'>
         <div className='mx-auto flex h-16 max-w-4xl items-center justify-between px-4'>
-          <div className='flex items-center gap-2.5'>
-            <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
-              IC
+          <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-2.5'>
+              <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
+                IC
+              </div>
+              <span className='text-sm font-semibold tracking-[-0.02em]'>IntelliCredit</span>
             </div>
-            <span className='text-sm font-semibold tracking-[-0.02em]'>IntelliCredit</span>
+            <Link
+              to='/pitch'
+              className='text-[10px] sm:text-xs text-muted-foreground hover:text-foreground font-medium border border-border px-2 py-0.5 rounded-full hover:bg-muted transition-all'
+            >
+              Pitch Deck
+            </Link>
           </div>
           <StepIndicator currentPath={currentPath} />
         </div>
