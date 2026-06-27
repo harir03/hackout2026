@@ -519,7 +519,7 @@ export function PitchDeckPage() {
         </div>
 
         {/* Interactive Stacked Lines slice block */}
-        <div className='relative mt-20 w-full flex flex-col items-center justify-center border-t border-[#222] pt-4 select-none overflow-hidden'>
+        <div className='relative mt-20 w-full flex flex-col items-center justify-center pt-4 select-none overflow-hidden'>
 
           <style>{`
             @keyframes heartbeat-stroke {
@@ -531,7 +531,7 @@ export function PitchDeckPage() {
               100% { stroke-width: 1.5px; opacity: 0.6; }
             }
             .line-vibe {
-              stroke: #262626;
+              stroke: rgba(255, 255, 255, 0.08);
               transition: stroke 0.4s, stroke-width 0.4s;
               pointer-events: auto;
               cursor: pointer;
@@ -555,13 +555,31 @@ export function PitchDeckPage() {
                     textAnchor="middle" 
                     fontSize="200" 
                     fontWeight="900" 
-                    fontFamily="Impact, 'Montserrat Black', 'Inter Black', system-ui, sans-serif" 
+                    fontFamily="'Inter', 'Montserrat', system-ui, sans-serif" 
                     letterSpacing="4"
                   >
                     ALTGRADE
                   </text>
                 </clipPath>
               </defs>
+              
+              {/* Background solid watermark resembling SYSTFLOW */}
+              <text 
+                x="50%" 
+                y="76%" 
+                textAnchor="middle" 
+                fontSize="200" 
+                fontWeight="900" 
+                fontFamily="'Inter', 'Montserrat', system-ui, sans-serif" 
+                letterSpacing="4"
+                fill="rgba(255, 255, 255, 0.03)"
+                stroke="rgba(255, 255, 255, 0.06)"
+                strokeWidth="1.5"
+                className="select-none pointer-events-none"
+              >
+                ALTGRADE
+              </text>
+
               <g clipPath="url(#text-clip)">
                 {Array.from({ length: 48 }).map((_, idx) => {
                   const yPos = (idx / 47) * 230 + 5
