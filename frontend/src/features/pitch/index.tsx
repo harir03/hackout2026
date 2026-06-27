@@ -546,7 +546,7 @@ export function PitchDeckPage() {
                 textAnchor="middle" 
                 fontSize="200" 
                 fontWeight="900" 
-                fontFamily="'Inter', 'Montserrat', system-ui, sans-serif" 
+                fontFamily="'Chakra Petch', sans-serif" 
                 letterSpacing="4"
                 className="brand-watermark"
               >
