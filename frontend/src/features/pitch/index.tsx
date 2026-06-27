@@ -16,8 +16,8 @@ import {
   Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { StarBorder } from '@/components/ui/star-border'
 import { Lightfall } from '@/components/ui/lightfall'
-import { PillNav } from '@/components/ui/pill-nav'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -154,25 +154,33 @@ export function PitchDeckPage() {
       <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[30rem] rounded-full bg-white/[0.02] blur-[130px] pointer-events-none' />
       <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none' />
 
-      {/* HEADER NAVBAR */}
-      <header className='fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-6 flex justify-center items-center'>
-        <PillNav
-          logo={<div className='text-white font-bold text-base leading-none select-none'>▲</div>}
-          logoAlt='AltGrade Logo'
-          items={[
-            { label: 'Portal', href: '/' },
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Pitch Deck', href: '/pitch' }
-          ]}
-          activeHref='/pitch'
-          baseColor='#ffffff'
-          pillColor='#000000'
-          pillTextColor='#ffffff'
-          hoveredPillTextColor='#000000'
-        />
-      </header>
+      {/* GLASSMORPHISM PILL NAVBAR */}
+      <div className='fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-3xl pointer-events-auto'>
+        <header className='flex items-center justify-between px-5 py-2 rounded-full border border-white/10 bg-black/40 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]'>
+          <div className='flex items-center gap-2'>
+            <div className='h-6 w-6 rounded-full bg-white flex items-center justify-center text-black font-bold text-xs'>▲</div>
+            <span className='font-signifier text-sm font-semibold tracking-tight'>AltGrade</span>
+          </div>
+          <div className='flex items-center gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
+            <span>Diet Code</span>
+            <span className='h-3 w-px bg-white/10' />
+            <span>HACK-1D598347</span>
+            <StarBorder
+              as="button"
+              onClick={() => navigate({ to: '/dashboard' })}
+              color="white"
+              speed="5s"
+              thickness={1}
+              className="rounded-full overflow-hidden ml-2"
+              innerClassName="bg-black text-white text-[10px] sm:text-xs px-4 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900"
+            >
+              Dashboard
+            </StarBorder>
+          </div>
+        </header>
+      </div>
 
-      {/* HERO SECTION WITH 3D ORB */}
+      {/* HERO SECTION */}
       <section className='min-h-screen flex flex-col justify-center px-8 relative overflow-hidden pt-20'>
         {/* Lightfall background */}
         <div className='absolute inset-0 pointer-events-none opacity-20 z-0'>
