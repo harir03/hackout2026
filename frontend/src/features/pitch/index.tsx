@@ -609,9 +609,6 @@ export function PitchDeckPage() {
 
           {/* Interactive Stacked Lines slice block */}
           <div className='relative mt-12 w-full flex flex-col items-center justify-center border-t border-[#222] pt-16 select-none'>
-            <p className='text-[8px] sm:text-[9px] text-muted-foreground font-mono tracking-widest mb-8 opacity-60 hover:opacity-100 transition-opacity'>
-              [ HOVER INDIVIDUAL LINES FOR PULSE VIBRATION ]
-            </p>
 
             <style>{`
               @keyframes heartbeat-stroke {
