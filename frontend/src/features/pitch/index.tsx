@@ -140,6 +140,9 @@ export function PitchDeckPage() {
 
   return (
     <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden relative'>
+      {/* Vercel-style subtle grain noise overlay */}
+      <div className="noise-overlay" />
+
       {/* Dynamic Cursor Light Grid Highlight */}
       <div 
         className='absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none'
