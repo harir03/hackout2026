@@ -455,19 +455,19 @@ export function PitchDeckPage() {
       </section>
 
       {/* INTERACTIVE TRIONN-STYLE FOOTER */}
-      <section className='border-t border-[#222] bg-black pt-24 pb-0 relative overflow-hidden'>
+      <section className='border-t border-[#e5e5e7] bg-[#f9f9fb] pt-24 pb-0 relative overflow-hidden text-black'>
         <div className='max-w-6xl mx-auto space-y-16 px-8 relative z-10'>
           
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 items-start'>
             {/* Left Brand block */}
             <div className='lg:col-span-6 space-y-4'>
-              <span className='text-[10px] text-muted-foreground font-mono tracking-widest uppercase block'>
+              <span className='text-[10px] text-neutral-500 font-mono tracking-widest uppercase block'>
                 LET'S BUILD CREDIT THAT INSPIRES.
               </span>
-              <h2 className='text-4xl sm:text-6xl font-signifier tracking-tight leading-[1.0] uppercase'>
+              <h2 className='text-4xl sm:text-6xl font-signifier tracking-tight leading-[1.0] uppercase text-black'>
                 Ready to score<br />something bold?
               </h2>
-              <p className='text-xs text-muted-foreground font-mono mt-4'>
+              <p className='text-xs text-neutral-400 font-mono mt-4'>
                 © DIET CODE 2026
               </p>
             </div>
@@ -475,11 +475,11 @@ export function PitchDeckPage() {
             {/* Right details block */}
             <div className='lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-left sm:pt-6'>
               <div className='space-y-3'>
-                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>COLLABORATION</h4>
+                <h4 className='text-[10px] text-neutral-400 font-mono uppercase tracking-widest'>COLLABORATION</h4>
                 <Button 
                   onClick={() => navigate({ to: '/' })}
                   variant='link' 
-                  className='p-0 h-auto text-xs text-white hover:text-white/80 font-mono font-normal flex items-center gap-1 group'
+                  className='p-0 h-auto text-xs text-black hover:text-black/80 font-mono font-normal flex items-center gap-1 group'
                 >
                   START APP SANDBOX
                   <ArrowRight className='h-3 w-3 transition-transform group-hover:translate-x-1' />
@@ -487,7 +487,7 @@ export function PitchDeckPage() {
                 <Button 
                   onClick={() => navigate({ to: '/dashboard' })}
                   variant='link' 
-                  className='p-0 h-auto text-xs text-white hover:text-white/80 font-mono font-normal flex items-center gap-1 group'
+                  className='p-0 h-auto text-xs text-black hover:text-black/80 font-mono font-normal flex items-center gap-1 group'
                 >
                   OFFICER PANEL
                   <ArrowRight className='h-3 w-3 transition-transform group-hover:translate-x-1' />
@@ -495,18 +495,18 @@ export function PitchDeckPage() {
               </div>
 
               <div className='space-y-2'>
-                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>BUSINESS ENQUIRY</h4>
-                <p className='text-xs font-mono text-muted-foreground'>
-                  E. <a href='mailto:hello@altgrade.in' className='text-white hover:underline'>hello@altgrade.in</a>
+                <h4 className='text-[10px] text-neutral-400 font-mono uppercase tracking-widest'>BUSINESS ENQUIRY</h4>
+                <p className='text-xs font-mono text-neutral-500'>
+                  E. <a href='mailto:hello@altgrade.in' className='text-black hover:underline'>hello@altgrade.in</a>
                 </p>
-                <p className='text-xs font-mono text-muted-foreground'>
-                  P. <span className='text-white'>+91 98765 43210</span>
+                <p className='text-xs font-mono text-neutral-500'>
+                  P. <span className='text-black'>+91 98765 43210</span>
                 </p>
               </div>
 
               <div className='space-y-2'>
-                <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>SOCIAL</h4>
-                <div className='grid grid-cols-2 gap-2 text-xs font-mono text-white'>
+                <h4 className='text-[10px] text-neutral-400 font-mono uppercase tracking-widest'>SOCIAL</h4>
+                <div className='grid grid-cols-2 gap-2 text-xs font-mono text-black'>
                   <a href='#' className='hover:underline'>Linkedin</a>
                   <a href='#' className='hover:underline'>Github</a>
                   <a href='#' className='hover:underline'>Dribbble</a>
@@ -522,15 +522,15 @@ export function PitchDeckPage() {
         <div className='relative mt-20 w-full flex flex-col items-center justify-center pt-4 select-none overflow-hidden'>
           <style>{`
             .brand-watermark {
-              fill: rgba(255, 255, 255, 0.06);
-              stroke: rgba(255, 255, 255, 0.1);
+              fill: rgba(0, 0, 0, 0.03);
+              stroke: rgba(0, 0, 0, 0.06);
               stroke-width: 1.5px;
               transition: fill 0.4s, stroke 0.4s;
               cursor: pointer;
             }
             .brand-watermark:hover {
-              fill: rgba(255, 255, 255, 0.12);
-              stroke: rgba(255, 255, 255, 0.2);
+              fill: rgba(0, 0, 0, 0.06);
+              stroke: rgba(0, 0, 0, 0.12);
             }
           `}</style>
           <div className='w-full px-0'>
