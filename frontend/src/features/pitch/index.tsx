@@ -18,7 +18,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { StarBorder } from '@/components/ui/star-border'
 import { Lightfall } from '@/components/ui/lightfall'
-import { MagnetLines } from '@/components/ui/magnet-lines'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -456,8 +455,8 @@ export function PitchDeckPage() {
       </section>
 
       {/* INTERACTIVE TRIONN-STYLE FOOTER */}
-      <section className='border-t border-[#222] bg-black pt-24 pb-12 px-8 relative overflow-hidden'>
-        <div className='max-w-6xl mx-auto space-y-16 relative z-10'>
+      <section className='border-t border-[#222] bg-black pt-24 pb-0 relative overflow-hidden'>
+        <div className='max-w-6xl mx-auto space-y-16 px-8 relative z-10'>
           
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 items-start'>
             {/* Left Brand block */}
@@ -517,52 +516,71 @@ export function PitchDeckPage() {
             </div>
           </div>
 
-          {/* Interactive Magnet Lines brand text */}
-          <div className='relative mt-12 w-full flex flex-col items-center justify-center border-t border-[#222] pt-16 select-none'>
-            
-            {/* Hidden SVG defining the text clipPath */}
+        </div>
+
+        {/* Interactive Stacked Lines slice block */}
+        <div className='relative mt-20 w-full flex flex-col items-center justify-center border-t border-[#222] pt-4 select-none overflow-hidden'>
+
+          <style>{`
+            @keyframes heartbeat-stroke {
+              0% { stroke-width: 1.5px; opacity: 0.6; }
+              15% { stroke-width: 6px; opacity: 1; filter: drop-shadow(0 0 3px #fff); }
+              30% { stroke-width: 2px; opacity: 0.7; }
+              45% { stroke-width: 4.5px; opacity: 0.9; }
+              60% { stroke-width: 1.8px; opacity: 0.7; }
+              100% { stroke-width: 1.5px; opacity: 0.6; }
+            }
+            .line-vibe {
+              stroke: #262626;
+              transition: stroke 0.4s, stroke-width 0.4s;
+              pointer-events: auto;
+              cursor: pointer;
+            }
+            .line-vibe:hover {
+              animation: heartbeat-stroke 0.7s ease-in-out infinite;
+              stroke: #ffffff;
+            }
+          `}</style>
+
+          <div className='w-full px-0'>
             <svg 
-              className='absolute inset-0 pointer-events-none opacity-0 w-full h-full' 
-              viewBox='0 0 1000 240'
+              viewBox="0 0 1200 240" 
+              className='w-full h-auto select-none pointer-events-none'
             >
               <defs>
                 <clipPath id="text-clip">
                   <text 
                     x="50%" 
-                    y="68%" 
+                    y="76%" 
                     textAnchor="middle" 
-                    fontSize="160" 
+                    fontSize="200" 
                     fontWeight="900" 
-                    fontFamily="system-ui, -apple-system, sans-serif" 
-                    letterSpacing="8"
+                    fontFamily="Impact, 'Montserrat Black', 'Inter Black', system-ui, sans-serif" 
+                    letterSpacing="4"
                   >
                     ALTGRADE
                   </text>
                 </clipPath>
               </defs>
+              <g clipPath="url(#text-clip)">
+                {Array.from({ length: 48 }).map((_, idx) => {
+                  const yPos = (idx / 47) * 230 + 5
+                  return (
+                    <line
+                      key={idx}
+                      x1="0"
+                      y1={yPos}
+                      x2="1200"
+                      y2={yPos}
+                      className="line-vibe"
+                    />
+                  )
+                })}
+              </g>
             </svg>
-
-            {/* Clipped MagnetLines grid */}
-            <div className='w-full max-w-7xl mx-auto'>
-              <div 
-                className='w-full aspect-[1000/240] relative'
-                style={{ clipPath: 'url(#text-clip)' }}
-              >
-                <MagnetLines
-                  rows={14}
-                  columns={60}
-                  containerSize="100%"
-                  lineColor="#ffffff"
-                  lineWidth="2px"
-                  lineHeight="12px"
-                  baseAngle={0}
-                  style={{ width: '100%', height: '100%' }}
-                />
-              </div>
-            </div>
           </div>
-
         </div>
+
       </section>
     </div>
   )
