@@ -69,9 +69,9 @@ export function ApplicantLayout() {
           <div className='flex items-center gap-4'>
             <div className='flex items-center gap-2.5'>
               <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
-                IC
+                AG
               </div>
-              <span className='text-sm font-semibold tracking-[-0.02em]'>IntelliCredit</span>
+              <span className='text-sm font-semibold tracking-[-0.02em]'>AltGrade</span>
             </div>
             <Link
               to='/pitch'

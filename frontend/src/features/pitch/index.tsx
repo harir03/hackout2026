@@ -272,7 +272,7 @@ export function PitchDeckPage() {
       <header className='fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-[#222] py-4 px-6 flex items-center justify-between bg-black/50'>
         <div className='flex items-center gap-2'>
           <div className='h-7 w-7 rounded-sm bg-white flex items-center justify-center text-black font-bold text-sm'>▲</div>
-          <span className='font-signifier text-lg font-semibold tracking-tight'>IntelliCredit</span>
+          <span className='font-signifier text-lg font-semibold tracking-tight'>AltGrade</span>
         </div>
         <div className='flex items-center gap-4 text-xs text-muted-foreground'>
           <span className='font-mono'>Diet Code</span>
@@ -301,7 +301,7 @@ export function PitchDeckPage() {
             </h1>
 
             <p className='text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed hero-fade-in font-light'>
-              190 million Indian adults remain credit-invisible. IntelliCredit parses consented mobile recharges, location logs, and psychometrics to estimate scores in 30 seconds.
+              190 million Indian adults remain credit-invisible. AltGrade parses consented mobile recharges, location logs, and psychometrics to estimate scores in 30 seconds.
             </p>
 
             <div className='flex flex-wrap items-center gap-4 hero-fade-in pt-4'>
@@ -379,7 +379,7 @@ export function PitchDeckPage() {
                   6 PARALLEL DATA WORKERS
                 </h3>
                 <p className='text-sm text-muted-foreground font-light leading-relaxed'>
-                  IntelliCredit runs 6 decoupled data collection threads concurrently, capturing digital indicators across the applicant's lifecycle under explicit user consent.
+                  AltGrade runs 6 decoupled data collection threads concurrently, capturing digital indicators across the applicant's lifecycle under explicit user consent.
                 </p>
                 <ul className='grid grid-cols-2 gap-3 text-xs text-muted-foreground font-mono'>
                   <li className='flex items-center gap-2'><div className='h-1.5 w-1.5 rounded-full bg-white' /> UPI transaction volumes</li>
@@ -588,7 +588,7 @@ export function PitchDeckPage() {
               <div className='space-y-2'>
                 <h4 className='text-[10px] text-muted-foreground font-mono uppercase tracking-widest'>BUSINESS ENQUIRY</h4>
                 <p className='text-xs font-mono text-muted-foreground'>
-                  E. <a href='mailto:hello@intellicredit.in' className='text-white hover:underline'>hello@intellicredit.in</a>
+                  E. <a href='mailto:hello@altgrade.in' className='text-white hover:underline'>hello@altgrade.in</a>
                 </p>
                 <p className='text-xs font-mono text-muted-foreground'>
                   P. <span className='text-white'>+91 98765 43210</span>
@@ -642,12 +642,12 @@ export function PitchDeckPage() {
                       x="50%" 
                       y="58%" 
                       textAnchor="middle" 
-                      fontSize="120" 
+                      fontSize="140" 
                       fontWeight="900" 
                       fontFamily="system-ui, -apple-system, sans-serif" 
-                      letterSpacing="6"
+                      letterSpacing="8"
                     >
-                      INTELLICREDIT
+                      ALT GRADE
                     </text>
                   </clipPath>
                 </defs>

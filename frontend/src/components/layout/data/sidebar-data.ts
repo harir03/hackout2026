@@ -12,7 +12,7 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'IntelliCredit',
+      name: 'AltGrade',
       logo: Command,
       plan: 'Alternate Scoring',
     },

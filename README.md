@@ -1,11 +1,11 @@
-# IntelliCredit Alternate (ICA)
+# AltGrade — Alternate Credit Scoring
 > AI-powered alternate credit scoring for individuals and MSMEs with no credit history — built for underserved India.
 
 ---
 
 ## The Problem
 
-Over 500 million Indians and countless MSMEs are locked out of formal credit — not because they're financially irresponsible, but because they've never borrowed before. Banks require credit history to give loans, but you need a loan to build credit history. ICA breaks this cycle.
+Over 500 million Indians and countless MSMEs are locked out of formal credit — not because they're financially irresponsible, but because they've never borrowed before. Banks require credit history to give loans, but you need a loan to build credit history. AltGrade breaks this cycle.
 
 ---
 
