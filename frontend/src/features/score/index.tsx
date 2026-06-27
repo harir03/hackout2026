@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
-import { AlertTriangle, ShieldAlert, MessageSquare } from 'lucide-react'
+import { AlertTriangle, ShieldAlert, MessageSquare, Loader2 } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -11,7 +11,6 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import { fetchScore, fetchScoreById } from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
@@ -85,19 +84,60 @@ export function ScorePage() {
   const consentId = search.consentId
 
   const [data, setData] = useState<ScoreResponse | null>(null)
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pipelineStep, setPipelineStep] = useState(0)
+
+  const activePipelines = useMemo(() => {
+    return consentedSources.map((s) => {
+      if (s === 'd1_bank') return 'Bank & UPI Transactions'
+      if (s === 'd2_telecom') return 'Telecom Payment History'
+      if (s === 'd3_ecommerce') return 'E-commerce Activity'
+      if (s === 'd4_location') return 'Geolocation Stability'
+      if (s === 'd5_questionnaire') return 'Psychometric Assessment'
+      if (s === 'd6_merchant') return 'Merchant & GST Records'
+      return s
+    })
+  }, [consentedSources])
 
   useEffect(() => {
-    setLoading(true)
     const request = consentedSources.length > 0
       ? fetchScore(userId, consentedSources, consentId)
       : fetchScoreById(userId, consentId)
     request
-      .then(setData)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
+      .then((res) => {
+        setData(res)
+        setDataLoaded(true)
+      })
+      .catch((err) => {
+        setError(err.message)
+        setLoading(false)
+      })
   }, [userId])
+
+  useEffect(() => {
+    if (activePipelines.length > 0) {
+      const interval = setInterval(() => {
+        setPipelineStep((prev) => {
+          if (prev >= activePipelines.length - 1) {
+            clearInterval(interval)
+            const checkDataInterval = setInterval(() => {
+              if (dataLoaded || error) {
+                clearInterval(checkDataInterval)
+                setLoading(false)
+              }
+            }, 100)
+            return prev
+          }
+          return prev + 1
+        })
+      }, 1200)
+      return () => clearInterval(interval)
+    } else {
+      setLoading(false)
+    }
+  }, [activePipelines, dataLoaded, error])
 
   const sortedShap = useMemo(() => {
     if (!data) return []
@@ -113,16 +153,36 @@ export function ScorePage() {
 
   if (loading) {
     return (
-      <div className='space-y-4'>
-        <div className='flex flex-col items-center gap-3 py-12'>
-          <div className='h-10 w-10 animate-spin rounded-full border-4 border-foreground border-t-transparent' />
-          <p className='text-sm text-muted-foreground'>
-            Scoring your application across consented data sources…
+      <div className='max-w-md mx-auto py-12 px-4 space-y-6 animate-fade-up'>
+        <div className='text-center mb-6'>
+          <h1 className='font-signifier text-3xl font-normal leading-[1.2] text-foreground flex items-center justify-center gap-2'>
+            <Loader2 className='h-6 w-6 animate-spin text-vercel-blue' />
+            Running Pipeline Workers
+          </h1>
+          <p className='text-sm text-muted-foreground mt-2'>
+            Analyzing alternative data footprint and validating risk bands...
           </p>
         </div>
-        <div className='grid gap-4 md:grid-cols-3'>
-          <Skeleton className='h-52' />
-          <Skeleton className='col-span-2 h-52' />
+
+        <div className='space-y-4'>
+          {activePipelines.map((name, idx) => {
+            const isCompleted = idx < pipelineStep
+            const isActive = idx === pipelineStep
+            return (
+              <Card key={idx} className={`shadow-subtle transition-all duration-300 ${isActive ? 'border-vercel-blue bg-vercel-blue/5' : ''} ${isCompleted ? 'opacity-60' : ''}`}>
+                <CardHeader className='py-3 px-4 flex flex-row items-center justify-between space-y-0'>
+                  <div className='flex items-center gap-3'>
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isCompleted ? 'bg-vercel-blue text-white' : isActive ? 'bg-vercel-blue/20 text-vercel-blue animate-pulse' : 'bg-muted text-muted-foreground'}`}>
+                      {isCompleted ? '✓' : idx + 1}
+                    </div>
+                    <span className={`text-sm font-medium ${isActive ? 'text-vercel-blue font-semibold' : ''}`}>{name}</span>
+                  </div>
+                  {isActive && <span className='text-xs text-vercel-blue font-medium animate-pulse'>Processing...</span>}
+                  {isCompleted && <span className='text-xs text-graphite font-medium'>Completed</span>}
+                </CardHeader>
+              </Card>
+            )
+          })}
         </div>
       </div>
     )
