@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { StarBorder } from '@/components/ui/star-border'
 import { Lightfall } from '@/components/ui/lightfall'
+import { MagnetLines } from '@/components/ui/magnet-lines'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -516,66 +517,45 @@ export function PitchDeckPage() {
             </div>
           </div>
 
-          {/* Interactive Stacked Lines slice block */}
+          {/* Interactive Magnet Lines brand text */}
           <div className='relative mt-12 w-full flex flex-col items-center justify-center border-t border-[#222] pt-16 select-none'>
+            
+            {/* Hidden SVG defining the text clipPath */}
+            <svg className='absolute w-0 h-0 pointer-events-none' style={{ width: 0, height: 0 }}>
+              <defs>
+                <clipPath id="text-clip">
+                  <text 
+                    x="50%" 
+                    y="68%" 
+                    textAnchor="middle" 
+                    fontSize="160" 
+                    fontWeight="900" 
+                    fontFamily="system-ui, -apple-system, sans-serif" 
+                    letterSpacing="8"
+                  >
+                    ALT GRADE
+                  </text>
+                </clipPath>
+              </defs>
+            </svg>
 
-            <style>{`
-              @keyframes heartbeat-stroke {
-                0% { stroke-width: 1.5px; opacity: 0.6; }
-                15% { stroke-width: 6px; opacity: 1; filter: drop-shadow(0 0 3px #fff); }
-                30% { stroke-width: 2px; opacity: 0.7; }
-                45% { stroke-width: 4.5px; opacity: 0.9; }
-                60% { stroke-width: 1.8px; opacity: 0.7; }
-                100% { stroke-width: 1.5px; opacity: 0.6; }
-              }
-              .line-vibe {
-                stroke: #161616;
-                transition: stroke 0.4s, stroke-width 0.4s;
-                pointer-events: auto;
-                cursor: pointer;
-              }
-              .line-vibe:hover {
-                animation: heartbeat-stroke 0.7s ease-in-out infinite;
-                stroke: #ffffff;
-              }
-            `}</style>
-
+            {/* Clipped MagnetLines grid */}
             <div className='w-full max-w-7xl mx-auto'>
-              <svg 
-                viewBox="0 0 1000 240" 
-                className='w-full h-auto select-none pointer-events-none'
+              <div 
+                className='w-full aspect-[1000/240] relative'
+                style={{ clipPath: 'url(#text-clip)' }}
               >
-                <defs>
-                  <clipPath id="text-clip">
-                    <text 
-                      x="50%" 
-                      y="58%" 
-                      textAnchor="middle" 
-                      fontSize="140" 
-                      fontWeight="900" 
-                      fontFamily="system-ui, -apple-system, sans-serif" 
-                      letterSpacing="8"
-                    >
-                      ALT GRADE
-                    </text>
-                  </clipPath>
-                </defs>
-                <g clipPath="url(#text-clip)">
-                  {Array.from({ length: 48 }).map((_, idx) => {
-                    const yPos = (idx / 47) * 230 + 5
-                    return (
-                      <line
-                        key={idx}
-                        x1="0"
-                        y1={yPos}
-                        x2="1000"
-                        y2={yPos}
-                        className="line-vibe"
-                      />
-                    )
-                  })}
-                </g>
-              </svg>
+                <MagnetLines
+                  rows={14}
+                  columns={60}
+                  containerSize="100%"
+                  lineColor="#ffffff"
+                  lineWidth="2px"
+                  lineHeight="12px"
+                  baseAngle={0}
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </div>
             </div>
           </div>
 
