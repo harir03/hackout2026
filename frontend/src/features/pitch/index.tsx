@@ -608,24 +608,68 @@ export function PitchDeckPage() {
           </div>
 
           {/* Interactive Stacked Lines slice block */}
-          <div className='relative mt-16 flex flex-col justify-center items-center w-full group/lines select-none cursor-pointer border-t border-[#111] pt-12'>
-            <p className='text-[8px] sm:text-[9px] text-muted-foreground font-mono tracking-widest mb-6 opacity-60 group-hover/lines:opacity-100 transition-opacity'>
-              HOVER THE LINES TO ILLUMINATE BRAND
+          <div className='relative mt-12 w-full flex flex-col items-center justify-center border-t border-[#222] pt-16 select-none'>
+            <p className='text-[8px] sm:text-[9px] text-muted-foreground font-mono tracking-widest mb-8 opacity-60 hover:opacity-100 transition-opacity'>
+              [ HOVER INDIVIDUAL LINES FOR PULSE VIBRATION ]
             </p>
-            
-            <div className='w-full flex flex-col gap-[3px] z-10 relative'>
-              {Array.from({ length: 24 }).map((_, idx) => (
-                <div 
-                  key={idx}
-                  className='h-[1.5px] bg-[#111] w-full group-hover/lines:bg-neutral-800 hover:!bg-white hover:!shadow-[0_0_10px_#fff] transition-all duration-300 transform hover:scale-y-150 origin-center'
-                />
-              ))}
-            </div>
 
-            <div className='absolute inset-0 flex items-center justify-center pointer-events-none z-0 pt-16'>
-              <h3 className='text-6xl sm:text-[9rem] font-signifier font-bold uppercase tracking-widest text-[#111] group-hover/lines:text-white transition-all duration-700 select-none opacity-40 group-hover/lines:opacity-80'>
-                INTELLICREDIT
-              </h3>
+            <style>{`
+              @keyframes heartbeat-stroke {
+                0% { stroke-width: 1.5px; opacity: 0.6; }
+                15% { stroke-width: 6px; opacity: 1; filter: drop-shadow(0 0 3px #fff); }
+                30% { stroke-width: 2px; opacity: 0.7; }
+                45% { stroke-width: 4.5px; opacity: 0.9; }
+                60% { stroke-width: 1.8px; opacity: 0.7; }
+                100% { stroke-width: 1.5px; opacity: 0.6; }
+              }
+              .line-vibe {
+                stroke: #161616;
+                transition: stroke 0.4s, stroke-width 0.4s;
+                pointer-events: auto;
+                cursor: pointer;
+              }
+              .line-vibe:hover {
+                animation: heartbeat-stroke 0.7s ease-in-out infinite;
+                stroke: #ffffff;
+              }
+            `}</style>
+
+            <div className='w-full max-w-7xl mx-auto'>
+              <svg 
+                viewBox="0 0 1000 240" 
+                className='w-full h-auto select-none pointer-events-none'
+              >
+                <defs>
+                  <clipPath id="text-clip">
+                    <text 
+                      x="50%" 
+                      y="58%" 
+                      textAnchor="middle" 
+                      fontSize="120" 
+                      fontWeight="900" 
+                      fontFamily="system-ui, -apple-system, sans-serif" 
+                      letterSpacing="6"
+                    >
+                      INTELLICREDIT
+                    </text>
+                  </clipPath>
+                </defs>
+                <g clipPath="url(#text-clip)">
+                  {Array.from({ length: 48 }).map((_, idx) => {
+                    const yPos = (idx / 47) * 230 + 5
+                    return (
+                      <line
+                        key={idx}
+                        x1="0"
+                        y1={yPos}
+                        x2="1000"
+                        y2={yPos}
+                        className="line-vibe"
+                      />
+                    )
+                  })}
+                </g>
+              </svg>
             </div>
           </div>
 
