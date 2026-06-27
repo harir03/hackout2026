@@ -168,6 +168,24 @@ export function PitchDeckPage() {
   const horizontalSectionRef = useRef<HTMLDivElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const handleMouseCoords = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      container.style.setProperty('--mouse-x', `${x}px`)
+      container.style.setProperty('--mouse-y', `${y}px`)
+    }
+
+    window.addEventListener('mousemove', handleMouseCoords)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseCoords)
+    }
+  }, [])
+
   useGSAP(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -260,9 +278,28 @@ export function PitchDeckPage() {
   }, { scope: containerRef })
 
   return (
-    <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden'>
-      {/* Vercel Stark Background Grids */}
-      <div className='absolute inset-0 bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)] bg-[size:5rem_5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none' />
+    <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden relative'>
+      {/* Base Stark Background Grid */}
+      <div className='absolute inset-0 bg-[linear-gradient(to_right,#111111_1px,transparent_1px),linear-gradient(to_bottom,#111111_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none opacity-40' />
+
+      {/* Dynamic Cursor Light Grid Highlight */}
+      <div 
+        className='absolute inset-0 pointer-events-none'
+        style={{
+          background: `
+            radial-gradient(
+              400px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+              rgba(255, 255, 255, 0.08),
+              transparent 80%
+            ),
+            linear-gradient(to right, #1f1f1f 1px, transparent 1px),
+            linear-gradient(to bottom, #1f1f1f 1px, transparent 1px)
+          `,
+          backgroundSize: '100% 100%, 5rem 5rem, 5rem 5rem',
+          mixBlendMode: 'screen',
+          opacity: 0.95
+        }}
+      />
 
       {/* Vercel Ambient Glows (Monochrome) */}
       <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[30rem] rounded-full bg-white/[0.02] blur-[130px] pointer-events-none' />
