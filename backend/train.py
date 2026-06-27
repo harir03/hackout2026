@@ -33,85 +33,106 @@ def main():
         sys.exit(1)
 
     # Configure MLflow
-    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment("ICA Credit Scoring")
+    mlflow_enabled = True
+    try:
+        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
+        mlflow.set_tracking_uri(tracking_uri)
+        mlflow.set_experiment("ICA Credit Scoring")
+    except Exception as e:
+        print(f"MLflow setup failed: {e}. Running local training only.")
+        mlflow_enabled = False
 
     print(f"Training pipeline (data={data_path}, output={output_dir}, version={args.version})")
     print("=" * 70)
 
-    with mlflow.start_run(run_name=f"training_{args.version}"):
-        results = run_pipeline(data_path, output_dir, args.version)
-
-        # Log metrics
-        for k, v in results["tier1_metrics"].items():
-            mlflow.log_metric(k, float(v))
-        for k, v in results["tier2_metrics"].items():
-            mlflow.log_metric(k, float(v))
-
-        # Log artifacts
-        for artifact_path_str in results["saved_artifacts"]:
-            mlflow.log_artifact(artifact_path_str)
-
-        # Register Tier 1 XGBoost model
+    if mlflow_enabled:
         try:
-            t1_xgb = XGBClassifier()
-            t1_xgb.load_model(str(output_dir / f"tier1_xgb_{args.version}.json"))
-            mlflow.xgboost.log_model(
-                t1_xgb, 
-                artifact_path="tier1_xgb",
-                registered_model_name="ICA_Tier1_XGB"
-            )
-        except Exception as e:
-            print(f"Error logging Tier 1 XGB: {e}")
+            with mlflow.start_run(run_name=f"training_{args.version}"):
+                results = run_pipeline(data_path, output_dir, args.version)
 
-        # Register Tier 1 Calibrated Classifier
-        try:
-            with open(output_dir / f"tier1_calibrated_{args.version}.pkl", "rb") as f:
-                t1_cal = pickle.load(f)
-            mlflow.sklearn.log_model(
-                t1_cal,
-                artifact_path="tier1_calibrated",
-                registered_model_name="ICA_Tier1"
-            )
-        except Exception as e:
-            print(f"Error logging Tier 1 Calibrated: {e}")
+                # Log metrics
+                for k, v in results["tier1_metrics"].items():
+                    try:
+                        mlflow.log_metric(k, float(v))
+                    except Exception:
+                        pass
+                for k, v in results["tier2_metrics"].items():
+                    try:
+                        mlflow.log_metric(k, float(v))
+                    except Exception:
+                        pass
 
-        # Register Tier 2 XGBoost model
-        try:
-            t2_xgb = XGBClassifier()
-            t2_xgb.load_model(str(output_dir / f"tier2_xgb_{args.version}.json"))
-            mlflow.xgboost.log_model(
-                t2_xgb,
-                artifact_path="tier2_xgb",
-                registered_model_name="ICA_Tier2"
-            )
-        except Exception as e:
-            print(f"Error logging Tier 2 XGB: {e}")
+                # Log artifacts
+                for artifact_path_str in results["saved_artifacts"]:
+                    try:
+                        mlflow.log_artifact(artifact_path_str)
+                    except Exception:
+                        pass
 
-        # Register Tier 2 LightGBM model
-        try:
-            t2_lgbm = lgb.Booster(model_file=str(output_dir / f"tier2_lgbm_{args.version}.txt"))
-            mlflow.lightgbm.log_model(
-                t2_lgbm,
-                artifact_path="tier2_lgbm",
-                registered_model_name="ICA_Tier2_LGBM"
-            )
-        except Exception as e:
-            print(f"Error logging Tier 2 LGBM: {e}")
-
-        # Tag registered models
-        try:
-            client = mlflow.MlflowClient()
-            for model_name in ["ICA_Tier1", "ICA_Tier2", "ICA_Tier1_XGB", "ICA_Tier2_LGBM"]:
+                # Register Tier 1 XGBoost model
                 try:
-                    versions = client.get_latest_versions(model_name, stages=["None"])
-                    if versions:
-                        client.set_model_version_tag(model_name, versions[0].version, "version_tag", args.version)
-                except Exception as ex:
-                    print(f"Could not tag model {model_name}: {ex}")
-        except Exception as e:
-            print(f"Error tagging registered models: {e}")
+                    t1_xgb = XGBClassifier()
+                    t1_xgb.load_model(str(output_dir / f"tier1_xgb_{args.version}.json"))
+                    mlflow.xgboost.log_model(
+                        t1_xgb, 
+                        artifact_path="tier1_xgb",
+                        registered_model_name="ICA_Tier1_XGB"
+                    )
+                except Exception as e:
+                    print(f"Error logging Tier 1 XGB: {e}")
+
+                # Register Tier 1 Calibrated Classifier
+                try:
+                    with open(output_dir / f"tier1_calibrated_{args.version}.pkl", "rb") as f:
+                        t1_cal = pickle.load(f)
+                    mlflow.sklearn.log_model(
+                        t1_cal,
+                        artifact_path="tier1_calibrated",
+                        registered_model_name="ICA_Tier1"
+                    )
+                except Exception as e:
+                    print(f"Error logging Tier 1 Calibrated: {e}")
+
+                # Register Tier 2 XGBoost model
+                try:
+                    t2_xgb = XGBClassifier()
+                    t2_xgb.load_model(str(output_dir / f"tier2_xgb_{args.version}.json"))
+                    mlflow.xgboost.log_model(
+                        t2_xgb,
+                        artifact_path="tier2_xgb",
+                        registered_model_name="ICA_Tier2"
+                    )
+                except Exception as e:
+                    print(f"Error logging Tier 2 XGB: {e}")
+
+                # Register Tier 2 LightGBM model
+                try:
+                    t2_lgbm = lgb.Booster(model_file=str(output_dir / f"tier2_lgbm_{args.version}.txt"))
+                    mlflow.lightgbm.log_model(
+                        t2_lgbm,
+                        artifact_path="tier2_lgbm",
+                        registered_model_name="ICA_Tier2_LGBM"
+                    )
+                except Exception as e:
+                    print(f"Error logging Tier 2 LGBM: {e}")
+
+                # Tag registered models
+                try:
+                    client = mlflow.MlflowClient()
+                    for model_name in ["ICA_Tier1", "ICA_Tier2", "ICA_Tier1_XGB", "ICA_Tier2_LGBM"]:
+                        try:
+                            versions = client.get_latest_versions(model_name, stages=["None"])
+                            if versions:
+                                client.set_model_version_tag(model_name, versions[0].version, "version_tag", args.version)
+                        except Exception as ex:
+                            print(f"Could not tag model {model_name}: {ex}")
+                except Exception as e:
+                    print(f"Error tagging registered models: {e}")
+        except Exception as run_ex:
+            print(f"MLflow run failed: {run_ex}. Running locally.")
+            results = run_pipeline(data_path, output_dir, args.version)
+    else:
+        results = run_pipeline(data_path, output_dir, args.version)
 
     print("\nTier 1 (zero-history: D2/D4/D5)")
     print("-" * 40)
