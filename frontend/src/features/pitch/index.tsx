@@ -16,8 +16,8 @@ import {
   Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { StarBorder } from '@/components/ui/star-border'
 import { Lightfall } from '@/components/ui/lightfall'
+import { PillNav } from '@/components/ui/pill-nav'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -155,27 +155,21 @@ export function PitchDeckPage() {
       <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none' />
 
       {/* HEADER NAVBAR */}
-      <header className='fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-[#222] py-4 px-6 flex items-center justify-between bg-black/50'>
-        <div className='flex items-center gap-2'>
-          <div className='h-7 w-7 rounded-sm bg-white flex items-center justify-center text-black font-bold text-sm'>▲</div>
-          <span className='font-signifier text-lg font-semibold tracking-tight'>AltGrade</span>
-        </div>
-        <div className='flex items-center gap-4 text-xs text-muted-foreground'>
-          <span className='font-mono'>Diet Code</span>
-          <span className='h-3 w-px bg-[#333]' />
-          <span className='font-mono'>HACK-1D598347</span>
-          <StarBorder
-            as="button"
-            onClick={() => navigate({ to: '/dashboard' })}
-            color="white"
-            speed="5s"
-            thickness={1}
-            className="rounded-md overflow-hidden ml-4"
-            innerClassName="bg-black text-white text-xs px-4 py-1.5 rounded-md border border-[#222] font-medium transition-colors hover:bg-neutral-900"
-          >
-            Dashboard
-          </StarBorder>
-        </div>
+      <header className='fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl px-6 flex justify-center items-center'>
+        <PillNav
+          logo={<div className='text-white font-bold text-base leading-none select-none'>▲</div>}
+          logoAlt='AltGrade Logo'
+          items={[
+            { label: 'Portal', href: '/' },
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Pitch Deck', href: '/pitch' }
+          ]}
+          activeHref='/pitch'
+          baseColor='#ffffff'
+          pillColor='#000000'
+          pillTextColor='#ffffff'
+          hoveredPillTextColor='#000000'
+        />
       </header>
 
       {/* HERO SECTION WITH 3D ORB */}
