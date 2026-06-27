@@ -50,3 +50,45 @@ export async function fetchDashboard(): Promise<DashboardOverview> {
   const { data } = await api.get<DashboardOverview>('/dashboard/overview')
   return data
 }
+
+export async function verifyPan(
+  pan: string,
+  phone: string
+): Promise<{
+  pan: string
+  name: string
+  dob: string
+  entity_type: string
+  aadhaar_linked: boolean
+  status: string
+}> {
+  const { data } = await api.post('/identity/pan', { pan, phone })
+  return data
+}
+
+export async function sendAadhaarOtp(
+  aadhaar: string
+): Promise<{ status: string; message: string }> {
+  const { data } = await api.post('/identity/aadhaar/otp', { aadhaar })
+  return data
+}
+
+export async function verifyAadhaarOtp(
+  aadhaar: string,
+  otp: string
+): Promise<{ status: string; message: string }> {
+  const { data } = await api.post('/identity/aadhaar/verify', { aadhaar, otp })
+  return data
+}
+
+export async function checkLiveness(
+  image: string
+): Promise<{
+  status: string
+  face_detected: boolean
+  confidence: number
+  message: string
+}> {
+  const { data } = await api.post('/identity/liveness', { image })
+  return data
+}
