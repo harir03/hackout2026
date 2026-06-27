@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { StarBorder } from '@/components/ui/star-border'
+import { Lightfall } from '@/components/ui/lightfall'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -320,6 +321,26 @@ export function PitchDeckPage() {
 
       {/* HERO SECTION WITH 3D ORB */}
       <section className='min-h-screen flex flex-col justify-center px-8 relative overflow-hidden pt-20'>
+        {/* Lightfall background */}
+        <div className='absolute inset-0 pointer-events-none opacity-20 z-0'>
+          <Lightfall
+            colors={['#ffffff', '#a3a3a3', '#525252']}
+            backgroundColor='#000000'
+            speed={0.4}
+            streakCount={4}
+            streakWidth={1.2}
+            streakLength={1.0}
+            glow={0.8}
+            density={0.5}
+            twinkle={0.8}
+            zoom={2.5}
+            backgroundGlow={0.3}
+            opacity={1}
+            mouseInteraction={true}
+            mouseStrength={0.5}
+            mouseRadius={0.8}
+          />
+        </div>
         <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10'>
           
           <div className='lg:col-span-7 space-y-6 text-left'>
