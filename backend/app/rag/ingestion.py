@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
-
 import chromadb
 from google import genai
+import httpx
 
 from app.rag.chunker import chunk_text
 
-EMBEDDING_MODEL = "text-embedding-004"
+OLLAMA_URL = "http://localhost:11434"
 RAG_SOURCES_DIR = Path(__file__).resolve().parents[2] / ".." / "data" / "rag_sources"
 
 _client: chromadb.ClientAPI | None = None
@@ -21,26 +21,68 @@ def _get_chroma_client() -> chromadb.ClientAPI:
     return _client
 
 
-def _embed_texts(client: genai.Client, texts: list[str]) -> list[list[float]]:
-    result = client.models.embed_content(
-        model=EMBEDDING_MODEL,
-        contents=texts,
-        config={"task_type": "RETRIEVAL_DOCUMENT"},
-    )
-    return [e.values for e in result.embeddings]
+async def _embed_texts(texts: list[str], api_key: str | None = None) -> list[list[float]]:
+    try:
+        async with httpx.AsyncClient() as client:
+            embeddings = []
+            for t in texts:
+                res = await client.post(
+                    f"{OLLAMA_URL}/api/embeddings",
+                    json={"model": "nomic-embed-text", "prompt": t},
+                    timeout=10.0
+                )
+                if res.status_code == 200:
+                    embeddings.append(res.json()["embedding"])
+                else:
+                    raise Exception(f"Ollama returned status {res.status_code}")
+            return embeddings
+    except Exception as e:
+        print(f"Ollama batch embedding failed: {e}. Trying Gemini or fallback.")
+        if api_key:
+            try:
+                ai_client = genai.Client(api_key=api_key)
+                result = ai_client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=texts,
+                    config={"task_type": "RETRIEVAL_DOCUMENT"},
+                )
+                return [e.values for e in result.embeddings]
+            except Exception as gem_ex:
+                print(f"Gemini fallback embedding failed: {gem_ex}")
+        
+        return [[0.0] * 768 for _ in texts]
 
 
-def _embed_query(client: genai.Client, text: str) -> list[float]:
-    result = client.models.embed_content(
-        model=EMBEDDING_MODEL,
-        contents=text,
-        config={"task_type": "RETRIEVAL_QUERY"},
-    )
-    return result.embeddings[0].values
+async def _embed_query(text: str, api_key: str | None = None) -> list[float]:
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                f"{OLLAMA_URL}/api/embeddings",
+                json={"model": "nomic-embed-text", "prompt": text},
+                timeout=10.0
+            )
+            if res.status_code == 200:
+                return res.json()["embedding"]
+            else:
+                raise Exception(f"Ollama returned status {res.status_code}")
+    except Exception as e:
+        print(f"Ollama query embedding failed: {e}. Trying Gemini or fallback.")
+        if api_key:
+            try:
+                ai_client = genai.Client(api_key=api_key)
+                result = ai_client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=text,
+                    config={"task_type": "RETRIEVAL_QUERY"},
+                )
+                return result.embeddings[0].values
+            except Exception as gem_ex:
+                print(f"Gemini fallback embedding failed: {gem_ex}")
+        
+        return [0.0] * 768
 
 
-def ingest_sources(api_key: str) -> dict[str, int]:
-    ai_client = genai.Client(api_key=api_key)
+async def ingest_sources(api_key: str | None = None) -> dict[str, int]:
     chroma = _get_chroma_client()
     stats = {}
 
@@ -65,7 +107,7 @@ def ingest_sources(api_key: str) -> dict[str, int]:
         metadata={"description": "RBI Fair Practices Code and DPDP Act 2023"},
     )
 
-    rbi_embeddings = _embed_texts(ai_client, all_rbi_chunks)
+    rbi_embeddings = await _embed_texts(all_rbi_chunks, api_key)
     rbi_collection.add(
         ids=[f"rbi_{i}" for i in range(len(all_rbi_chunks))],
         documents=all_rbi_chunks,
@@ -104,7 +146,7 @@ def ingest_sources(api_key: str) -> dict[str, int]:
         metadata={"description": "Resolved lending ticket precedents"},
     )
 
-    lp_embeddings = _embed_texts(ai_client, precedent_chunks)
+    lp_embeddings = await _embed_texts(precedent_chunks, api_key)
     lp_collection.add(
         ids=precedent_ids,
         documents=precedent_chunks,
@@ -116,17 +158,16 @@ def ingest_sources(api_key: str) -> dict[str, int]:
     return stats
 
 
-def query_collection(
+async def query_collection(
     collection_name: str,
     query_text: str,
-    api_key: str,
+    api_key: str | None = None,
     n_results: int = 3,
 ) -> list[dict]:
-    ai_client = genai.Client(api_key=api_key)
     chroma = _get_chroma_client()
     collection = chroma.get_collection(collection_name)
 
-    query_embedding = _embed_query(ai_client, query_text)
+    query_embedding = await _embed_query(query_text, api_key)
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,

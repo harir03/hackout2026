@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
-
+import json
 import numpy as np
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.config import settings
@@ -26,6 +26,31 @@ def _get_engine() -> ScoringEngine:
 
 
 def _score_for_user(user_id: str) -> dict[str, Any]:
+    profile_data = None
+    profiles_path = Path(__file__).resolve().parents[2] / "demo_data" / "profiles.json"
+    if profiles_path.exists():
+        try:
+            with open(profiles_path, "r") as f:
+                all_profiles = json.load(f)
+                for p_name, p_val in all_profiles.items():
+                    if p_name.lower() == user_id.lower():
+                        profile_data = p_val
+                        break
+        except Exception as e:
+            print(f"Failed to load demo profiles in advisor: {e}")
+
+    if profile_data:
+        sd = profile_data.get("score_details", {})
+        return {
+            "score": sd.get("final_score", 600),
+            "risk_band": sd.get("band", "Good"),
+            "tier": sd.get("tier", "Tier 2"),
+            "shap_details": [],
+            "signal_conflicts": [],
+            "hard_caps_applied": [],
+            "tier1_reweight": None,
+        }
+
     engine = _get_engine()
     rng = np.random.default_rng(hash(user_id) % (2**32))
     has_bank_data = rng.random() > 0.2
@@ -82,13 +107,10 @@ class IngestResponse(BaseModel):
 @router.post("/ask", response_model=AskResponse)
 async def ask_advisor(request: AskRequest) -> AskResponse:
     api_key = settings.gemini_api_key
-    if not api_key:
-        raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured")
-
     score_result = _score_for_user(request.user_id)
     advisor = get_advisor(api_key)
 
-    result = advisor.answer(
+    result = await advisor.answer(
         question=request.question,
         score_result=score_result,
         api_key=api_key,
@@ -105,8 +127,5 @@ async def ask_advisor(request: AskRequest) -> AskResponse:
 @router.post("/ingest", response_model=IngestResponse)
 async def run_ingestion() -> IngestResponse:
     api_key = settings.gemini_api_key
-    if not api_key:
-        raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured")
-
-    stats = ingest_sources(api_key)
+    stats = await ingest_sources(api_key)
     return IngestResponse(collections=stats, status="ok")
