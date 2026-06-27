@@ -35,12 +35,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Stepper, Step } from '@/components/ui/stepper'
 
 const BAND_COLORS: Record<string, string> = {
   'Excellent': 'bg-vercel-blue',
@@ -336,6 +336,7 @@ export function LoanOfficerDashboard() {
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [completedDecisions, setCompletedDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
+  const [currentStep, setCurrentStep] = useState(1)
 
   useEffect(() => {
     fetchDashboard()
@@ -349,6 +350,7 @@ export function LoanOfficerDashboard() {
     setInterestRate(10.5)
     setTerms('36 months')
     setNotes('')
+    setCurrentStep(1)
     setDialogOpen(true)
   }
 
@@ -426,94 +428,106 @@ export function LoanOfficerDashboard() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className='space-y-4 py-2 text-sm'>
-              <div className='rounded-lg bg-neutral-50 p-3.5 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 space-y-2.5'>
-                <div className='flex justify-between'>
-                  <span className='text-neutral-500 font-medium'>Applicant UUID</span>
-                  <span className='font-mono font-medium'>{selectedApplicant.user_id.slice(0, 18)}...</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span className='text-neutral-500 font-medium'>Model Score</span>
-                  <span className='font-bold'>{selectedApplicant.score} / 850</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span className='text-neutral-500 font-medium'>Risk Band</span>
-                  <span className='font-semibold'>{selectedApplicant.band}</span>
-                </div>
-                <div className='space-y-1 pt-1.5 border-t border-neutral-100 dark:border-neutral-800'>
-                  <span className='text-neutral-500 font-medium block'>Conflicting Signals</span>
-                  {selectedApplicant.conflicts.map((c, i) => (
-                    <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
-                  ))}
-                </div>
-              </div>
-
-              <div className='space-y-3.5'>
-                <div className='space-y-1.5'>
-                  <Label htmlFor='decision'>Officer Credit Decision</Label>
-                  <select
-                    id='decision'
-                    value={decision}
-                    onChange={(e) => setDecision(e.target.value as 'approved' | 'rejected')}
-                    className='w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-50'
-                  >
-                    <option value='approved'>Approve Loan</option>
-                    <option value='rejected'>Reject Loan</option>
-                  </select>
-                </div>
-
-                {decision === 'approved' && (
-                  <div className='grid grid-cols-2 gap-3.5'>
-                    <div className='space-y-1.5'>
-                      <Label htmlFor='rate'>Interest Rate (%)</Label>
-                      <Input
-                        id='rate'
-                        type='number'
-                        step='0.1'
-                        value={interestRate}
-                        onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                      />
+            <Stepper
+              initialStep={1}
+              onStepChange={setCurrentStep}
+              onFinalStepCompleted={handleDecisionSubmit}
+              onCancel={() => setDialogOpen(false)}
+              nextButtonProps={{
+                disabled: submitting || (currentStep === 3 && !notes.trim())
+              }}
+              backButtonProps={{
+                disabled: submitting
+              }}
+              stepCircleContainerClassName='border-0 shadow-none bg-transparent w-full p-0'
+              className='w-full p-0 min-h-0 aspect-auto bg-transparent border-0 flex-none'
+            >
+              <Step>
+                <div className='space-y-4 py-2 text-sm'>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 1: Applicant Signals</h3>
+                  <div className='rounded-lg bg-neutral-50 p-3.5 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 space-y-2.5'>
+                    <div className='flex justify-between'>
+                      <span className='text-neutral-500 font-medium'>Applicant UUID</span>
+                      <span className='font-mono font-medium'>{selectedApplicant.user_id.slice(0, 18)}...</span>
                     </div>
-                    <div className='space-y-1.5'>
-                      <Label htmlFor='terms'>Repayment Terms</Label>
-                      <Input
-                        id='terms'
-                        value={terms}
-                        onChange={(e) => setTerms(e.target.value)}
-                      />
+                    <div className='flex justify-between'>
+                      <span className='text-neutral-500 font-medium'>Model Score</span>
+                      <span className='font-bold'>{selectedApplicant.score} / 850</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-neutral-500 font-medium'>Risk Band</span>
+                      <span className='font-semibold'>{selectedApplicant.band}</span>
+                    </div>
+                    <div className='space-y-1 pt-1.5 border-t border-neutral-100 dark:border-neutral-800'>
+                      <span className='text-neutral-500 font-medium block'>Conflicting Signals</span>
+                      {selectedApplicant.conflicts.map((c, i) => (
+                        <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
+                      ))}
                     </div>
                   </div>
-                )}
-
-                <div className='space-y-1.5'>
-                  <Label htmlFor='notes'>Decision Notes & Reasoning</Label>
-                  <Textarea
-                    id='notes'
-                    placeholder='Explain rationale for override, collateral status, or mitigating factors...'
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={3}
-                  />
                 </div>
-              </div>
-            </div>
+              </Step>
 
-            <DialogFooter className='border-t border-neutral-100 dark:border-neutral-800 pt-3.5 mt-2'>
-              <Button
-                variant='outline'
-                onClick={() => setDialogOpen(false)}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDecisionSubmit}
-                disabled={submitting || !notes.trim()}
-                className='bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200'
-              >
-                {submitting ? 'Submitting...' : 'Submit Decision'}
-              </Button>
-            </DialogFooter>
+              <Step>
+                <div className='space-y-4 py-2 text-sm'>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 2: Credit Decision</h3>
+                  <div className='space-y-3.5'>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='decision'>Officer Credit Decision</Label>
+                      <select
+                        id='decision'
+                        value={decision}
+                        onChange={(e) => setDecision(e.target.value as 'approved' | 'rejected')}
+                        className='w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-50'
+                      >
+                        <option value='approved'>Approve Loan</option>
+                        <option value='rejected'>Reject Loan</option>
+                      </select>
+                    </div>
+
+                    {decision === 'approved' && (
+                      <div className='grid grid-cols-2 gap-3.5'>
+                        <div className='space-y-1.5'>
+                          <Label htmlFor='rate'>Interest Rate (%)</Label>
+                          <Input
+                            id='rate'
+                            type='number'
+                            step='0.1'
+                            value={interestRate}
+                            onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div className='space-y-1.5'>
+                          <Label htmlFor='terms'>Repayment Terms</Label>
+                          <Input
+                            id='terms'
+                            value={terms}
+                            onChange={(e) => setTerms(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Step>
+
+              <Step>
+                <div className='space-y-4 py-2 text-sm'>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Reasoning & Audit Log</h3>
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='notes'>Decision Notes & Reasoning</Label>
+                    <Textarea
+                      id='notes'
+                      placeholder='Explain rationale for override, collateral status, or mitigating factors...'
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={4}
+                    />
+                    <p className='text-xs text-muted-foreground mt-1'>Notes are required to submit overriding decision logs.</p>
+                  </div>
+                </div>
+              </Step>
+            </Stepper>
           </DialogContent>
         </Dialog>
       )}
