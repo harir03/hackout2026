@@ -38,5 +38,6 @@ class ScoreRequest(BaseModel):
     user_id: str
     consented_sources: list[str]
     consent_id: str | None = None
+    phone: str | None = None
 
 

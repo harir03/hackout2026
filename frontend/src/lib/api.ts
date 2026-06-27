@@ -6,12 +6,14 @@ const api = axios.create({ baseURL: '/api' })
 export async function fetchScore(
   userId: string,
   consentedSources: string[],
-  consentId?: string
+  consentId?: string,
+  phone?: string
 ): Promise<ScoreResponse> {
   const { data } = await api.post<ScoreResponse>('/score', {
     user_id: userId,
     consented_sources: consentedSources,
     consent_id: consentId,
+    phone: phone,
   })
   return data
 }

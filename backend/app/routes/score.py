@@ -38,7 +38,9 @@ async def _build_response(
     engine: ScoringEngine,
     rng: np.random.Generator,
     consent_id: str | None = None,
+    phone: str | None = None,
 ) -> ScoreResponse:
+    import json
     profiles = ["low", "medium", "high"]
     profile = profiles[hash(user_id) % len(profiles)]
 
@@ -48,6 +50,67 @@ async def _build_response(
     feat_dict.update(d4_location.generate(rng, profile))
     feat_dict.update(d5_questionnaire.generate(rng, profile))
     feat_dict.update(d6_merchant_gst.generate(rng, profile))
+
+    profile_data = None
+    profiles_path = Path(__file__).resolve().parents[2] / "demo_data" / "profiles.json"
+    if profiles_path.exists():
+        try:
+            with open(profiles_path, "r") as f:
+                all_profiles = json.load(f)
+                for p_name, p_val in all_profiles.items():
+                    if phone and p_val.get("mobile") == phone:
+                        profile_data = p_val
+                        profile = p_val.get("risk_profile", "medium")
+                        break
+                    elif p_name == user_id.lower():
+                        profile_data = p_val
+                        profile = p_val.get("risk_profile", "medium")
+                        break
+        except Exception as e:
+            print(f"Failed to load demo profiles: {e}")
+
+    if profile_data:
+        if "bank_data" in profile_data:
+            bd = profile_data["bank_data"]
+            feat_dict["bank_avg_monthly_inflow"] = bd.get("average_monthly_balance", 20000.0)
+            feat_dict["bank_inflow_trend"] = bd.get("inflow_outflow_ratio", 1.0) - 1.0
+            feat_dict["bank_balance_volatility"] = 0.15 if bd.get("average_monthly_balance", 20000.0) > 30000 else 0.45
+            feat_dict["bank_payment_regularity"] = 0.95 if bd.get("bounce_events", 0) == 0 else 0.75
+            feat_dict["bank_upi_txn_count"] = bd.get("regular_deposits_count", 6) * 5
+            feat_dict["bank_min_balance_ratio"] = 0.1 if bd.get("bounce_events", 0) > 2 else 0.6
+        
+        if "telecom_data" in profile_data:
+            td = profile_data["telecom_data"]
+            feat_dict["telecom_ontime_rate"] = td.get("ontime_payment_rate", 0.9)
+            feat_dict["telecom_plan_value"] = td.get("monthly_average_spend", 399.0)
+            feat_dict["telecom_active_months"] = td.get("recharge_frequency_days", 28) * 1.5
+            feat_dict["telecom_missed_payments"] = 0 if td.get("ontime_payment_rate", 0.9) > 0.9 else 2
+        
+        if "ecommerce_data" in profile_data:
+            ed = profile_data["ecommerce_data"]
+            feat_dict["ecom_purchase_frequency"] = ed.get("order_count_6m", 12)
+            feat_dict["ecom_return_rate"] = ed.get("return_rate", 0.05)
+            feat_dict["ecom_avg_monthly_spend"] = ed.get("total_spend_6m", 12000.0) / 6.0
+            feat_dict["ecom_account_age_months"] = int(ed.get("oldest_order_days", 365) / 30.0)
+        
+        if "location_data" in profile_data:
+            ld = profile_data["location_data"]
+            feat_dict["loc_is_metro"] = 1.0 if ld.get("city") in ["Bengaluru", "Mumbai", "Delhi"] else 0.0
+            feat_dict["loc_years_at_current"] = 5.0
+            feat_dict["loc_address_changes_24m"] = 0.0
+        
+        if "questionnaire_data" in profile_data:
+            qd = profile_data["questionnaire_data"]
+            feat_dict["psych_engagement_score"] = qd.get("cfpb_score", 60)
+            feat_dict["psych_straight_line_ratio"] = 1.0 if qd.get("straight_line_detected") else 0.0
+            feat_dict["psych_consistency"] = 0.9 if qd.get("hesitation_flags", 0) == 0 else 0.6
+        
+        if "gst_data" in profile_data:
+            gd = profile_data["gst_data"]
+            feat_dict["merchant_has_gst"] = 1.0 if gd.get("gstin_valid") else 0.0
+            feat_dict["merchant_filing_regularity"] = gd.get("filing_promptness_rate", 0.9)
+            feat_dict["merchant_months_operating"] = gd.get("operating_months", 24)
+            feat_dict["merchant_annual_turnover"] = 1500000.0 if gd.get("gstin_valid") else 0.0
 
     from app.routes.auth import IN_MEMORY_TOKENS, get_redis_client
     gmail_token = None
@@ -160,7 +223,7 @@ async def post_score(body: ScoreRequest) -> ScoreResponse:
     rng = np.random.default_rng(hash(body.user_id) % (2**32))
     has_bank = "d1_bank" in body.consented_sources
     tier = "tier2" if has_bank else "tier1"
-    return await _build_response(body.user_id, tier, engine, rng, body.consent_id)
+    return await _build_response(body.user_id, tier, engine, rng, body.consent_id, body.phone)
 
 
 @router.get("/score/{user_id}", response_model=ScoreResponse)
@@ -169,4 +232,4 @@ async def get_score(user_id: str, consent_id: str | None = None) -> ScoreRespons
     rng = np.random.default_rng(hash(user_id) % (2**32))
     has_bank = rng.random() > 0.2
     tier = "tier2" if has_bank else "tier1"
-    return await _build_response(user_id, tier, engine, rng, consent_id)
+    return await _build_response(user_id, tier, engine, rng, consent_id, None)
