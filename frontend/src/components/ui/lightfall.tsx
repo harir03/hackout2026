@@ -157,7 +157,7 @@ void mainImage(out vec4 o, vec2 C) {
     C.x += Y.x / 8.0;
   }
 
-  vec3 colr = sqrt(tanhv(max(O.rgb * uGlow - vec3(0.04, 0.08, 0.02), 0.0)));
+  vec3 colr = sqrt(tanhv(max(O.rgb * uGlow, 0.0)));
   o = vec4(colr, uOpacity);
 }
 
