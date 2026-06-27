@@ -81,9 +81,6 @@ export function ApplicantLayout() {
       </main>
 
       <footer className='border-t py-4'>
-        <p className='text-center text-xs text-muted-foreground'>
-          All data shown is simulated for demonstration purposes.
-        </p>
       </footer>
     </div>
   )

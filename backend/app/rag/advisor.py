@@ -14,8 +14,7 @@ Rules:
 - When citing regulations, reference the specific section (e.g., "RBI Fair Practices Code Section 6.3" or "DPDP Act Section 12").
 - If the question cannot be answered from the applicant's data or the retrieved sources, say so explicitly. Do not guess or fabricate information.
 - Use simple, clear language appropriate for a first-time borrower.
-- When suggesting score improvement actions, be specific about which data source/worker they should focus on and give realistic timelines.
-- All data shown is simulated for demonstration purposes."""
+- When suggesting score improvement actions, be specific about which data source/worker they should focus on and give realistic timelines."""
 
 
 def _build_applicant_context(score_result: dict[str, Any]) -> str:

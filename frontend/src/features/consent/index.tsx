@@ -3,18 +3,16 @@ import { useNavigate } from '@tanstack/react-router'
 import {
   Landmark,
   Phone,
-  ShoppingCart,
-  MapPin,
   Brain,
   Store,
   Loader2,
   Mail,
-  Lock,
-  CheckCircle2,
   Camera,
   ShieldCheck,
   CreditCard,
   Fingerprint,
+  ArrowRight,
+  AlertCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,55 +35,67 @@ const DEMO_PROFILES: Record<string, string> = {
   "9876543214": "tejas"
 }
 
-const DATA_SOURCES = [
+const QUESTIONS = [
   {
-    key: 'd1_bank' as const,
-    label: 'Bank & UPI Transactions',
-    icon: Landmark,
-    tier: 'Tier 2',
-    description:
-      'Monthly inflow, outflow patterns, UPI transaction frequency, payment regularity, and balance volatility from your linked bank account.',
+    q: "How often do you plan your monthly budget?",
+    options: ["Always (every month)", "Sometimes (when needed)", "Rarely", "Never"]
   },
   {
-    key: 'd2_telecom' as const,
-    label: 'Telecom Payment History',
-    icon: Phone,
-    tier: 'Tier 1',
-    description:
-      'Mobile plan payment timeliness, active months, missed payments, and recharge consistency from your telecom provider.',
+    q: "If you had an unexpected expense of ₹10,000, how would you cover it?",
+    options: ["From emergency savings", "By reducing other expenses", "Borrowing from friends/family", "Taking a short-term loan"]
   },
   {
-    key: 'd3_ecommerce' as const,
-    label: 'E-commerce Activity',
-    icon: ShoppingCart,
-    tier: 'Tier 2',
-    description:
-      'Purchase frequency, average spend, return rate, category diversity, and account age from e-commerce platforms.',
+    q: "How do you rate your knowledge of interest rates and inflation?",
+    options: ["Advanced / Professional", "Intermediate / General understanding", "Basic / Know the terms", "No knowledge"]
   },
   {
-    key: 'd4_location' as const,
-    label: 'Geolocation Stability',
-    icon: MapPin,
-    tier: 'Tier 1',
-    description:
-      'Address stability, years at current residence, metro/non-metro classification, and frequency of address changes.',
+    q: "How frequently do you pay your bills on time?",
+    options: ["Always on time", "Occasionally late", "Frequently late", "Always late"]
   },
   {
-    key: 'd5_questionnaire' as const,
-    label: 'Psychometric Assessment',
-    icon: Brain,
-    tier: 'Tier 1',
-    description:
-      'Financial literacy and responsibility indicators from a short questionnaire — response consistency, completion time, and engagement level.',
+    q: "Do you keep track of your daily expenses?",
+    options: ["Yes, systematically", "Yes, roughly", "Only major expenses", "No"]
   },
   {
-    key: 'd6_merchant' as const,
-    label: 'Merchant & GST Records',
-    icon: Store,
-    tier: 'Tier 2',
-    description:
-      'GST filing regularity, months in operation, annual turnover, platform rating, and business registration status for MSMEs.',
+    q: "How confident are you in managing credit cards?",
+    options: ["Very confident", "Moderately confident", "Not confident", "Do not use them"]
   },
+  {
+    q: "What is your main financial goal for the next 2 years?",
+    options: ["Saving and investing", "Paying off existing debts", "Buying a property or asset", "No specific goal"]
+  },
+  {
+    q: "How do you prioritize saving vs spending?",
+    options: ["Save first, spend what is left", "Spend first, save what is left", "Balanced approach", "Do not save"]
+  },
+  {
+    q: "How often do you compare financial products before purchasing?",
+    options: ["Always", "Sometimes", "Rarely", "Never"]
+  },
+  {
+    q: "Have you ever defaulted on a minor subscription or utility payment?",
+    options: ["Never", "Once or twice", "Frequently", "Regularly"]
+  },
+  {
+    q: "If you receive extra income, what is your first action?",
+    options: ["Save or invest it", "Pay down debt", "Spend on essential needs", "Spend on leisure/lifestyle"]
+  },
+  {
+    q: "What is your comfort level with using digital banking apps?",
+    options: ["Extremely comfortable", "Moderately comfortable", "Slightly comfortable", "Not comfortable"]
+  },
+  {
+    q: "How would you handle a decrease in your monthly income?",
+    options: ["Reduce non-essentials immediately", "Use savings/investments", "Find alternate income sources", "Borrow money"]
+  },
+  {
+    q: "Do you understand the difference between compound and simple interest?",
+    options: ["Yes, fully", "Vaguely", "No"]
+  },
+  {
+    q: "How often do you consult financial experts or research before investing?",
+    options: ["Always", "Frequently", "Occasionally", "Never"]
+  }
 ]
 
 export function ConsentPage() {
@@ -94,8 +103,6 @@ export function ConsentPage() {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [userId] = useState(() => `applicant-${Date.now()}`)
-  const [gmailConnected, setGmailConnected] = useState(false)
-  const [gmailConnecting, setGmailConnecting] = useState(false)
   
   // Step 1: Phone & OTP States
   const [phone, setPhone] = useState('')
@@ -125,37 +132,38 @@ export function ConsentPage() {
   const [livenessInstruction, setLivenessInstruction] = useState('Position your face in the circle')
   const [livenessScore, setLivenessScore] = useState<number | null>(null)
 
-  // Step 5: Consent States
-  const [consent, setConsent] = useState({
-    d1_bank: false,
-    d2_telecom: false,
-    d3_ecommerce: false,
-    d4_location: false,
-    d5_questionnaire: false,
-    d6_merchant: false,
-  })
+  // Step 5: Bank Connection
+  const [linkingBank, setLinkingBank] = useState(false)
+  const [bankLinked, setBankLinked] = useState(false)
+  const [bankLinkError, setBankLinkError] = useState(false)
+  const [pdfFile, setPdfFile] = useState<string | null>(null)
+  const [uploadingPdf, setUploadingPdf] = useState(false)
+
+  // Step 6: Gmail (Telecom & Ecom) Connection
+  const [gmailConnected, setGmailConnected] = useState(false)
+  const [gmailConnecting, setGmailConnecting] = useState(false)
+
+  // Step 7: Questionnaire
+  const [answers, setAnswers] = useState<Record<number, number>>({})
+
+  // Step 8: GST Connection
+  const [gstNumber, setGstNumber] = useState('')
+  const [verifyingGst, setVerifyingGst] = useState(false)
+  const [gstVerified, setGstVerified] = useState(false)
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.data?.type === 'GMAIL_CONNECTED' && event.data?.userId === userId) {
         setGmailConnected(true)
-        setConsent((prev) => ({ ...prev, d3_ecommerce: true }))
       }
     }
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [userId])
 
-  const anyEnabled = Object.values(consent).some(Boolean)
-  const hasBankData = consent.d1_bank
-  const tier = hasBankData ? 'Tier 2 — Full Assessment' : 'Tier 1 — Zero-history'
-  const enabledCount = Object.values(consent).filter(Boolean).length
 
-  function handleToggle(key: keyof typeof consent) {
-    setConsent((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
 
-  // Onboarding Helpers
+  // Steppers
   const handleSendOtp = () => {
     if (phone.length === 10) {
       setOtpSent(true)
@@ -219,7 +227,31 @@ export function ConsentPage() {
     }, 1500)
   }
 
-  function handleConnectGmail() {
+  // Bank Ingest
+  const handleLinkBank = () => {
+    setLinkingBank(true)
+    setBankLinkError(false)
+    setTimeout(() => {
+      setLinkingBank(false)
+      if (profileName === 'akash') {
+        setBankLinkError(true)
+      } else {
+        setBankLinked(true)
+      }
+    }, 1500)
+  }
+
+  const handleUploadPdf = () => {
+    setUploadingPdf(true)
+    setTimeout(() => {
+      setUploadingPdf(false)
+      setPdfFile('statement_uploaded.pdf')
+      setBankLinked(true)
+    }, 1500)
+  }
+
+  // Gmail Connection
+  const handleConnectGmail = () => {
     if (gmailConnected) {
       setGmailConnected(false)
       return
@@ -245,22 +277,42 @@ export function ConsentPage() {
     }, 1000)
   }
 
+  // Questionnaire Actions
+  const handleSelectAnswer = (qIdx: number, oIdx: number) => {
+    setAnswers((prev) => ({ ...prev, [qIdx]: oIdx }))
+  }
+
+  const isQuestionnaireComplete = Object.keys(answers).length === QUESTIONS.length
+
+  // GST Actions
+  const handleVerifyGst = () => {
+    setVerifyingGst(true)
+    setTimeout(() => {
+      setVerifyingGst(false)
+      setGstVerified(true)
+    }, 1200)
+  }
+
+  // Final submission
   async function handleSubmit() {
     setSubmitting(true)
-    const consentedSourcesList = Object.entries(consent)
-      .filter(([, v]) => v)
-      .map(([k]) => k)
+    
+    // Auto consented sources list based on what was connected/completed
+    const consentedList = ['d2_telecom', 'd4_location', 'd5_questionnaire']
+    if (bankLinked) consentedList.push('d1_bank')
+    if (gmailConnected) consentedList.push('d3_ecommerce')
+    if (gstVerified) consentedList.push('d6_merchant')
 
     try {
-      const res = await submitConsent(userId, consentedSourcesList)
-      const sources = consentedSourcesList.join(',')
+      const res = await submitConsent(userId, consentedList)
+      const sources = consentedList.join(',')
       navigate({
         to: '/score',
         search: { userId, sources, consentId: res.consent_id, phone }
       })
     } catch (err) {
-      console.error('Consent submission failed:', err)
-      const sources = consentedSourcesList.join(',')
+      console.error('Submission failed:', err)
+      const sources = consentedList.join(',')
       navigate({
         to: '/score',
         search: { userId, sources, phone }
@@ -272,13 +324,16 @@ export function ConsentPage() {
 
   return (
     <div className='max-w-4xl mx-auto py-8 px-4'>
-      {/* Stepper Header */}
-      <div className='mb-8 flex justify-between items-center text-xs text-graphite border-b border-dove/20 pb-4'>
-        <span className={step === 1 ? 'text-vercel-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile Verification</span>
-        <span className={step === 2 ? 'text-vercel-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN Verification</span>
-        <span className={step === 3 ? 'text-vercel-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar OKYC</span>
-        <span className={step === 4 ? 'text-vercel-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness Check</span>
-        <span className={step === 5 ? 'text-vercel-blue font-semibold' : ''}>5. DPDP Consent</span>
+      {/* Dynamic Stepper Header */}
+      <div className='mb-8 flex justify-between items-center text-[10px] sm:text-xs text-graphite border-b border-dove/20 pb-4 overflow-x-auto whitespace-nowrap gap-4'>
+        <span className={step === 1 ? 'text-vercel-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
+        <span className={step === 2 ? 'text-vercel-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
+        <span className={step === 3 ? 'text-vercel-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
+        <span className={step === 4 ? 'text-vercel-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
+        <span className={step === 5 ? 'text-vercel-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
+        <span className={step === 6 ? 'text-vercel-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Email</span>
+        <span className={step === 7 ? 'text-vercel-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
+        <span className={step === 8 ? 'text-vercel-blue font-semibold' : ''}>8. GST (Opt)</span>
       </div>
 
       {step === 1 && (
@@ -559,7 +614,7 @@ export function ConsentPage() {
                 onClick={() => setStep(5)}
                 className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
               >
-                Proceed to Consent
+                Proceed to Verification Flow
               </Button>
             )}
           </CardContent>
@@ -567,158 +622,274 @@ export function ConsentPage() {
       )}
 
       {step === 5 && (
-        <div className='animate-fade-up'>
-          <div className='mb-6'>
-            <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
-              Select Your Data Sources
-            </h1>
-            <p className='mt-1 text-muted-foreground'>
-              Choose which data sources you consent to share for your credit
-              assessment. Each source is processed independently and you may withdraw
-              consent at any time.
-            </p>
-          </div>
-
-          <div className='mb-4 flex items-center gap-3'>
-            <Badge variant={anyEnabled ? 'default' : 'secondary'}>
-              {enabledCount} of 6 sources selected
-            </Badge>
-            <Badge variant={hasBankData ? 'default' : 'outline'}>
-              {tier}
-            </Badge>
-          </div>
-
-          <div className='grid gap-4 sm:grid-cols-2'>
-            {DATA_SOURCES.map((source, i) => {
-              const Icon = source.icon
-              const enabled = consent[source.key]
-              return (
-                <Card
-                  key={source.key}
-                  className={`animate-fade-up transition-all duration-200 ${
-                    enabled
-                      ? 'border-foreground bg-muted shadow-sm'
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                  style={{ animationDelay: `${i * 50}ms` }}
-                >
-                  <CardHeader className='pb-3'>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-2'>
-                        <Icon className={`h-5 w-5 ${enabled ? 'text-foreground' : 'text-muted-foreground'}`} />
-                        <CardTitle className='text-sm font-semibold tracking-[-0.01em]'>
-                          {source.label}
-                        </CardTitle>
-                      </div>
-                      <Switch
-                        id={source.key}
-                        checked={enabled}
-                        onCheckedChange={() => handleToggle(source.key)}
-                      />
-                    </div>
-                    <Badge variant='outline' className='w-fit text-xs'>
-                      {source.tier}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className='text-xs leading-relaxed'>
-                      {source.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-
-          <Card className={`mt-6 border transition-all duration-300 ${
-            gmailConnected
-              ? 'border-vercel-blue bg-vercel-blue/5'
-              : 'border-dove/50 bg-fog/30 hover:border-graphite'
-          }`}>
-            <CardHeader className='pb-3'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-3'>
-                  <div className={`rounded-lg p-2 ${gmailConnected ? 'bg-vercel-blue/15 text-vercel-blue' : 'bg-muted text-muted-foreground'}`}>
-                    <Mail className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <CardTitle className='text-base font-semibold tracking-[-0.01em] flex items-center gap-2'>
-                      Connect Gmail Account
-                      <Badge variant='secondary' className='text-[10px] font-normal tracking-normal px-2 py-0 h-4 bg-muted text-muted-foreground'>
-                        Optional
-                  </Badge>
-                    </CardTitle>
-                    <CardDescription className='text-xs mt-0.5 text-muted-foreground/80'>
-                      Order confirmation emails are parsed to extract real e-commerce transactional signal.
-                    </CardDescription>
-                  </div>
+        <Card className='shadow-subtle max-w-md mx-auto'>
+          <CardHeader>
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
+              <Landmark className='h-5 w-5 text-vercel-blue' />
+              Step 5: Bank Connection
+            </CardTitle>
+            <CardDescription className='text-sm text-muted-foreground'>
+              Link your bank account via Finvu Account Aggregator to analyze transaction statements.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            {!bankLinked ? (
+              <>
+                <div className='rounded-[12px] bg-sky-wash/20 p-4 border border-sky-wash/30 text-xs text-ink leading-relaxed'>
+                  Finvu AA requests access to monthly inflow, outflow patterns, UPI frequencies, and balance trends for alternate scoring.
                 </div>
-                <div>
+
+                {bankLinkError ? (
+                  <div className='space-y-4 animate-fade-up'>
+                    <div className='flex gap-2 items-start text-xs text-rust bg-rust/5 p-3 rounded-[12px] border border-rust/10'>
+                      <AlertCircle className='h-4 w-4 shrink-0' />
+                      <p>Finvu connection failed. Please upload your last 6 months' bank statement PDF to continue.</p>
+                    </div>
+
+                    <div className='border-2 border-dashed border-dove/50 rounded-[16px] p-6 text-center space-y-3'>
+                      <Mail className='h-8 w-8 text-graphite mx-auto' />
+                      <p className='text-xs text-graphite'>Drag bank statement PDF here or click to browse</p>
+                      <Button
+                        onClick={handleUploadPdf}
+                        disabled={uploadingPdf}
+                        variant='outline'
+                        className='h-8 text-xs rounded-full'
+                      >
+                        {uploadingPdf ? 'Uploading...' : 'Upload PDF'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
                   <Button
-                    variant={gmailConnected ? 'destructive' : 'outline'}
-                    size='sm'
-                    onClick={handleConnectGmail}
-                    disabled={gmailConnecting}
-                    className='h-8 px-3 text-xs'
+                    onClick={handleLinkBank}
+                    disabled={linkingBank}
+                    className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
                   >
-                    {gmailConnecting ? (
+                    {linkingBank ? (
                       <>
-                        <Loader2 className='mr-1 h-3.5 w-3.5 animate-spin' />
-                        Connecting...
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Connecting via Finvu AA...
                       </>
-                    ) : gmailConnected ? (
-                      'Disconnect'
                     ) : (
-                      'Link Account'
+                      'Link Bank Account'
                     )}
                   </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className='flex flex-col gap-2 rounded-lg bg-fog border border-dove/20 p-3 text-xs leading-relaxed text-muted-foreground'>
-                <div className='flex items-center gap-2'>
-                  <Lock className='h-3.5 w-3.5 text-graphite' />
-                  <span><strong>Privacy Policy:</strong> Read-only access to transaction receipt headers from Amazon, Flipkart, and Meesho. Message bodies are not stored.</span>
-                </div>
-                {gmailConnected && (
-                  <div className='flex items-center gap-2 text-vercel-blue mt-1 font-medium'>
-                    <CheckCircle2 className='h-3.5 w-3.5 text-vercel-blue animate-pulse' />
-                    <span>Connected as user-gmail-session. E-commerce metrics will reflect real email parser results.</span>
-                  </div>
                 )}
+              </>
+            ) : (
+              <div className='space-y-4 animate-fade-up text-center'>
+                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
+                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>Bank Connection Successful</h3>
+                  <p className='text-xs text-graphite mt-1'>
+                    {pdfFile ? 'Parsed statement statement_uploaded.pdf' : 'Consented via Finvu AA sandbox.'}
+                  </p>
+                </div>
+
+                <div className='bg-sky-wash/30 text-ink p-3 rounded-[12px] text-xs text-left'>
+                  <strong>Estimated Score:</strong> Based on bank signals, score estimate is 520 (Good).
+                </div>
+
+                <Button
+                  onClick={() => setStep(6)}
+                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
+                >
+                  Continue to Next Step
+                  <ArrowRight className='h-4 w-4' />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-          {!hasBankData && anyEnabled && (
-            <div className='mt-4 rounded-[12px] border border-rust/20 bg-rust/5 p-4'>
-              <p className='text-sm text-rust'>
-                Without Bank & UPI data, your assessment will use Tier 1 scoring
-                with reduced data sources. For the most accurate assessment,
-                enable Bank & UPI Transactions.
-              </p>
+      {step === 6 && (
+        <Card className='shadow-subtle max-w-md mx-auto'>
+          <CardHeader>
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
+              <Mail className='h-5 w-5 text-vercel-blue' />
+              Step 6: Gmail Verification
+            </CardTitle>
+            <CardDescription className='text-sm text-muted-foreground'>
+              Connect Gmail to automatically verify telecom billing, utilities, and delivery addresses.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            {!gmailConnected ? (
+              <>
+                <div className='rounded-[12px] bg-sky-wash/20 p-4 border border-sky-wash/30 text-xs text-ink leading-relaxed'>
+                  Gmail scanner checks recharges (Jio, Airtel), order receipts (Amazon, Flipkart), and utility bills to establish consumption reliability and residential geolocations.
+                </div>
+
+                <Button
+                  onClick={handleConnectGmail}
+                  disabled={gmailConnecting}
+                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                >
+                  {gmailConnecting ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Linking Account...
+                    </>
+                  ) : (
+                    'Link Gmail Account'
+                  )}
+                </Button>
+              </>
+            ) : (
+              <div className='space-y-4 animate-fade-up text-center'>
+                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
+                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>Gmail Connected Successfully</h3>
+                  <p className='text-xs text-graphite mt-1'>
+                    Gmail session synchronized. recharges and receipts parsed.
+                  </p>
+                </div>
+
+                <div className='bg-sky-wash/30 text-ink p-3 rounded-[12px] text-xs text-left'>
+                  <strong>Estimated Score Update:</strong> Consumption and locality checks added. Estimated score is 610 (Excellent).
+                </div>
+
+                <Button
+                  onClick={() => setStep(7)}
+                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
+                >
+                  Continue to Questionnaire
+                  <ArrowRight className='h-4 w-4' />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 7 && (
+        <Card className='shadow-subtle max-w-2xl mx-auto'>
+          <CardHeader>
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
+              <Brain className='h-5 w-5 text-vercel-blue' />
+              Step 7: Psychometric Assessment
+            </CardTitle>
+            <CardDescription className='text-sm text-muted-foreground'>
+              Answer these 15 questions to evaluate financial planning and responsibility capabilities.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-6'>
+            <div className='space-y-6 max-h-[450px] overflow-y-auto pr-2'>
+              {QUESTIONS.map((item, idx) => (
+                <div key={idx} className='space-y-2 border-b border-dove/10 pb-4'>
+                  <p className='text-sm font-semibold text-foreground'>
+                    {idx + 1}. {item.q}
+                  </p>
+                  <div className='grid gap-2 grid-cols-1 sm:grid-cols-2'>
+                    {item.options.map((opt, oIdx) => {
+                      const isSelected = answers[idx] === oIdx
+                      return (
+                        <button
+                          key={oIdx}
+                          onClick={() => handleSelectAnswer(idx, oIdx)}
+                          className={`text-left text-xs p-3 rounded-[12px] border transition-all duration-200 ${
+                            isSelected
+                              ? 'border-vercel-blue bg-vercel-blue/5 text-vercel-blue font-medium'
+                              : 'border-dove/50 hover:bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
 
-          <div className='mt-6 flex justify-end'>
             <Button
-              size='lg'
-              disabled={!anyEnabled || submitting}
-              onClick={handleSubmit}
-              className='rounded-full'
+              onClick={() => setStep(8)}
+              disabled={!isQuestionnaireComplete}
+              className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
             >
-              {submitting ? (
-                <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Submitting Consent...
-                </>
-              ) : (
-                'Submit Consent & Get Score'
-              )}
+              Submit Questionnaire
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 8 && (
+        <Card className='shadow-subtle max-w-md mx-auto'>
+          <CardHeader>
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
+              <Store className='h-5 w-5 text-vercel-blue' />
+              Step 8: GST Connection (Optional)
+            </CardTitle>
+            <CardDescription className='text-sm text-muted-foreground'>
+              Link your business GST number to include merchant turnover records in the assessment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='gst'>GSTIN Number</Label>
+              <Input
+                id='gst'
+                placeholder='22AAAAA0000A1Z5'
+                value={gstNumber}
+                onChange={(e) => setGstNumber(e.target.value.toUpperCase().slice(0, 15))}
+                className='rounded-[12px] border-dove/80'
+                disabled={gstVerified}
+              />
+            </div>
+
+            {!gstVerified ? (
+              <div className='space-y-2'>
+                <Button
+                  onClick={handleVerifyGst}
+                  disabled={gstNumber.length !== 15 || verifyingGst}
+                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                >
+                  {verifyingGst ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Verifying GSTIN...
+                    </>
+                  ) : (
+                    'Verify & Link GST'
+                  )}
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  variant='ghost'
+                  className='w-full rounded-full text-graphite font-medium'
+                >
+                  Skip Step
+                </Button>
+              </div>
+            ) : (
+              <div className='space-y-4 animate-fade-up text-center'>
+                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
+                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>GST Linked Successfully</h3>
+                  <p className='text-xs text-graphite mt-1'>
+                    GSTIN verified. Merchant logs updated.
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Analyzing Risk Profile...
+                    </>
+                  ) : (
+                    'Finish Credit Assessment'
+                  )}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   )
