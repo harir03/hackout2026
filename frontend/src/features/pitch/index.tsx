@@ -279,25 +279,13 @@ export function PitchDeckPage() {
 
   return (
     <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden relative'>
-      {/* Base Stark Background Grid */}
-      <div className='absolute inset-0 bg-[linear-gradient(to_right,#111111_1px,transparent_1px),linear-gradient(to_bottom,#111111_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none opacity-40' />
-
       {/* Dynamic Cursor Light Grid Highlight */}
       <div 
-        className='absolute inset-0 pointer-events-none'
+        className='absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none'
         style={{
-          background: `
-            radial-gradient(
-              400px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
-              rgba(255, 255, 255, 0.08),
-              transparent 80%
-            ),
-            linear-gradient(to right, #1f1f1f 1px, transparent 1px),
-            linear-gradient(to bottom, #1f1f1f 1px, transparent 1px)
-          `,
-          backgroundSize: '100% 100%, 5rem 5rem, 5rem 5rem',
-          mixBlendMode: 'screen',
-          opacity: 0.95
+          maskImage: `radial-gradient(320px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 20%, transparent 100%)`,
+          WebkitMaskImage: `radial-gradient(320px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 20%, transparent 100%)`,
+          opacity: 0.9
         }}
       />
 
