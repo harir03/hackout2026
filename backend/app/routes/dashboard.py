@@ -191,6 +191,69 @@ async def _embed_text_local(text_val: str, api_key: str | None = None) -> list[f
 
 @router.get("/overview", response_model=DashboardOverview)
 async def get_overview(admin_email: str | None = None) -> DashboardOverview:
+    if admin_email == "testadmin@altgrade.in":
+        return DashboardOverview(
+            total_scored=1248,
+            approval_rate=68.4,
+            conflict_count=5,
+            hard_cap_count=32,
+            band_distribution=[
+                {"band": "Excellent", "count": 420, "percentage": 33.6},
+                {"band": "Good", "count": 434, "percentage": 34.7},
+                {"band": "Fair", "count": 242, "percentage": 19.3},
+                {"band": "Poor", "count": 120, "percentage": 9.6},
+                {"band": "Not Eligible", "count": 32, "percentage": 2.5},
+            ],
+            flagged_applicants=[
+                ConflictApplicant(
+                    user_id="USR-8931A",
+                    score=540,
+                    band="Fair",
+                    conflicts=[
+                        "E-Commerce spend is highly positive (+110 pts) but Questionnaire shows irregular seasonal income (-65 pts)",
+                        "Merchant POS inflows indicate active daily trades (+85 pts) but Bank balance volatility is extremely high (-70 pts)"
+                    ]
+                ),
+                ConflictApplicant(
+                    user_id="USR-1049C",
+                    score=495,
+                    band="Poor",
+                    conflicts=[
+                        "Location logs show high frequency of urban metro visits (+75 pts) but Telecom recharge frequency has declined by 60% (-80 pts)"
+                    ]
+                ),
+                ConflictApplicant(
+                    user_id="USR-2947F",
+                    score=615,
+                    band="Good",
+                    conflicts=[
+                        "Bank statement monthly inflow exceeds 50k (+140 pts) but psychometrics flag high impulse risk behavior (-95 pts)"
+                    ]
+                ),
+                ConflictApplicant(
+                    user_id="USR-5821D",
+                    score=520,
+                    band="Fair",
+                    conflicts=[
+                        "E-Commerce transaction count is high (+90 pts) but Aadhaar identity verification was updated within last 30 days (-55 pts)"
+                    ]
+                ),
+                ConflictApplicant(
+                    user_id="USR-7391B",
+                    score=410,
+                    band="Poor",
+                    conflicts=[
+                        "Telecom data shows 5+ years of active tenure (+60 pts) but monthly debt service ratio exceeds 70% (-110 pts)"
+                    ]
+                )
+            ],
+            fairness={
+                "demographic_parity_ratio": 0.8682,
+                "passes_four_fifths": True,
+                "last_audit": "2026-06-28"
+            }
+        )
+
     if admin_email in ["admin@altgrade.in", "admin@altgrade.com"]:
         try:
             async with async_session() as session:
@@ -201,6 +264,23 @@ async def get_overview(admin_email: str | None = None) -> DashboardOverview:
         except Exception as e:
             print(f"Failed to query scores for admin dashboard: {e}")
             rows = []
+            scores_file = PROJECT_ROOT / "demo_data" / "scores_db.json"
+            if scores_file.exists():
+                try:
+                    scores_data = json.loads(scores_file.read_text())
+                    rows = [
+                        (
+                            s["user_id"],
+                            s["score"],
+                            s["risk_band"],
+                            s["signal_conflicts"],
+                            s["has_conflicts"],
+                            s["has_hard_cap"],
+                        )
+                        for s in sorted(scores_data.values(), key=lambda x: x["created_at"], reverse=True)
+                    ]
+                except Exception as file_ex:
+                    print(f"Failed to read fallback scores file: {file_ex}")
 
         total_scored = len(rows)
         if total_scored == 0:

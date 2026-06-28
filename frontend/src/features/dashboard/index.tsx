@@ -323,6 +323,26 @@ function LoadingSkeleton() {
   )
 }
 
+const EMPTY_DASHBOARD_DATA: DashboardOverview = {
+  total_scored: 0,
+  approval_rate: 0.0,
+  conflict_count: 0,
+  hard_cap_count: 0,
+  band_distribution: [
+    { band: 'Excellent', count: 0, percentage: 0.0 },
+    { band: 'Good', count: 0, percentage: 0.0 },
+    { band: 'Fair', count: 0, percentage: 0.0 },
+    { band: 'Poor', count: 0, percentage: 0.0 },
+    { band: 'Not Eligible', count: 0, percentage: 0.0 },
+  ],
+  flagged_applicants: [],
+  fairness: {
+    demographic_parity_ratio: 1.0,
+    passes_four_fifths: true,
+    last_audit: 'Empty'
+  }
+}
+
 const SIMULATED_DASHBOARD_DATA: DashboardOverview = {
   total_scored: 1248,
   approval_rate: 68.4,
@@ -404,15 +424,27 @@ export function LoanOfficerDashboard() {
   const [currentStep, setCurrentStep] = useState(1)
 
   useEffect(() => {
+    const isAdminNoMock = user?.email === 'admin@altgrade.in' || user?.email === 'admin@altgrade.com'
+
     fetchDashboard(user?.email || undefined)
       .then((res) => {
-        setData(res)
-        setIsSimulated(false)
+        if (isAdminNoMock) {
+          setData(res)
+          setIsSimulated(false)
+        } else {
+          setData(res)
+          setIsSimulated(res.total_scored === 1248)
+        }
       })
       .catch((err) => {
-        console.warn('Dashboard fetch failed, using simulated fallback.', err)
-        setData(SIMULATED_DASHBOARD_DATA)
-        setIsSimulated(true)
+        console.warn('Dashboard fetch failed, using fallback.', err)
+        if (isAdminNoMock) {
+          setData(EMPTY_DASHBOARD_DATA)
+          setIsSimulated(false)
+        } else {
+          setData(SIMULATED_DASHBOARD_DATA)
+          setIsSimulated(true)
+        }
       })
       .finally(() => setLoading(false))
   }, [user?.email])

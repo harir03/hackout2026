@@ -113,34 +113,66 @@ async def _build_response_with_features(
 
     try:
         async def _log_score_to_db():
-            async with async_session() as session:
-                score_id = uuid.uuid4()
-                try:
-                    db_user_id = uuid.UUID(user_id)
-                except ValueError:
-                    db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
+            import json
+            import datetime
+            score_id = uuid.uuid4()
 
-                import json
-                await session.execute(
-                    text(
-                        "INSERT INTO scores (id, user_id, score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap) "
-                        "VALUES (:id, :user_id, :score, :risk_band, :tier, :version, :shap, :conflicts, :caps, :has_c, :has_hc)"
-                    ),
-                    {
-                        "id": str(score_id),
-                        "user_id": str(db_user_id),
-                        "score": final_score,
-                        "risk_band": band,
-                        "tier": tier_label,
-                        "version": "blend-calibrated",
-                        "shap": json.dumps(result["shap_details"]),
-                        "conflicts": json.dumps(consolidated["signal_conflicts"]),
-                        "caps": json.dumps(consolidated["hard_caps_applied"]),
-                        "has_c": consolidated["has_conflicts"],
-                        "has_hc": consolidated["has_hard_cap"],
-                    }
-                )
-                await session.commit()
+            try:
+                scores_file = Path(__file__).resolve().parents[2] / ".." / "demo_data" / "scores_db.json"
+                scores_data = {}
+                if scores_file.exists():
+                    try:
+                        scores_data = json.loads(scores_file.read_text())
+                    except Exception:
+                        pass
+                scores_data[str(score_id)] = {
+                    "id": str(score_id),
+                    "user_id": user_id,
+                    "score": final_score,
+                    "risk_band": band,
+                    "tier": tier_label,
+                    "model_version": "blend-calibrated",
+                    "shap_details": result["shap_details"],
+                    "signal_conflicts": consolidated["signal_conflicts"],
+                    "hard_caps_applied": consolidated["hard_caps_applied"],
+                    "has_conflicts": consolidated["has_conflicts"],
+                    "has_hard_cap": consolidated["has_hard_cap"],
+                    "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    "consent_id": consent_id,
+                }
+                scores_file.write_text(json.dumps(scores_data, indent=2))
+            except Exception as file_ex:
+                print(f"Failed to write fallback scores file: {file_ex}")
+
+            try:
+                async with async_session() as session:
+                    try:
+                        db_user_id = uuid.UUID(user_id)
+                    except ValueError:
+                        db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
+
+                    await session.execute(
+                        text(
+                            "INSERT INTO scores (id, user_id, score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap) "
+                            "VALUES (:id, :user_id, :score, :risk_band, :tier, :version, :shap, :conflicts, :caps, :has_c, :has_hc)"
+                        ),
+                        {
+                            "id": str(score_id),
+                            "user_id": str(db_user_id),
+                            "score": final_score,
+                            "risk_band": band,
+                            "tier": tier_label,
+                            "version": "blend-calibrated",
+                            "shap": json.dumps(result["shap_details"]),
+                            "conflicts": json.dumps(consolidated["signal_conflicts"]),
+                            "caps": json.dumps(consolidated["hard_caps_applied"]),
+                            "has_c": consolidated["has_conflicts"],
+                            "has_hc": consolidated["has_hard_cap"],
+                        }
+                    )
+                    await session.commit()
+            except Exception as db_ex:
+                print(f"PostgreSQL decision audit log skipped: {db_ex}")
 
         loop = asyncio.get_event_loop()
         if loop.is_running():
@@ -285,6 +317,31 @@ async def _build_response(
                 )
     except Exception as db_ex:
         print(f"Failed to check existing score in DB: {db_ex}")
+
+    try:
+        scores_file = Path(__file__).resolve().parents[2] / ".." / "demo_data" / "scores_db.json"
+        if scores_file.exists():
+            scores_data = json.loads(scores_file.read_text())
+            user_scores = [s for s in scores_data.values() if s["user_id"] == user_id]
+            if user_scores:
+                latest = sorted(user_scores, key=lambda x: x["created_at"])[-1]
+                return ScoreResponse(
+                    user_id=user_id,
+                    score=latest["score"],
+                    risk_band=latest["risk_band"],
+                    tier=latest["tier"],
+                    model_version=latest["model_version"],
+                    shap_details=[ShapFeature(**feat) for feat in latest["shap_details"]],
+                    signal_conflicts=[SignalConflict(**c) for c in latest["signal_conflicts"]],
+                    hard_caps_applied=latest["hard_caps_applied"],
+                    tier1_reweight=None,
+                    has_conflicts=latest["has_conflicts"],
+                    has_hard_cap=latest["has_hard_cap"],
+                    consent_id=latest.get("consent_id"),
+                    ecom_source="simulated"
+                )
+    except Exception as file_ex:
+        print(f"Failed to check existing score in fallback JSON: {file_ex}")
 
     profiles = ["low", "medium", "high"]
     profile = profiles[hash(user_id) % len(profiles)]

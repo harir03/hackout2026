@@ -165,6 +165,24 @@ export function ConsentPage() {
     return () => window.removeEventListener('message', handleMessage)
   }, [userId])
 
+  useEffect(() => {
+    if (user?.email === 'testhari@altgrade.in') {
+      setPhone('9876543210')
+      setOtpCode('123456')
+      setPan('ABCDE1234F')
+      setAadhaar('123456789012')
+      setAadhaarOtp('123456')
+      setGstNumber('27AAAAA1111A1Z1')
+    } else {
+      setPhone('')
+      setOtpCode('')
+      setPan('')
+      setAadhaar('')
+      setAadhaarOtp('')
+      setGstNumber('')
+    }
+  }, [user?.email])
+
 
 
   // Steppers
