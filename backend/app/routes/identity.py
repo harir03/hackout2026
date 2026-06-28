@@ -44,6 +44,7 @@ DEMO_DATA: dict[str, dict[str, str | bool]] = {
 class PanVerifyRequest(BaseModel):
     pan: str
     phone: str = ""
+    email: str | None = None
 
 
 class PanVerifyResponse(BaseModel):
@@ -117,26 +118,34 @@ async def verify_pan(request: PanVerifyRequest) -> PanVerifyResponse:
         raise HTTPException(status_code=400, detail="Invalid PAN format.")
 
     profile_name = "default"
-    for num, name in {
-        "9876543210": "hari",
-        "9876543211": "rahul",
-        "9876543212": "nikhil",
-        "9876543213": "akash",
-        "9876543214": "tejas",
-    }.items():
-        if request.phone.endswith(num):
-            profile_name = name
-            break
-
-    profile = DEMO_DATA.get(
-        profile_name,
-        {
-            "name": "RAJESH KUMAR",
-            "dob": "1988-11-23",
+    if request.email and request.email.lower() == "hari@altgrade.in":
+        profile = {
+            "name": "HARI PRASAD",
+            "dob": "1995-05-12",
             "entity_type": "Individual",
             "aadhaar_linked": True,
-        },
-    )
+        }
+    else:
+        for num, name in {
+            "9876543210": "hari",
+            "9876543211": "rahul",
+            "9876543212": "nikhil",
+            "9876543213": "akash",
+            "9876543214": "tejas",
+        }.items():
+            if request.phone.endswith(num):
+                profile_name = name
+                break
+
+        profile = DEMO_DATA.get(
+            profile_name,
+            {
+                "name": "RAJESH KUMAR",
+                "dob": "1988-11-23",
+                "entity_type": "Individual",
+                "aadhaar_linked": True,
+            },
+        )
 
     return PanVerifyResponse(
         pan=pan_cleaned,

@@ -120,20 +120,24 @@ async def _build_response_with_features(
                 except ValueError:
                     db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
 
+                import json
                 await session.execute(
                     text(
-                        "INSERT INTO scores (id, user_id, score, risk_band, tier, consented_sources, model_version, consent_id) "
-                        "VALUES (:id, :user_id, :score, :risk_band, :tier, :sources, :version, :consent_id)"
+                        "INSERT INTO scores (id, user_id, score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap) "
+                        "VALUES (:id, :user_id, :score, :risk_band, :tier, :version, :shap, :conflicts, :caps, :has_c, :has_hc)"
                     ),
                     {
-                        "id": score_id,
-                        "user_id": db_user_id,
+                        "id": str(score_id),
+                        "user_id": str(db_user_id),
                         "score": final_score,
                         "risk_band": band,
                         "tier": tier_label,
-                        "sources": TIER2_FEATURES if tier == "tier2" else TIER1_FEATURES,
                         "version": "blend-calibrated",
-                        "consent_id": uuid.UUID(consent_id) if consent_id else None,
+                        "shap": json.dumps(result["shap_details"]),
+                        "conflicts": json.dumps(consolidated["signal_conflicts"]),
+                        "caps": json.dumps(consolidated["hard_caps_applied"]),
+                        "has_c": consolidated["has_conflicts"],
+                        "has_hc": consolidated["has_hard_cap"],
                     }
                 )
                 await session.commit()

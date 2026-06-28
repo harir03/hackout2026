@@ -178,7 +178,7 @@ export function ConsentPage() {
     setVerifyingOtp(true)
     setTimeout(() => {
       setVerifyingOtp(false)
-      const matchedProfile = DEMO_PROFILES[phone]
+      const matchedProfile = user?.email === 'hari@altgrade.in' ? null : DEMO_PROFILES[phone]
       if (matchedProfile) {
         setProfileName(matchedProfile)
       }
@@ -189,7 +189,7 @@ export function ConsentPage() {
   const handleVerifyPan = async () => {
     setVerifyingPan(true)
     try {
-      const res = await verifyPan(pan, phone)
+      const res = await verifyPan(pan, phone, user?.email || undefined)
       setPanName(res.name)
       setPanDob(res.dob)
       setPanType(res.entity_type)

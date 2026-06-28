@@ -27,6 +27,7 @@ IN_MEMORY_CONSENTS = {}
 
 @router.post("", response_model=ConsentResponse)
 async def create_consent(request: ConsentRequest) -> ConsentResponse:
+    import json
     consent_id = str(uuid.uuid4())
     consented_at = datetime.datetime.now(datetime.timezone.utc)
 
@@ -34,55 +35,56 @@ async def create_consent(request: ConsentRequest) -> ConsentResponse:
         async with async_session() as session:
             try:
                 db_user_id = uuid.UUID(request.user_id)
-                res = await session.execute(
-                    text("SELECT id FROM users WHERE id = :user_id"),
-                    {"user_id": db_user_id}
-                )
-                user_exists = res.fetchone()
             except ValueError:
-                # Not a valid UUID, generate a deterministic one or a random one
                 db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, request.user_id)
-                res = await session.execute(
-                    text("SELECT id FROM users WHERE id = :user_id"),
-                    {"user_id": db_user_id}
-                )
-                user_exists = res.fetchone()
+
+            res = await session.execute(
+                text("SELECT id FROM applicants WHERE id = :user_id"),
+                {"user_id": str(db_user_id)}
+            )
+            applicant_exists = res.fetchone()
 
             phone = request.phone if request.phone else f"99999{uuid.uuid4().hex[:5]}"
 
-            if user_exists:
+            if applicant_exists:
                 await session.execute(
                     text(
-                        "UPDATE users SET name = :name, email = :email, phone = :phone, "
-                        "consented_sources = :sources, consent_id = :consent_id, "
-                        "consented_at = :consented_at WHERE id = :user_id"
+                        "UPDATE applicants SET name = :name, phone = :phone "
+                        "WHERE id = :user_id"
                     ),
                     {
                         "name": request.name,
-                        "email": request.email,
                         "phone": phone,
-                        "sources": request.consented_sources,
-                        "consent_id": uuid.UUID(consent_id),
-                        "consented_at": consented_at,
-                        "user_id": db_user_id,
+                        "user_id": str(db_user_id),
                     }
                 )
             else:
                 await session.execute(
                     text(
-                        "INSERT INTO users (id, name, email, phone, consented_sources, consent_id, consented_at) "
-                        "VALUES (:id, :name, :email, :phone, :sources, :consent_id, :consented_at)"
+                        "INSERT INTO applicants (id, name, phone, created_at) "
+                        "VALUES (:id, :name, :phone, :created_at)"
                     ),
                     {
-                        "id": db_user_id,
+                        "id": str(db_user_id),
                         "name": request.name,
-                        "email": request.email,
                         "phone": phone,
-                        "sources": request.consented_sources,
-                        "consent_id": uuid.UUID(consent_id),
-                        "consented_at": consented_at,
+                        "created_at": consented_at,
                     }
                 )
+
+            await session.execute(
+                text(
+                    "INSERT INTO consent (id, user_id, consented_sources, granted_at, is_active) "
+                    "VALUES (:id, :user_id, :sources, :granted_at, :is_active)"
+                ),
+                {
+                    "id": consent_id,
+                    "user_id": str(db_user_id),
+                    "sources": json.dumps(request.consented_sources),
+                    "granted_at": consented_at,
+                    "is_active": True,
+                }
+            )
             await session.commit()
 
             return ConsentResponse(
