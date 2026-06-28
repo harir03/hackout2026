@@ -6,7 +6,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
-import { sleep, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -53,12 +53,32 @@ export function UserAuthForm({
   function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    toast.promise(sleep(2000), {
+    const emailLower = data.email.toLowerCase()
+    const targetDemoEmails = [
+      'admin@altgrade.in',
+      'admin@altgrade.com',
+      'testadmin@altgrade.in',
+      'hari@altgrade.in',
+      'testhari@altgrade.in',
+    ]
+
+    const isDemoProfile = targetDemoEmails.includes(emailLower)
+
+    const handleAuth = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (isDemoProfile && data.password !== 'Password@123') {
+          reject(new Error('Invalid password. Please use Password@123 for demo profiles.'))
+        } else {
+          resolve(true)
+        }
+      }, 1500)
+    })
+
+    toast.promise(handleAuth, {
       loading: 'Signing in...',
       success: () => {
         setIsLoading(false)
 
-        const emailLower = data.email.toLowerCase()
         const isAdmin = ['admin@altgrade.in', 'admin@altgrade.com', 'testadmin@altgrade.in'].includes(emailLower)
         const role = isAdmin ? ['admin'] : ['user']
 
@@ -81,7 +101,10 @@ export function UserAuthForm({
 
         return `Welcome back, ${data.email}!`
       },
-      error: 'Error',
+      error: (err: any) => {
+        setIsLoading(false)
+        return err.message || 'Authentication failed'
+      },
     })
   }
 

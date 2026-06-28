@@ -154,5 +154,17 @@
       "D2 Telecom"
     ],
     "consented_at": "2026-06-28T00:20:15.799486+00:00"
+  },
+  "210e56cf-9849-448c-beff-5cca992b4f47": {
+    "consent_id": "210e56cf-9849-448c-beff-5cca992b4f47",
+    "user_id": "test-user-123",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "consented_sources": [
+      "D1 Bank/UPI",
+      "D2 Telecom"
+    ],
+    "consented_at": "2026-06-28T00:27:50.004346+00:00"
   }
 }

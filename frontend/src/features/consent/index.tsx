@@ -106,62 +106,6 @@ export function ConsentPage() {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [userId] = useState(() => user?.email || `applicant-${Date.now()}`)
-
-  const [consentedToggles, setConsentedToggles] = useState<Record<string, boolean>>({
-    d1_bank: true,
-    d2_telecom: true,
-    d3_ecommerce: true,
-    d4_location: true,
-    d5_questionnaire: true,
-    d6_merchant: true,
-  })
-  const [confirmingToggles, setConfirmingToggles] = useState(false)
-
-  const handleConfirmToggles = async () => {
-    setConfirmingToggles(true)
-    const consentedList = Object.keys(consentedToggles).filter(k => consentedToggles[k])
-    try {
-      await submitConsent(userId, consentedList)
-      goToNextStep(5)
-    } catch (err) {
-      console.error('Failed to submit consent settings:', err)
-      goToNextStep(5)
-    } finally {
-      setConfirmingToggles(false)
-    }
-  }
-
-  function goToNextStep(current: number) {
-    if (current === 1) setStep(2)
-    else if (current === 2) setStep(3)
-    else if (current === 3) setStep(4)
-    else if (current === 4) setStep(5)
-    else if (current === 5) {
-      if (consentedToggles.d1_bank) setStep(6)
-      else if (consentedToggles.d2_telecom || consentedToggles.d3_ecommerce) setStep(7)
-      else if (consentedToggles.d5_questionnaire) setStep(8)
-      else if (consentedToggles.d6_merchant) setStep(9)
-      else handleSubmit()
-    }
-    else if (current === 6) {
-      if (consentedToggles.d2_telecom || consentedToggles.d3_ecommerce) setStep(7)
-      else if (consentedToggles.d5_questionnaire) setStep(8)
-      else if (consentedToggles.d6_merchant) setStep(9)
-      else handleSubmit()
-    }
-    else if (current === 7) {
-      if (consentedToggles.d5_questionnaire) setStep(8)
-      else if (consentedToggles.d6_merchant) setStep(9)
-      else handleSubmit()
-    }
-    else if (current === 8) {
-      if (consentedToggles.d6_merchant) setStep(9)
-      else handleSubmit()
-    }
-    else if (current === 9) {
-      handleSubmit()
-    }
-  }
   
   // Step 1: Phone & OTP States
   const [phone, setPhone] = useState('')
@@ -238,7 +182,7 @@ export function ConsentPage() {
       if (matchedProfile) {
         setProfileName(matchedProfile)
       }
-      goToNextStep(1)
+      setStep(2)
     }, 1200)
   }
 
@@ -277,10 +221,10 @@ export function ConsentPage() {
     setVerifyingAadhaar(true)
     try {
       await verifyAadhaarOtp(aadhaar, aadhaarOtp)
-      goToNextStep(3)
+      setStep(4)
     } catch (err) {
       console.error(err)
-      goToNextStep(3)
+      setStep(4)
     } finally {
       setVerifyingAadhaar(false)
     }
@@ -418,11 +362,10 @@ export function ConsentPage() {
         <span className={step === 2 ? 'text-vercel-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
         <span className={step === 3 ? 'text-vercel-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
         <span className={step === 4 ? 'text-vercel-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
-        <span className={step === 5 ? 'text-vercel-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Consent</span>
-        <span className={step === 6 ? 'text-vercel-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Bank</span>
-        <span className={step === 7 ? 'text-vercel-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Email</span>
-        <span className={step === 8 ? 'text-vercel-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>8. Psychometric</span>
-        <span className={step === 9 ? 'text-vercel-blue font-semibold' : ''}>9. GST (Opt)</span>
+        <span className={step === 5 ? 'text-vercel-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
+        <span className={step === 6 ? 'text-vercel-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Email</span>
+        <span className={step === 7 ? 'text-vercel-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
+        <span className={step === 8 ? 'text-vercel-blue font-semibold' : ''}>8. GST (Opt)</span>
       </div>
 
       {step === 1 && (
@@ -561,7 +504,7 @@ export function ConsentPage() {
                 </div>
 
                 <Button
-                  onClick={() => goToNextStep(2)}
+                  onClick={() => setStep(3)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
                 >
                   Confirm & Continue
@@ -709,7 +652,7 @@ export function ConsentPage() {
 
             {faceCaptured && (
               <Button
-                onClick={() => goToNextStep(4)}
+                onClick={() => setStep(5)}
                 className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
               >
                 Proceed to Verification Flow
@@ -723,64 +666,6 @@ export function ConsentPage() {
       )}
 
       {step === 5 && (
-        <Card className='shadow-subtle max-w-2xl mx-auto'>
-          <CardHeader>
-            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <ShieldCheck className='h-5 w-5 text-vercel-blue' />
-              Step 5: Consent Settings
-            </CardTitle>
-            <CardDescription className='text-sm text-muted-foreground'>
-              Choose which alternate data sources to connect for your credit score calculation.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-6'>
-            <div className='grid gap-4 sm:grid-cols-2'>
-              {[
-                { key: 'd1_bank', label: 'Bank & UPI Transactions', desc: 'Finvu AA connection to verify monthly inflow, outflow, and balances.' },
-                { key: 'd2_telecom', label: 'Telecom Payment History', desc: 'Analyze mobile recharge history, plan values, and payment promptness.' },
-                { key: 'd3_ecommerce', label: 'E-commerce Activity', desc: 'Verify transaction volumes, return ratios, and retail categories.' },
-                { key: 'd4_location', label: 'Location & Locality', desc: 'Plausibility verification via pincode-to-district cost of living indices.' },
-                { key: 'd5_questionnaire', label: 'Psychometric Assessment', desc: 'Interactive behavioral questionnaire to establish trust indices.' },
-                { key: 'd6_merchant', label: 'Merchant & GST Records', desc: 'Link business GSTIN for merchant turnover validations (optional).' },
-              ].map((src) => (
-                <div key={src.key} className='flex items-start gap-3 p-4 rounded-[12px] border border-dove/20 bg-background/50 hover:border-dove/40 transition-colors'>
-                  <input
-                    type='checkbox'
-                    id={src.key}
-                    checked={consentedToggles[src.key]}
-                    onChange={(e) => setConsentedToggles(prev => ({ ...prev, [src.key]: e.target.checked }))}
-                    className='mt-1 accent-vercel-blue h-4 w-4 rounded border-dove/80 text-vercel-blue focus:ring-vercel-blue'
-                  />
-                  <div className='space-y-1'>
-                    <Label htmlFor={src.key} className='font-semibold text-sm cursor-pointer'>{src.label}</Label>
-                    <p className='text-xs text-graphite leading-relaxed'>{src.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Button
-              onClick={handleConfirmToggles}
-              disabled={confirmingToggles}
-              className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
-            >
-              {confirmingToggles ? (
-                <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Submitting Consent Records...
-                </>
-              ) : (
-                'Confirm Consent Settings & Proceed'
-              )}
-            </Button>
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: DPDP-Compliant Granular Consent Management Engine
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {step === 6 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
@@ -871,7 +756,7 @@ export function ConsentPage() {
                 </div>
 
                 <Button
-                  onClick={() => goToNextStep(6)}
+                  onClick={() => setStep(6)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
                 >
                   Continue to Next Step
@@ -886,7 +771,7 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 7 && (
+      {step === 6 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
@@ -934,7 +819,7 @@ export function ConsentPage() {
                 </div>
 
                 <Button
-                  onClick={() => goToNextStep(7)}
+                  onClick={() => setStep(7)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
                 >
                   Continue to Questionnaire
@@ -949,7 +834,7 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 8 && (
+      {step === 7 && (
         <Card className='shadow-subtle max-w-2xl mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
@@ -990,7 +875,7 @@ export function ConsentPage() {
             </div>
 
             <Button
-              onClick={() => goToNextStep(8)}
+              onClick={() => setStep(8)}
               disabled={!isQuestionnaireComplete}
               className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
             >
@@ -1003,12 +888,12 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 9 && (
+      {step === 8 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Store className='h-5 w-5 text-vercel-blue' />
-              Step 9: GST Connection (Optional)
+              Step 8: GST Connection (Optional)
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
               Link your business GST number to include merchant turnover records in the assessment.
