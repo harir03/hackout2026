@@ -1,3 +1,4 @@
+import pytest
 import asyncio
 import json
 from sqlalchemy import text
@@ -9,6 +10,7 @@ from app.routes.dashboard import _embed_text_local
 import httpx
 
 
+@pytest.mark.asyncio
 async def test_decision_and_knowledge():
     print("=" * 80)
     print("TESTING LOAN OFFICER BACKEND ACTIONS")

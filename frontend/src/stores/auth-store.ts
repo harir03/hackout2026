@@ -24,11 +24,29 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()((set) => {
   const cookieState = getCookie(ACCESS_TOKEN)
   const initToken = cookieState ? JSON.parse(cookieState) : ''
+  
+  let initUser = null
+  try {
+    const savedUser = localStorage.getItem('altgrade-user')
+    if (savedUser) {
+      initUser = JSON.parse(savedUser)
+    }
+  } catch (e) {
+    console.error(e)
+  }
+
   return {
     auth: {
-      user: null,
+      user: initUser,
       setUser: (user) =>
-        set((state) => ({ ...state, auth: { ...state.auth, user } })),
+        set((state) => {
+          if (user) {
+            localStorage.setItem('altgrade-user', JSON.stringify(user))
+          } else {
+            localStorage.removeItem('altgrade-user')
+          }
+          return { ...state, auth: { ...state.auth, user } }
+        }),
       accessToken: initToken,
       setAccessToken: (accessToken) =>
         set((state) => {
@@ -43,6 +61,7 @@ export const useAuthStore = create<AuthState>()((set) => {
       reset: () =>
         set((state) => {
           removeCookie(ACCESS_TOKEN)
+          localStorage.removeItem('altgrade-user')
           return {
             ...state,
             auth: { ...state.auth, user: null, accessToken: '' },

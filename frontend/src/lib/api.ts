@@ -7,13 +7,15 @@ export async function fetchScore(
   userId: string,
   consentedSources: string[],
   consentId?: string,
-  phone?: string
+  phone?: string,
+  answers?: string
 ): Promise<ScoreResponse> {
   const { data } = await api.post<ScoreResponse>('/score', {
     user_id: userId,
     consented_sources: consentedSources,
     consent_id: consentId,
     phone: phone,
+    answers: answers ? JSON.parse(answers) : undefined,
   })
   return data
 }
@@ -48,8 +50,10 @@ export async function askAdvisor(
   return data
 }
 
-export async function fetchDashboard(): Promise<DashboardOverview> {
-  const { data } = await api.get<DashboardOverview>('/dashboard/overview')
+export async function fetchDashboard(adminEmail?: string): Promise<DashboardOverview> {
+  const { data } = await api.get<DashboardOverview>('/dashboard/overview', {
+    params: { admin_email: adminEmail }
+  })
   return data
 }
 

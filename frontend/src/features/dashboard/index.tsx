@@ -27,6 +27,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { fetchDashboard, submitDecision, submitKnowledge } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
 import type { DashboardOverview, ConflictApplicant } from '@/lib/types'
 import {
   Dialog,
@@ -385,6 +386,8 @@ const SIMULATED_DASHBOARD_DATA: DashboardOverview = {
 }
 
 export function LoanOfficerDashboard() {
+  const { auth } = useAuthStore()
+  const user = auth.user
   const [data, setData] = useState<DashboardOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSimulated, setIsSimulated] = useState(false)
@@ -401,7 +404,7 @@ export function LoanOfficerDashboard() {
   const [currentStep, setCurrentStep] = useState(1)
 
   useEffect(() => {
-    fetchDashboard()
+    fetchDashboard(user?.email || undefined)
       .then((res) => {
         setData(res)
         setIsSimulated(false)
@@ -412,7 +415,7 @@ export function LoanOfficerDashboard() {
         setIsSimulated(true)
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, [user?.email])
 
   function handleReview(applicant: ConflictApplicant) {
     setSelectedApplicant(applicant)
@@ -463,7 +466,7 @@ export function LoanOfficerDashboard() {
               Assessment population overview and contradiction review queue
             </p>
           </div>
-          {isSimulated && (
+          {isSimulated && user?.email !== 'testadmin@altgrade.in' && (
             <Badge variant='outline' className='bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-3 py-1 font-mono text-xs animate-pulse'>
               Simulated Data
             </Badge>

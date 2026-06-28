@@ -161,18 +161,8 @@ async def _build_response_with_features(
     )
 
 
-async def _build_response(
-    user_id: str,
-    tier: str,
-    engine: ScoringEngine,
-    rng: np.random.Generator,
-    consent_id: str | None = None,
-    phone: str | None = None,
-) -> ScoreResponse:
+def _get_profile_features(user_id: str, phone: str | None, rng: np.random.Generator, profile: str, answers: dict[str, int] | None = None) -> dict[str, Any]:
     import json
-    profiles = ["low", "medium", "high"]
-    profile = profiles[hash(user_id) % len(profiles)]
-
     feat_dict = {}
     feat_dict.update(d1_bank_upi.generate(rng, profile))
     feat_dict.update(d2_telecom.generate(rng, profile))
@@ -182,12 +172,13 @@ async def _build_response(
 
     profile_data = None
     profiles_path = Path(__file__).resolve().parents[2] / "demo_data" / "profiles.json"
-    if profiles_path.exists():
+    if profiles_path.exists() and user_id.lower() != "hari@altgrade.in":
         try:
             with open(profiles_path, "r") as f:
                 all_profiles = json.load(f)
+                search_id = "hari" if user_id.lower() == "testhari@altgrade.in" else user_id
                 for p_name, p_val in all_profiles.items():
-                    if p_name.lower() == user_id.lower() or (phone and p_val.get("phone") == phone):
+                    if p_name.lower() == search_id.lower() or (phone and p_val.get("phone") == phone):
                         profile_data = p_val
                         break
         except Exception as e:
@@ -232,6 +223,72 @@ async def _build_response(
             feat_dict["merchant_months_operating"] = gd.get("operating_months", 24)
             feat_dict["merchant_annual_turnover"] = 1500000.0 if gd.get("gstin_valid") else 0.0
 
+    if answers:
+        try:
+            ans_values = [int(v) for v in answers.values()]
+            ans_sum = sum(ans_values)
+            psych_score = float(max(35, 90 - (ans_sum / 45) * 55))
+            feat_dict["psych_engagement_score"] = psych_score
+            feat_dict["psych_mean_answer"] = float(np.mean(ans_values)) if ans_values else 1.5
+            feat_dict["psych_std_answer"] = float(np.std(ans_values)) if ans_values else 0.5
+            feat_dict["psych_consistency"] = 0.95 if ans_sum < 20 else 0.70
+            feat_dict["psych_straight_line_ratio"] = 0.0
+            feat_dict["psych_completion_time_sec"] = 120.0
+        except Exception as q_ex:
+            print(f"Psychometric calculation failed: {q_ex}")
+
+    return feat_dict
+
+
+async def _build_response(
+    user_id: str,
+    tier: str,
+    engine: ScoringEngine,
+    rng: np.random.Generator,
+    consent_id: str | None = None,
+    phone: str | None = None,
+    answers: dict[str, int] | None = None,
+) -> ScoreResponse:
+    import json
+    
+    # Check if a score exists in the database for this user_id
+    try:
+        async with async_session() as session:
+            try:
+                db_user_id = uuid.UUID(user_id)
+            except ValueError:
+                db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
+            
+            res = await session.execute(
+                text("SELECT score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap, consent_id "
+                     "FROM scores WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 1"),
+                {"user_id": db_user_id}
+            )
+            row = res.fetchone()
+            if row:
+                return ScoreResponse(
+                    user_id=user_id,
+                    score=row[0],
+                    risk_band=row[1],
+                    tier=row[2],
+                    model_version=row[3],
+                    shap_details=[ShapFeature(**feat) for feat in (json.loads(row[4]) if isinstance(row[4], str) else row[4])],
+                    signal_conflicts=[SignalConflict(**c) for c in (json.loads(row[5]) if isinstance(row[5], str) else row[5])],
+                    hard_caps_applied=json.loads(row[6]) if isinstance(row[6], str) else row[6],
+                    tier1_reweight=None,
+                    has_conflicts=row[7],
+                    has_hard_cap=row[8],
+                    consent_id=str(row[9]) if row[9] else None,
+                    ecom_source="simulated"
+                )
+    except Exception as db_ex:
+        print(f"Failed to check existing score in DB: {db_ex}")
+
+    profiles = ["low", "medium", "high"]
+    profile = profiles[hash(user_id) % len(profiles)]
+
+    feat_dict = _get_profile_features(user_id, phone, rng, profile, answers)
+
     from app.routes.auth import IN_MEMORY_TOKENS, get_redis_client
     gmail_token = None
     r = get_redis_client()
@@ -261,7 +318,7 @@ async def post_score(body: ScoreRequest) -> ScoreResponse:
     rng = np.random.default_rng(hash(body.user_id) % (2**32))
     has_bank = "d1_bank" in body.consented_sources
     tier = "tier2" if has_bank else "tier1"
-    return await _build_response(body.user_id, tier, engine, rng, body.consent_id, body.phone)
+    return await _build_response(body.user_id, tier, engine, rng, body.consent_id, body.phone, body.answers)
 
 
 @router.post("/score/upload-statement", response_model=ScoreResponse)
@@ -289,11 +346,7 @@ async def upload_statement(
     profiles = ["low", "medium", "high"]
     profile = profiles[hash(user_id) % len(profiles)]
     
-    feat_dict = {}
-    feat_dict.update(d2_telecom.generate(rng, profile))
-    feat_dict.update(d4_location.generate(rng, profile))
-    feat_dict.update(d5_questionnaire.generate(rng, profile))
-    feat_dict.update(d6_merchant_gst.generate(rng, profile))
+    feat_dict = _get_profile_features(user_id, None, rng, profile)
     feat_dict.update(parsed_features)
     
     ecom_data = d3_ecommerce.generate(rng, profile)

@@ -58,11 +58,15 @@ export function UserAuthForm({
       success: () => {
         setIsLoading(false)
 
+        const emailLower = data.email.toLowerCase()
+        const isAdmin = ['admin@altgrade.in', 'admin@altgrade.com', 'testadmin@altgrade.in'].includes(emailLower)
+        const role = isAdmin ? ['admin'] : ['user']
+
         // Mock successful authentication with expiry computed at success time
         const mockUser = {
           accountNo: 'ACC001',
           email: data.email,
-          role: ['user'],
+          role: role,
           exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
         }
 
@@ -70,8 +74,9 @@ export function UserAuthForm({
         auth.setUser(mockUser)
         auth.setAccessToken('mock-access-token')
 
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/'
+        // Redirect to the stored location or default based on role
+        const defaultPath = isAdmin ? '/dashboard' : '/'
+        const targetPath = redirectTo || defaultPath
         navigate({ to: targetPath, replace: true })
 
         return `Welcome back, ${data.email}!`

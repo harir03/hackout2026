@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { submitConsent, verifyPan, sendAadhaarOtp, verifyAadhaarOtp, checkLiveness, uploadBankStatement } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
 
 const DEMO_PROFILES: Record<string, string> = {
   "9876543210": "hari",
@@ -100,9 +101,11 @@ const QUESTIONS = [
 
 export function ConsentPage() {
   const navigate = useNavigate()
+  const { auth } = useAuthStore()
+  const user = auth.user
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
-  const [userId] = useState(() => `applicant-${Date.now()}`)
+  const [userId] = useState(() => user?.email || `applicant-${Date.now()}`)
   
   // Step 1: Phone & OTP States
   const [phone, setPhone] = useState('')
@@ -331,19 +334,20 @@ export function ConsentPage() {
     if (gmailConnected) consentedList.push('d3_ecommerce')
     if (gstVerified) consentedList.push('d6_merchant')
 
+    const answersStr = JSON.stringify(answers)
     try {
       const res = await submitConsent(userId, consentedList)
       const sources = consentedList.join(',')
       navigate({
         to: '/score',
-        search: { userId, sources, consentId: res.consent_id, phone }
+        search: { userId, sources, consentId: res.consent_id, phone, answers: answersStr }
       })
     } catch (err) {
       console.error('Submission failed:', err)
       const sources = consentedList.join(',')
       navigate({
         to: '/score',
-        search: { userId, sources, phone }
+        search: { userId, sources, phone, answers: answersStr }
       })
     } finally {
       setSubmitting(false)
@@ -428,6 +432,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: OTP Verification via Sandbox SMS Gateway API
+            </p>
           </CardContent>
         </Card>
       )}
@@ -504,6 +511,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: PAN OKYC via sandbox.co.in REST APIs
+            </p>
           </CardContent>
         </Card>
       )}
@@ -569,6 +579,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: UIDAI e-KYC Verification via sandbox.co.in OTP API
+            </p>
           </CardContent>
         </Card>
       )}
@@ -645,6 +658,9 @@ export function ConsentPage() {
                 Proceed to Verification Flow
               </Button>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: OpenCV Real-Time Laplacian Liveness Estimation
+            </p>
           </CardContent>
         </Card>
       )}
@@ -748,6 +764,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: Finvu Account Aggregator Sandbox API & pdfplumber statement parser
+            </p>
           </CardContent>
         </Card>
       )}
@@ -808,6 +827,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: Gmail API read-only OAuth 2.0 authorization
+            </p>
           </CardContent>
         </Card>
       )}
@@ -859,6 +881,9 @@ export function ConsentPage() {
             >
               Submit Questionnaire
             </Button>
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: CFPB Behavioral Psychometric Scoring Model
+            </p>
           </CardContent>
         </Card>
       )}
@@ -937,6 +962,9 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
+            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
+              Tech: GSTIN verification via sandbox.co.in portal API
+            </p>
           </CardContent>
         </Card>
       )}

@@ -78,11 +78,12 @@ function ShapBar({ feature, maxAbs, ecomSource }: { feature: ShapFeature; maxAbs
 }
 
 export function ScorePage() {
-  const search = useSearch({ strict: false }) as { userId?: string; sources?: string; consentId?: string; phone?: string }
+  const search = useSearch({ strict: false }) as { userId?: string; sources?: string; consentId?: string; phone?: string; answers?: string }
   const userId = search.userId || 'test-user-001'
   const consentedSources = search.sources?.split(',').filter(Boolean) ?? []
   const consentId = search.consentId
   const phone = search.phone || ''
+  const answers = search.answers
 
   const [data, setData] = useState<ScoreResponse | null>(null)
   const [dataLoaded, setDataLoaded] = useState(false)
@@ -104,7 +105,7 @@ export function ScorePage() {
 
   useEffect(() => {
     const request = consentedSources.length > 0
-      ? fetchScore(userId, consentedSources, consentId, phone)
+      ? fetchScore(userId, consentedSources, consentId, phone, answers)
       : fetchScoreById(userId, consentId)
     request
       .then((res) => {
