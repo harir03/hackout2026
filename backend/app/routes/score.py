@@ -250,8 +250,6 @@ async def _build_response(
     answers: dict[str, int] | None = None,
 ) -> ScoreResponse:
     import json
-    
-    # Check if a score exists in the database for this user_id
     try:
         async with async_session() as session:
             try:

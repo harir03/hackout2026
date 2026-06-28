@@ -241,9 +241,9 @@ async def get_overview(admin_email: str | None = None) -> DashboardOverview:
 
         flagged = []
         for r in rows:
-            if r[4]: # has_conflicts
+            if r[4]:
                 conflicts_list = []
-                if r[3]: # signal_conflicts
+                if r[3]:
                     try:
                         c_data = json.loads(r[3]) if isinstance(r[3], str) else r[3]
                         conflicts_list = [c.get("description", str(c)) if isinstance(c, dict) else str(c) for c in c_data[:2]]
