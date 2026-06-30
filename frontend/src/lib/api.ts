@@ -38,7 +38,6 @@ export async function submitConsent(
   return data
 }
 
-
 export async function askAdvisor(
   userId: string,
   question: string
@@ -47,6 +46,31 @@ export async function askAdvisor(
     user_id: userId,
     question,
   })
+  return data
+}
+
+export async function fetchApplicantProfile(userId: string): Promise<{
+  user_id: string
+  score: number
+  risk_band: string
+  tier: string
+  shap_details: Array<{ label: string; points: number; worker: string }>
+  signal_conflicts: Array<{ description: string }>
+  hard_caps_applied: string[]
+}> {
+  const { data } = await api.get(`/advisor/profile/${encodeURIComponent(userId)}`)
+  return data
+}
+
+export async function fetchUserNotifications(userId: string): Promise<{
+  has_notification: boolean
+  user_id: string
+  decision?: string
+  interest_rate?: number
+  terms?: string
+  timestamp?: string
+}> {
+  const { data } = await api.get(`/dashboard/notifications/${encodeURIComponent(userId)}`)
   return data
 }
 
@@ -104,13 +128,15 @@ export async function submitDecision(
   userId: string,
   decision: string,
   interestRate: number,
-  terms: string
+  terms: string,
+  notes: string = ''
 ): Promise<{ status: string; user_id: string; decision: string }> {
   const { data } = await api.post('/dashboard/decision', {
     user_id: userId,
     decision,
     interest_rate: interestRate,
     terms,
+    notes,
   })
   return data
 }
@@ -126,6 +152,20 @@ export async function submitKnowledge(
     chat_history: chatHistory,
   })
   return data
+}
+
+export interface DecisionRecord {
+  user_id: string
+  decision: string
+  interest_rate: number
+  terms: string
+  notes: string
+  timestamp: string
+}
+
+export async function fetchAllDecisions(): Promise<DecisionRecord[]> {
+  const { data } = await api.get<{ decisions: DecisionRecord[] }>('/dashboard/decisions')
+  return data.decisions
 }
 
 export async function uploadBankStatement(

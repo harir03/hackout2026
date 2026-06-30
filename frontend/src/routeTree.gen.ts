@@ -13,6 +13,7 @@ import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ApplicantRouteRouteImport } from './routes/_applicant/route'
 import { Route as ApplicantIndexRouteImport } from './routes/_applicant/index'
+import { Route as AuthenticatedDecisionsRouteImport } from './routes/_authenticated/decisions'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApplicantScoreRouteImport } from './routes/_applicant/score'
 import { Route as ApplicantAdvisorRouteImport } from './routes/_applicant/advisor'
@@ -45,6 +46,11 @@ const ApplicantIndexRoute = ApplicantIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ApplicantRouteRoute,
+} as any)
+const AuthenticatedDecisionsRoute = AuthenticatedDecisionsRouteImport.update({
+  id: '/decisions',
+  path: '/decisions',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/advisor': typeof ApplicantAdvisorRoute
   '/score': typeof ApplicantScoreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/decisions': typeof AuthenticatedDecisionsRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
 }
 export interface FileRoutesByTo {
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/advisor': typeof ApplicantAdvisorRoute
   '/score': typeof ApplicantScoreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/decisions': typeof AuthenticatedDecisionsRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
 }
 export interface FileRoutesById {
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_applicant/advisor': typeof ApplicantAdvisorRoute
   '/_applicant/score': typeof ApplicantScoreRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/decisions': typeof AuthenticatedDecisionsRoute
   '/_applicant/': typeof ApplicantIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
 }
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/advisor'
     | '/score'
     | '/dashboard'
+    | '/decisions'
     | '/errors/$error'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/advisor'
     | '/score'
     | '/dashboard'
+    | '/decisions'
     | '/errors/$error'
   id:
     | '__root__'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/_applicant/advisor'
     | '/_applicant/score'
     | '/_authenticated/dashboard'
+    | '/_authenticated/decisions'
     | '/_applicant/'
     | '/_authenticated/errors/$error'
   fileRoutesById: FileRoutesById
@@ -279,6 +291,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof ApplicantIndexRouteImport
       parentRoute: typeof ApplicantRouteRoute
+    }
+    '/_authenticated/decisions': {
+      id: '/_authenticated/decisions'
+      path: '/decisions'
+      fullPath: '/decisions'
+      preLoaderRoute: typeof AuthenticatedDecisionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -399,11 +418,13 @@ const ApplicantRouteRouteWithChildren = ApplicantRouteRoute._addFileChildren(
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDecisionsRoute: typeof AuthenticatedDecisionsRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDecisionsRoute: AuthenticatedDecisionsRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
 }
 

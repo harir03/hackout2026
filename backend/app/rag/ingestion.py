@@ -29,7 +29,7 @@ async def _embed_texts(texts: list[str], api_key: str | None = None) -> list[lis
                 res = await client.post(
                     f"{OLLAMA_URL}/api/embeddings",
                     json={"model": "nomic-embed-text", "prompt": t},
-                    timeout=10.0
+                    timeout=300.0
                 )
                 if res.status_code == 200:
                     embeddings.append(res.json()["embedding"])
@@ -59,7 +59,7 @@ async def _embed_query(text: str, api_key: str | None = None) -> list[float]:
             res = await client.post(
                 f"{OLLAMA_URL}/api/embeddings",
                 json={"model": "nomic-embed-text", "prompt": text},
-                timeout=10.0
+                timeout=300.0
             )
             if res.status_code == 200:
                 return res.json()["embedding"]
@@ -98,6 +98,8 @@ async def ingest_sources(api_key: str | None = None) -> dict[str, int]:
         + ["dpdp_act_2023"] * len(dpdp_chunks)
     )
 
+    rbi_embeddings = await _embed_texts(all_rbi_chunks, api_key)
+
     try:
         chroma.delete_collection("rbi_guidelines")
     except Exception:
@@ -107,7 +109,6 @@ async def ingest_sources(api_key: str | None = None) -> dict[str, int]:
         metadata={"description": "RBI Fair Practices Code and DPDP Act 2023"},
     )
 
-    rbi_embeddings = await _embed_texts(all_rbi_chunks, api_key)
     rbi_collection.add(
         ids=[f"rbi_{i}" for i in range(len(all_rbi_chunks))],
         documents=all_rbi_chunks,
@@ -137,6 +138,8 @@ async def ingest_sources(api_key: str | None = None) -> dict[str, int]:
             precedent_chunks.append(sc)
             precedent_ids.append(f"lp_{ticket['ticket_id']}_{j}")
 
+    lp_embeddings = await _embed_texts(precedent_chunks, api_key)
+
     try:
         chroma.delete_collection("lending_precedents")
     except Exception:
@@ -146,7 +149,6 @@ async def ingest_sources(api_key: str | None = None) -> dict[str, int]:
         metadata={"description": "Resolved lending ticket precedents"},
     )
 
-    lp_embeddings = await _embed_texts(precedent_chunks, api_key)
     lp_collection.add(
         ids=precedent_ids,
         documents=precedent_chunks,
@@ -165,9 +167,12 @@ async def query_collection(
     n_results: int = 3,
 ) -> list[dict]:
     chroma = _get_chroma_client()
-    collection = chroma.get_collection(collection_name)
-
     query_embedding = await _embed_query(query_text, api_key)
+    try:
+        collection = chroma.get_collection(collection_name)
+    except Exception:
+        return []
+
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,

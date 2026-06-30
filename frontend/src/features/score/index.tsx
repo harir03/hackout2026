@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { fetchScore, fetchScoreById } from '@/lib/api'
+import { fetchScore, fetchScoreById, fetchUserNotifications } from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
 function bandColor(band: string): string {
@@ -90,6 +90,12 @@ export function ScorePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pipelineStep, setPipelineStep] = useState(0)
+  const [notification, setNotification] = useState<{
+    has_notification: boolean
+    decision?: string
+    interest_rate?: number
+    terms?: string
+  } | null>(null)
 
   const activePipelines = useMemo(() => {
     return consentedSources.map((s) => {
@@ -116,6 +122,10 @@ export function ScorePage() {
         setError(err.message)
         setLoading(false)
       })
+
+    fetchUserNotifications(userId)
+      .then((n) => setNotification(n))
+      .catch(() => {})
   }, [userId])
 
   useEffect(() => {
@@ -202,6 +212,38 @@ export function ScorePage() {
 
   return (
     <div>
+      {notification?.has_notification && (
+        <div className={`mb-6 rounded-lg border p-4 flex items-start gap-3 animate-fade-up ${
+          notification.decision === 'approved'
+            ? 'bg-vercel-blue/5 border-vercel-blue/30'
+            : 'bg-rust/5 border-rust/30'
+        }`}>
+          <div className={`mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
+            notification.decision === 'approved' ? 'bg-vercel-blue/20' : 'bg-rust/20'
+          }`}>
+            {notification.decision === 'approved' ? (
+              <svg className='h-4 w-4 text-vercel-blue' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+                <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+              </svg>
+            ) : (
+              <ShieldAlert className='h-4 w-4 text-rust' />
+            )}
+          </div>
+          <div>
+            <p className={`text-sm font-semibold ${
+              notification.decision === 'approved' ? 'text-vercel-blue' : 'text-rust'
+            }`}>
+              Loan Application {notification.decision === 'approved' ? 'Approved' : 'Rejected'}
+            </p>
+            <p className='text-xs text-muted-foreground mt-0.5'>
+              {notification.decision === 'approved'
+                ? `Your loan application has been approved at ${notification.interest_rate}% interest for ${notification.terms}.`
+                : 'Your loan application was not approved after officer review. You may reapply or contact support.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className='mb-6'>
         <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>Your Credit Score</h1>
         <p className='text-sm text-muted-foreground'>

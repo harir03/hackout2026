@@ -41,3 +41,5 @@ backend/chroma_db/
 # Misc
 *.log
 DESIGN.md
+ECC
+.tanstack

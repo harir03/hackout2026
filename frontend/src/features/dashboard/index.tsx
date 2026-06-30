@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   Users,
   CheckCircle2,
   AlertTriangle,
   ShieldAlert,
   ShieldCheck,
+  Send,
+  Loader2,
+  Bot,
+  User,
 } from 'lucide-react'
 import {
   Card,
@@ -26,7 +30,7 @@ import {
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { fetchDashboard, submitDecision, submitKnowledge } from '@/lib/api'
+import { fetchDashboard, submitDecision, submitKnowledge, askAdvisor, fetchApplicantProfile } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import type { DashboardOverview, ConflictApplicant } from '@/lib/types'
 import {
@@ -412,7 +416,6 @@ export function LoanOfficerDashboard() {
   const [loading, setLoading] = useState(true)
   const [isSimulated, setIsSimulated] = useState(false)
 
-  // Review states
   const [selectedApplicant, setSelectedApplicant] = useState<ConflictApplicant | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [decision, setDecision] = useState<'approved' | 'rejected'>('approved')
@@ -422,6 +425,17 @@ export function LoanOfficerDashboard() {
   const [submitting, setSubmitting] = useState(false)
   const [completedDecisions, setCompletedDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
   const [currentStep, setCurrentStep] = useState(1)
+
+  const [applicantProfile, setApplicantProfile] = useState<{
+    shap_details: Array<{ label: string; points: number; worker: string }>
+    tier: string
+  } | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+
+  const [advisorMessages, setAdvisorMessages] = useState<Array<{ role: 'user' | 'advisor'; content: string }>>([])
+  const [advisorInput, setAdvisorInput] = useState('')
+  const [advisorLoading, setAdvisorLoading] = useState(false)
+  const chatEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const isAdminNoMock = user?.email === 'admin@altgrade.in' || user?.email === 'admin@altgrade.com'
@@ -456,19 +470,47 @@ export function LoanOfficerDashboard() {
     setTerms('36 months')
     setNotes('')
     setCurrentStep(1)
+    setAdvisorMessages([])
+    setAdvisorInput('')
+    setApplicantProfile(null)
     setDialogOpen(true)
+
+    setProfileLoading(true)
+    fetchApplicantProfile(applicant.user_id)
+      .then((p) => setApplicantProfile({ shap_details: p.shap_details, tier: p.tier }))
+      .catch(() => setApplicantProfile(null))
+      .finally(() => setProfileLoading(false))
+  }
+
+  async function handleAdvisorAsk() {
+    if (!advisorInput.trim() || !selectedApplicant) return
+    const question = advisorInput.trim()
+    setAdvisorMessages((prev) => [...prev, { role: 'user', content: question }])
+    setAdvisorInput('')
+    setAdvisorLoading(true)
+    try {
+      const res = await askAdvisor(selectedApplicant.user_id, question)
+      setAdvisorMessages((prev) => [...prev, { role: 'advisor', content: res.answer }])
+    } catch {
+      setAdvisorMessages((prev) => [...prev, { role: 'advisor', content: 'Unable to get a response. Please try again.' }])
+    } finally {
+      setAdvisorLoading(false)
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+    }
   }
 
   async function handleDecisionSubmit() {
     if (!selectedApplicant) return
     setSubmitting(true)
     try {
-      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms)
+      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms, notes)
+      const chatLog = advisorMessages.map((m) => ({ role: m.role === 'advisor' ? 'assistant' : 'officer', content: m.content }))
       await submitKnowledge(selectedApplicant.user_id, notes, [
         { role: 'system', content: `Applicant core score: ${selectedApplicant.score}. Conflicting signals: ${selectedApplicant.conflicts.join(', ')}` },
-        { role: 'officer', content: `Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` }
+        { role: 'officer', content: `Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` },
+        ...chatLog,
       ])
-      
+
       setCompletedDecisions((prev) => ({
         ...prev,
         [selectedApplicant.user_id]: decision,
@@ -531,11 +573,11 @@ export function LoanOfficerDashboard() {
 
       {selectedApplicant && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className='sm:max-w-[480px]'>
+          <DialogContent className='sm:max-w-[640px] max-h-[85vh] overflow-y-auto'>
             <DialogHeader>
               <DialogTitle className='tracking-tight'>Review Credit Application</DialogTitle>
               <DialogDescription>
-                Resolve contradictory indicators and log final officer decision parameters.
+                Inspect per-source scores, consult the AI advisor, then log your final decision.
               </DialogDescription>
             </DialogHeader>
 
@@ -545,7 +587,7 @@ export function LoanOfficerDashboard() {
               onFinalStepCompleted={handleDecisionSubmit}
               onCancel={() => setDialogOpen(false)}
               nextButtonProps={{
-                disabled: submitting || (currentStep === 3 && !notes.trim())
+                disabled: submitting || (currentStep === 4 && !notes.trim())
               }}
               backButtonProps={{
                 disabled: submitting
@@ -555,11 +597,11 @@ export function LoanOfficerDashboard() {
             >
               <Step>
                 <div className='space-y-4 py-2 text-sm'>
-                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 1: Applicant Signals</h3>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 1: Per-Source Score Breakdown</h3>
                   <div className='rounded-lg bg-neutral-50 p-3.5 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 space-y-2.5'>
                     <div className='flex justify-between'>
-                      <span className='text-neutral-500 font-medium'>Applicant UUID</span>
-                      <span className='font-mono font-medium'>{selectedApplicant.user_id.slice(0, 18)}...</span>
+                      <span className='text-neutral-500 font-medium'>Applicant</span>
+                      <span className='font-mono font-medium'>{selectedApplicant.user_id}</span>
                     </div>
                     <div className='flex justify-between'>
                       <span className='text-neutral-500 font-medium'>Model Score</span>
@@ -567,21 +609,134 @@ export function LoanOfficerDashboard() {
                     </div>
                     <div className='flex justify-between'>
                       <span className='text-neutral-500 font-medium'>Risk Band</span>
-                      <span className='font-semibold'>{selectedApplicant.band}</span>
+                      <Badge variant='outline' className={BAND_BG[selectedApplicant.band] ?? ''}>{selectedApplicant.band}</Badge>
                     </div>
-                    <div className='space-y-1 pt-1.5 border-t border-neutral-100 dark:border-neutral-800'>
-                      <span className='text-neutral-500 font-medium block'>Conflicting Signals</span>
-                      {selectedApplicant.conflicts.map((c, i) => (
-                        <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
+                  </div>
+
+                  {profileLoading ? (
+                    <div className='space-y-2'>
+                      {[1,2,3,4,5].map((i) => <Skeleton key={i} className='h-5 w-full' />)}
+                    </div>
+                  ) : applicantProfile?.shap_details && applicantProfile.shap_details.length > 0 ? (
+                    <div className='space-y-1.5'>
+                      <span className='text-xs font-medium text-neutral-500 uppercase tracking-wider'>SHAP Feature Contributions</span>
+                      {[...applicantProfile.shap_details]
+                        .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
+                        .slice(0, 10)
+                        .map((f, i) => {
+                          const maxAbs = Math.max(...applicantProfile.shap_details.map(s => Math.abs(s.points)), 1)
+                          const pct = Math.min((Math.abs(f.points) / maxAbs) * 100, 100)
+                          const positive = f.points > 0
+                          return (
+                            <div key={i} className='flex items-center gap-2'>
+                              <span className='w-32 shrink-0 text-right text-[11px] font-medium text-muted-foreground truncate'>
+                                {f.label.replace(/^(bank_|telecom_|ecom_|loc_|psych_|merchant_)/, '')}
+                              </span>
+                              <div className='flex-1 h-4 relative'>
+                                <div className='absolute left-1/2 h-full w-px bg-border' />
+                                {positive ? (
+                                  <div className='absolute left-1/2 h-full rounded-r bg-vercel-blue/70' style={{ width: `${pct / 2}%` }} />
+                                ) : (
+                                  <div className='absolute h-full rounded-l bg-rust/70' style={{ width: `${pct / 2}%`, right: '50%' }} />
+                                )}
+                              </div>
+                              <span className={`w-14 text-right text-[11px] font-semibold ${positive ? 'text-vercel-blue' : 'text-rust'}`}>
+                                {f.points > 0 ? '+' : ''}{f.points.toFixed(1)}
+                              </span>
+                              <Badge variant='outline' className='text-[10px] px-1.5 py-0'>{f.worker}</Badge>
+                            </div>
+                          )
+                        })}
+                    </div>
+                  ) : (
+                    <p className='text-xs text-muted-foreground'>No detailed SHAP data available for this applicant.</p>
+                  )}
+
+                  <div className='space-y-1 pt-2 border-t border-neutral-100 dark:border-neutral-800'>
+                    <span className='text-xs font-medium text-neutral-500 uppercase tracking-wider'>Conflicting Signals</span>
+                    {selectedApplicant.conflicts.map((c, i) => (
+                      <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
+                    ))}
+                  </div>
+                </div>
+              </Step>
+
+              <Step>
+                <div className='space-y-3 py-2 text-sm'>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 2: AI Credit Advisor</h3>
+                  <p className='text-xs text-muted-foreground'>Ask the AI about this applicant&apos;s score factors, risk indicators, or regulatory context.</p>
+
+                  <div className='rounded-lg border border-neutral-200 dark:border-neutral-800 h-[240px] flex flex-col'>
+                    <div className='flex-1 overflow-y-auto p-3 space-y-3'>
+                      {advisorMessages.length === 0 && (
+                        <div className='flex flex-col items-center justify-center h-full gap-2 text-muted-foreground'>
+                          <Bot className='h-6 w-6 opacity-40' />
+                          <p className='text-xs'>Ask about this applicant&apos;s credit profile</p>
+                        </div>
+                      )}
+                      {advisorMessages.map((msg, i) => (
+                        <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          {msg.role === 'advisor' && <Bot className='h-4 w-4 mt-1 shrink-0 text-vercel-blue' />}
+                          <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
+                            msg.role === 'user'
+                              ? 'bg-foreground text-background'
+                              : 'bg-neutral-100 dark:bg-neutral-800 text-foreground'
+                          }`}>
+                            {msg.content}
+                          </div>
+                          {msg.role === 'user' && <User className='h-4 w-4 mt-1 shrink-0 text-muted-foreground' />}
+                        </div>
                       ))}
+                      {advisorLoading && (
+                        <div className='flex gap-2 items-center text-muted-foreground'>
+                          <Bot className='h-4 w-4 shrink-0 text-vercel-blue' />
+                          <Loader2 className='h-3 w-3 animate-spin' />
+                          <span className='text-xs'>Thinking...</span>
+                        </div>
+                      )}
+                      <div ref={chatEndRef} />
                     </div>
+                    <div className='border-t border-neutral-200 dark:border-neutral-800 p-2 flex gap-2'>
+                      <Input
+                        placeholder='Why is the return rate flagged?'
+                        value={advisorInput}
+                        onChange={(e) => setAdvisorInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAdvisorAsk()}
+                        className='text-xs h-8'
+                        disabled={advisorLoading}
+                      />
+                      <Button
+                        size='sm'
+                        onClick={handleAdvisorAsk}
+                        disabled={advisorLoading || !advisorInput.trim()}
+                        className='h-8 px-3'
+                      >
+                        <Send className='h-3.5 w-3.5' />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className='flex flex-wrap gap-1.5'>
+                    {[
+                      'Why is this score low?',
+                      'Which source hurt the most?',
+                      'Is the return rate concerning?',
+                    ].map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => { setAdvisorInput(q); }}
+                        className='text-[10px] px-2 py-1 rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-muted-foreground'
+                      >
+                        {q}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </Step>
 
               <Step>
                 <div className='space-y-4 py-2 text-sm'>
-                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 2: Credit Decision</h3>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Credit Decision</h3>
                   <div className='space-y-3.5'>
                     <div className='space-y-1.5'>
                       <Label htmlFor='decision'>Officer Credit Decision</Label>
@@ -624,7 +779,7 @@ export function LoanOfficerDashboard() {
 
               <Step>
                 <div className='space-y-4 py-2 text-sm'>
-                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Reasoning & Audit Log</h3>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 4: Reasoning & Audit Log</h3>
                   <div className='space-y-1.5'>
                     <Label htmlFor='notes'>Decision Notes & Reasoning</Label>
                     <Textarea
@@ -634,7 +789,7 @@ export function LoanOfficerDashboard() {
                       onChange={(e) => setNotes(e.target.value)}
                       rows={4}
                     />
-                    <p className='text-xs text-muted-foreground mt-1'>Notes are required to submit overriding decision logs.</p>
+                    <p className='text-xs text-muted-foreground mt-1'>Notes are required to submit. Decision will be sent as a notification to the applicant.</p>
                   </div>
                 </div>
               </Step>

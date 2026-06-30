@@ -9,10 +9,16 @@ export const Route = createFileRoute('/_authenticated')({
     if (!token) {
       throw redirect({
         to: '/sign-in',
-        search: {
-          redirect: location.href,
-        },
+        search: { redirect: location.href },
       })
+    }
+
+    const savedUser = localStorage.getItem('altgrade-user')
+    if (savedUser) {
+      const user = JSON.parse(savedUser)
+      if (!user.role?.includes('admin')) {
+        throw redirect({ to: '/' })
+      }
     }
   },
   component: AuthenticatedLayout,

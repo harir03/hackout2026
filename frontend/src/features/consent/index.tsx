@@ -106,6 +106,7 @@ export function ConsentPage() {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [userId] = useState(() => user?.email || `applicant-${Date.now()}`)
+  const isMockProfile = user?.email === 'testhari@altgrade.in'
   
   // Step 1: Phone & OTP States
   const [phone, setPhone] = useState('')
@@ -432,7 +433,7 @@ export function ConsentPage() {
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     className='rounded-[12px] border-dove/80'
                   />
-                  <p className='text-xs text-graphite'>Enter 123456 to mock verification.</p>
+                  {isMockProfile && <p className='text-xs text-graphite'>Enter 123456 to mock verification.</p>}
                 </div>
                 <Button
                   onClick={handleVerifyOtp}
@@ -450,9 +451,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: OTP Verification via Sandbox SMS Gateway API
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: OTP Verification via Sandbox SMS Gateway API</p>}
           </CardContent>
         </Card>
       )}
@@ -529,9 +528,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: PAN OKYC via sandbox.co.in REST APIs
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: PAN OKYC via sandbox.co.in REST APIs</p>}
           </CardContent>
         </Card>
       )}
@@ -597,9 +594,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: UIDAI e-KYC Verification via sandbox.co.in OTP API
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: UIDAI e-KYC Verification via sandbox.co.in OTP API</p>}
           </CardContent>
         </Card>
       )}
@@ -676,9 +671,7 @@ export function ConsentPage() {
                 Proceed to Verification Flow
               </Button>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: OpenCV Real-Time Laplacian Liveness Estimation
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: OpenCV Real-Time Laplacian Liveness Estimation</p>}
           </CardContent>
         </Card>
       )}
@@ -782,9 +775,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: Finvu Account Aggregator Sandbox API & pdfplumber statement parser
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: Finvu Account Aggregator Sandbox API & pdfplumber statement parser</p>}
           </CardContent>
         </Card>
       )}
@@ -845,9 +836,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: Gmail API read-only OAuth 2.0 authorization
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: Gmail API read-only OAuth 2.0 authorization</p>}
           </CardContent>
         </Card>
       )}
@@ -899,9 +888,7 @@ export function ConsentPage() {
             >
               Submit Questionnaire
             </Button>
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: CFPB Behavioral Psychometric Scoring Model
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: CFPB Behavioral Psychometric Scoring Model</p>}
           </CardContent>
         </Card>
       )}
@@ -980,9 +967,7 @@ export function ConsentPage() {
                 </Button>
               </div>
             )}
-            <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>
-              Tech: GSTIN verification via sandbox.co.in portal API
-            </p>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: GSTIN verification via sandbox.co.in portal API</p>}
           </CardContent>
         </Card>
       )}

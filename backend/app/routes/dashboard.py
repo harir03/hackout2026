@@ -62,6 +62,7 @@ class DecisionRequest(BaseModel):
     decision: str
     interest_rate: float
     terms: str
+    notes: str = ""
 
 
 class KnowledgeRequest(BaseModel):
@@ -168,7 +169,7 @@ async def _embed_text_local(text_val: str, api_key: str | None = None) -> list[f
             res = await client.post(
                 f"{OLLAMA_URL}/api/embeddings",
                 json={"model": "nomic-embed-text", "prompt": text_val},
-                timeout=10.0
+                timeout=300.0
             )
             if res.status_code == 200:
                 return res.json()["embedding"]
@@ -383,8 +384,61 @@ async def post_decision(body: DecisionRequest) -> dict:
             await session.commit()
     except Exception as ex:
         print(f"Failed to log decision to audit_trail: {ex}")
-        
+
+    _save_notification(body.user_id, body.decision, body.interest_rate, body.terms, body.notes)
+
     return {"status": "ok", "user_id": body.user_id, "decision": body.decision}
+
+
+def _save_notification(
+    user_id: str, decision: str, interest_rate: float, terms: str, notes: str = ""
+) -> None:
+    notifs_path = PROJECT_ROOT / "demo_data" / "notifications.json"
+    notifs: dict = {}
+    if notifs_path.exists():
+        try:
+            notifs = json.loads(notifs_path.read_text())
+        except Exception:
+            pass
+
+    notifs[user_id] = {
+        "user_id": user_id,
+        "decision": decision,
+        "interest_rate": interest_rate,
+        "terms": terms,
+        "notes": notes,
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    }
+
+    notifs_path.parent.mkdir(parents=True, exist_ok=True)
+    notifs_path.write_text(json.dumps(notifs, indent=2))
+
+
+@router.get("/notifications/{user_id}")
+async def get_notifications(user_id: str) -> dict:
+    notifs_path = PROJECT_ROOT / "demo_data" / "notifications.json"
+    if notifs_path.exists():
+        try:
+            notifs = json.loads(notifs_path.read_text())
+            if user_id in notifs:
+                return {"has_notification": True, **notifs[user_id]}
+        except Exception:
+            pass
+    return {"has_notification": False, "user_id": user_id}
+
+
+@router.get("/decisions")
+async def get_all_decisions() -> dict:
+    notifs_path = PROJECT_ROOT / "demo_data" / "notifications.json"
+    if notifs_path.exists():
+        try:
+            notifs = json.loads(notifs_path.read_text())
+            decisions = list(notifs.values())
+            decisions.sort(key=lambda d: d.get("timestamp", ""), reverse=True)
+            return {"decisions": decisions}
+        except Exception:
+            pass
+    return {"decisions": []}
 
 
 @router.post("/knowledge")
@@ -417,3 +471,4 @@ async def post_knowledge(body: KnowledgeRequest) -> dict:
         print(f"ChromaDB knowledge storage failed: {chroma_ex}")
         
     return {"status": "ok", "user_id": body.user_id}
+

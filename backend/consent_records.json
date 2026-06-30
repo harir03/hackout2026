@@ -301,5 +301,94 @@
       "questionnaire"
     ],
     "consented_at": "2026-06-28T15:03:40.259954+00:00"
+  },
+  "29de1e2e-043e-4b0d-b71e-ccf55c4987ad": {
+    "consent_id": "29de1e2e-043e-4b0d-b71e-ccf55c4987ad",
+    "user_id": "test-user-123",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "consented_sources": [
+      "D1 Bank/UPI",
+      "D2 Telecom"
+    ],
+    "consented_at": "2026-06-28T17:03:46.685662+00:00"
+  },
+  "473630f2-1228-4137-8f99-eec98f84fecc": {
+    "consent_id": "473630f2-1228-4137-8f99-eec98f84fecc",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-06-28T19:39:14.338330+00:00"
+  },
+  "9f7c631b-c77f-4513-a4b7-54daa1640b81": {
+    "consent_id": "9f7c631b-c77f-4513-a4b7-54daa1640b81",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-06-28T19:48:55.649720+00:00"
+  },
+  "ec1967d8-887f-42fd-9e5c-0f23134eb704": {
+    "consent_id": "ec1967d8-887f-42fd-9e5c-0f23134eb704",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-28T22:59:42.279581+00:00"
+  },
+  "0b6e3f0b-a60e-4012-890a-e5514acad474": {
+    "consent_id": "0b6e3f0b-a60e-4012-890a-e5514acad474",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-28T22:59:43.254249+00:00"
+  },
+  "bd07ed62-8735-42da-ade0-1fe55465164f": {
+    "consent_id": "bd07ed62-8735-42da-ade0-1fe55465164f",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-06-28T22:59:44.481008+00:00"
   }
 }

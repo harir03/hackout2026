@@ -1,5 +1,6 @@
-import { Outlet, useMatches, Link } from '@tanstack/react-router'
-import { CheckCircle2 } from 'lucide-react'
+import { Outlet, useMatches, Link, useNavigate } from '@tanstack/react-router'
+import { CheckCircle2, ArrowLeft, LogOut } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth-store'
 
 const STEPS = [
   { path: '/', label: 'Data Consent' },
@@ -61,26 +62,56 @@ function StepIndicator({ currentPath }: { currentPath: string }) {
 export function ApplicantLayout() {
   const matches = useMatches()
   const currentPath = matches[matches.length - 1]?.pathname ?? '/'
+  const navigate = useNavigate()
+  const { auth } = useAuthStore()
+
+  const currentIndex = STEPS.findIndex((s) => s.path === currentPath)
+  const prevStep = currentIndex > 0 ? STEPS[currentIndex - 1] : null
+
+  function handleSignOut() {
+    auth.reset()
+    navigate({ to: '/pitch', replace: true })
+  }
 
   return (
     <div className='min-h-svh bg-background'>
       <header className='sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60'>
         <div className='mx-auto flex h-16 max-w-4xl items-center justify-between px-4'>
-          <div className='flex items-center gap-4'>
-            <div className='flex items-center gap-2.5'>
+          <div className='flex items-center gap-3'>
+            {prevStep ? (
+              <Link
+                to={prevStep.path}
+                className='flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors'
+              >
+                <ArrowLeft className='h-3.5 w-3.5' />
+                <span className='hidden sm:inline'>Back</span>
+              </Link>
+            ) : (
+              <Link
+                to='/pitch'
+                className='flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors'
+              >
+                <ArrowLeft className='h-3.5 w-3.5' />
+                <span className='hidden sm:inline'>Home</span>
+              </Link>
+            )}
+            <Link to='/pitch' className='flex items-center gap-2.5 hover:opacity-80 transition-opacity'>
               <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
                 AG
               </div>
               <span className='text-sm font-semibold tracking-[-0.02em]'>AltGrade</span>
-            </div>
-            <Link
-              to='/pitch'
-              className='text-[10px] sm:text-xs text-muted-foreground hover:text-foreground font-medium border border-border px-2 py-0.5 rounded-full hover:bg-muted transition-all'
-            >
-              Pitch Deck
             </Link>
           </div>
+
           <StepIndicator currentPath={currentPath} />
+
+          <button
+            onClick={handleSignOut}
+            className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors'
+          >
+            <LogOut className='h-3.5 w-3.5' />
+            <span className='hidden sm:inline'>Sign Out</span>
+          </button>
         </div>
       </header>
 

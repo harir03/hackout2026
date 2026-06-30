@@ -1,6 +1,8 @@
 import {
   LayoutDashboard,
   Command,
+  Home,
+  ClipboardList,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -22,9 +24,19 @@ export const sidebarData: SidebarData = {
       title: 'General',
       items: [
         {
+          title: 'Home',
+          url: '/pitch',
+          icon: Home,
+        },
+        {
           title: 'Dashboard',
           url: '/dashboard',
           icon: LayoutDashboard,
+        },
+        {
+          title: 'All Decisions',
+          url: '/decisions',
+          icon: ClipboardList,
         },
       ],
     },

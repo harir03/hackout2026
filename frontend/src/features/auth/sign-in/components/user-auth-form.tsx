@@ -96,7 +96,7 @@ export function UserAuthForm({
 
         // Redirect to the stored location or default based on role
         const defaultPath = isAdmin ? '/dashboard' : '/'
-        const targetPath = redirectTo || defaultPath
+        const targetPath = isAdmin ? (redirectTo || defaultPath) : defaultPath
         navigate({ to: targetPath, replace: true })
 
         return `Welcome back, ${data.email}!`

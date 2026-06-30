@@ -26,6 +26,26 @@ def _get_engine() -> ScoringEngine:
 
 
 def _score_for_user(user_id: str) -> dict[str, Any]:
+    scores_path = Path(__file__).resolve().parents[2] / ".." / "demo_data" / "scores_db.json"
+    if scores_path.exists():
+        try:
+            with open(scores_path, "r") as f:
+                scores_data = json.load(f)
+                user_scores = [s for s in scores_data.values() if s["user_id"] == user_id]
+                if user_scores:
+                    latest = sorted(user_scores, key=lambda x: x["created_at"])[-1]
+                    return {
+                        "score": latest["score"],
+                        "risk_band": latest["risk_band"],
+                        "tier": latest["tier"],
+                        "shap_details": latest["shap_details"],
+                        "signal_conflicts": latest["signal_conflicts"],
+                        "hard_caps_applied": latest["hard_caps_applied"],
+                        "tier1_reweight": None,
+                    }
+        except Exception as file_ex:
+            print(f"Failed to load scores_db.json in advisor: {file_ex}")
+
     profile_data = None
     profiles_path = Path(__file__).resolve().parents[2] / "demo_data" / "profiles.json"
     if profiles_path.exists():
@@ -129,3 +149,18 @@ async def run_ingestion() -> IngestResponse:
     api_key = settings.gemini_api_key
     stats = await ingest_sources(api_key)
     return IngestResponse(collections=stats, status="ok")
+
+
+@router.get("/profile/{user_id}")
+async def get_applicant_profile(user_id: str) -> dict:
+    score_result = _score_for_user(user_id)
+    return {
+        "user_id": user_id,
+        "score": score_result.get("score", 0),
+        "risk_band": score_result.get("risk_band", "N/A"),
+        "tier": score_result.get("tier", "N/A"),
+        "shap_details": score_result.get("shap_details", []),
+        "signal_conflicts": score_result.get("signal_conflicts", []),
+        "hard_caps_applied": score_result.get("hard_caps_applied", []),
+    }
+
