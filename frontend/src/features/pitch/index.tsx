@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -21,43 +21,6 @@ import { Lightfall } from '@/components/ui/lightfall'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const ROTATING_WORDS = ['credit score?', 'loan?', 'MSME?', 'invisible?', 'bankable?', 'eligible?']
-
-function RotatingBlobText() {
-  const [index, setIndex] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true)
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % ROTATING_WORDS.length)
-        setIsAnimating(false)
-      }, 400)
-    }, 2500)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className='relative flex items-center justify-center h-full'>
-      <div className='absolute w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-gradient-to-br from-white/8 via-neutral-400/6 to-neutral-600/4 blur-3xl animate-pulse' />
-      <div className='absolute w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-neutral-500/10 to-white/5 blur-2xl' style={{ animationDuration: '4s', animationName: 'pulse' }} />
-      <div className='relative text-center'>
-        <p className='text-[11px] font-mono text-neutral-500 tracking-widest uppercase mb-3'>what about my</p>
-        <div className='overflow-hidden h-[56px] sm:h-[72px]'>
-          <span
-            className={`block text-4xl sm:text-5xl font-signifier tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-300 to-neutral-500 transition-all duration-400 ${
-              isAnimating ? 'translate-y-[-100%] opacity-0' : 'translate-y-0 opacity-100'
-            }`}
-          >
-            {ROTATING_WORDS[index]}
-          </span>
-        </div>
-        <div className='mt-3 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-neutral-500 to-transparent' />
-      </div>
-    </div>
-  )
-}
 
 
 export function PitchDeckPage() {
@@ -213,7 +176,7 @@ export function PitchDeckPage() {
             <span>HACK-1D598347</span>
             <div className='flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2'>
               <a
-                href="#"
+                href="https://www.canva.com/design/DAHOFJi2fbo/gQAI6SX4laigaYkKSK2eqA/edit?utm_content=DAHOFJi2fbo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
@@ -221,7 +184,7 @@ export function PitchDeckPage() {
                 Canva PPT
               </a>
               <a
-                href="#"
+                href="https://github.com/harir03/psbiitkgp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
@@ -266,7 +229,7 @@ export function PitchDeckPage() {
           <div className='lg:col-span-9 space-y-6 text-left'>
             <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-white font-mono hero-fade-in'>
               <Sparkles className='h-3.5 w-3.5' />
-              PSB HACKATHON 2026 • WORKFLOW SPEC
+              PSB HACKATHON 2026 • Diet Code
             </div>
             
             <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase'>
@@ -281,17 +244,13 @@ export function PitchDeckPage() {
 
             <div className='flex flex-wrap items-center gap-4 hero-fade-in pt-4'>
               <Button onClick={() => navigate({ to: '/' })} size='lg' className='rounded-md bg-white text-black hover:bg-white/90 px-8 h-12 font-medium flex items-center gap-2 group'>
-                Enter Sandbox App
+                Get Credit Score
                 <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
               </Button>
               <a href='#stats' className='text-xs text-muted-foreground border border-[#333] rounded-md px-6 h-12 flex items-center hover:bg-white/5 transition-all font-mono'>
-                [ Scroll for Pitch ]
+                [ Jump to Specs ]
               </a>
             </div>
-          </div>
-
-          <div className='lg:col-span-3 hidden lg:flex items-center justify-center hero-fade-in'>
-            <RotatingBlobText />
           </div>
 
         </div>
