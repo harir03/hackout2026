@@ -1,0 +1,90 @@
+RBI DIRECTIONS ON INTEREST RATE AND PENAL CHARGES
+(RBI/DoR/2023-24/85, Effective April 1, 2024)
+
+AND
+
+RBI MASTER DIRECTION ON INTEREST RATE ON ADVANCES
+(RBI/DBR/2015-16/376, Updated: March 2024)
+
+CHAPTER I: INTEREST RATE FRAMEWORK
+
+1.1 EXTERNAL BENCHMARK-LINKED LENDING RATES (EBLR): Banks must link floating-rate loans to an external benchmark. The approved external benchmarks are:
+(a) RBI Repo Rate
+(b) Government of India 3-month Treasury Bill yield
+(c) Government of India 6-month Treasury Bill yield
+(d) Any other benchmark published by Financial Benchmarks India Private Ltd (FBIL)
+
+1.2 SPREAD OVER BENCHMARK: The spread over the external benchmark shall include operating cost, credit risk premium, and tenor premium. The credit risk premium may change based on the borrower's credit assessment but the operating cost and tenor premium shall remain fixed.
+
+1.3 RESET PERIOD: Interest rates under EBLR must be reset at least once every three months. The reset date must be clearly communicated to the borrower.
+
+1.4 TRANSPARENCY IN LENDING RATES:
+(a) Banks must publish the benchmark rate and spread on their website
+(b) Changes in the benchmark rate must be transmitted to borrowers within the reset period
+(c) Borrowers must be notified of any change in interest rate in advance
+
+1.5 MARGINAL COST OF FUNDS-BASED LENDING RATE (MCLR): For existing loans linked to MCLR (not yet migrated to EBLR), the MCLR is computed based on:
+(a) Marginal cost of funds
+(b) Negative carry on account of CRR
+(c) Operating costs
+(d) Tenor premium
+
+CHAPTER II: PENAL CHARGES — NEW FRAMEWORK (EFFECTIVE APRIL 1, 2024)
+
+2.1 PENAL CHARGES, NOT PENAL INTEREST: The RBI has directed that penalties for non-compliance with loan terms shall be in the form of "penal charges" and not "penal interest." This means:
+(a) Penalties shall not be added to the loan amount for computation of interest
+(b) Penalties shall be a flat fee or a percentage of the instalment, not compounding
+(c) The penal charges must be reasonable and commensurate with the non-compliance
+
+2.2 BOARD-APPROVED POLICY: REs must have a Board-approved policy on penal charges. The policy must be:
+(a) Non-discriminatory — similar penal charges for similar non-compliance
+(b) Not used as a revenue-enhancing tool
+(c) Applied uniformly across all categories of borrowers
+
+2.3 DISCLOSURE REQUIREMENTS:
+(a) Penal charges applicable must be disclosed in the loan agreement
+(b) Must be part of the Key Fact Statement (KFS)
+(c) Any revision in penal charges shall be communicated to the borrower
+(d) The disclosure must include:
+    - Specific instances when penal charges are levied
+    - The quantum of penal charges for each instance
+    - Whether penal charges vary by loan category
+
+2.4 PROHIBITION ON COMPOUNDING: Penal charges levied for non-compliance shall not be capitalised (i.e., no further interest shall be computed on such charges). They shall be recovered as a separate charge.
+
+CHAPTER III: INTEREST RATE ON SMALL LOANS
+
+3.1 MICROFINANCE INTEREST RATES: For microfinance loans, the RE must disclose the interest rate upfront along with all other charges. The all-in cost must be communicated in the form of APR.
+
+3.2 INTEREST RATE FOR PSL LOANS: Interest rates on priority sector loans are not subject to caps (except for crop loans with interest subvention). However, rates must be:
+(a) Reasonable and not excessive
+(b) Commensurate with the risk assessment
+(c) Disclosed transparently
+
+3.3 ALTERNATE SCORING AND INTEREST RATES: When credit decisions are based on alternate scoring:
+(a) The interest rate may reflect the risk assessment from the alternate score
+(b) The methodology for translating alternate scores to interest rates must be Board-approved
+(c) Borrowers must be informed how their alternate score affects their interest rate
+(d) Improvement in alternate score should lead to rate reduction at the next reset
+
+CHAPTER IV: PREPAYMENT AND FORECLOSURE
+
+4.1 FLOATING RATE LOANS: No prepayment penalty or foreclosure charges shall be levied on floating rate term loans for individual borrowers.
+
+4.2 FIXED RATE LOANS: Prepayment charges may apply to fixed-rate loans but must be:
+(a) Disclosed at the time of loan sanction
+(b) Reasonable and not punitive
+(c) Part of the loan agreement
+
+4.3 PARTIAL PREPAYMENT: Borrowers have the right to make partial prepayments. The terms of partial prepayment (minimum amount, frequency) must be specified in the loan agreement.
+
+CHAPTER V: INTEREST CALCULATION METHODOLOGY
+
+5.1 Interest shall be calculated on a daily reducing balance basis for all floating-rate loans.
+
+5.2 The method of interest computation (daily reducing, monthly reducing, flat rate) must be disclosed in the KFS and loan agreement.
+
+5.3 For alternate credit scoring-based loans:
+(a) The interest rate applicable at the time of sanction must be based on the score at that time
+(b) If the borrower's score improves significantly (e.g., moves up a risk band), they may request a rate review
+(c) The RE is not obligated to reduce rates automatically upon score improvement but must have a transparent process for rate reviews

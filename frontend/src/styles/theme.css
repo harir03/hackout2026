@@ -50,10 +50,10 @@
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-ring: var(--ring);
 
-  --vercel-blue: #ffffff;
-  --vercel-cyan: #e5e5e5;
-  --vercel-pink: #a3a3a3;
-  --vercel-warning: #525252;
+  --brand-blue: #ffffff;
+  --brand-cyan: #e5e5e5;
+  --brand-pink: #a3a3a3;
+  --brand-warning: #525252;
 }
 
 .dark {
@@ -148,8 +148,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --color-vercel-blue: var(--vercel-blue);
-  --color-vercel-cyan: var(--vercel-cyan);
-  --color-vercel-pink: var(--vercel-pink);
-  --color-vercel-warning: var(--vercel-warning);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-warning: var(--brand-warning);
 }

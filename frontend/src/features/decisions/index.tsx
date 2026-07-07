@@ -110,12 +110,12 @@ export function DecisionsPage() {
               <div className='text-3xl font-bold'>{decisions.length}</div>
             </CardContent>
           </Card>
-          <Card className='cursor-pointer transition-colors hover:border-vercel-blue/40' onClick={() => setStatusFilter('approved')}>
+          <Card className='cursor-pointer transition-colors hover:border-brand-blue/40' onClick={() => setStatusFilter('approved')}>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>Approved</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-3xl font-bold text-vercel-blue'>{approvedCount}</div>
+              <div className='text-3xl font-bold text-brand-blue'>{approvedCount}</div>
             </CardContent>
           </Card>
           <Card className='cursor-pointer transition-colors hover:border-rust/40' onClick={() => setStatusFilter('rejected')}>
@@ -192,7 +192,7 @@ export function DecisionsPage() {
                           <Badge
                             variant='outline'
                             className={d.decision === 'approved'
-                              ? 'bg-vercel-blue/10 text-vercel-blue border-vercel-blue/30'
+                              ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/30'
                               : 'bg-rust/10 text-rust border-rust/30'
                             }
                           >
@@ -246,7 +246,7 @@ export function DecisionsPage() {
                 <Badge
                   variant='outline'
                   className={selectedDecision.decision === 'approved'
-                    ? 'bg-vercel-blue/10 text-vercel-blue border-vercel-blue/30'
+                    ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/30'
                     : 'bg-rust/10 text-rust border-rust/30'
                   }
                 >
@@ -283,7 +283,7 @@ export function DecisionsPage() {
                 )}
                 {advisorMessages.map((msg, i) => (
                   <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {msg.role === 'advisor' && <Bot className='h-4 w-4 mt-1 shrink-0 text-vercel-blue' />}
+                    {msg.role === 'advisor' && <Bot className='h-4 w-4 mt-1 shrink-0 text-brand-blue' />}
                     <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
                       msg.role === 'user'
                         ? 'bg-foreground text-background'
@@ -296,7 +296,7 @@ export function DecisionsPage() {
                 ))}
                 {advisorLoading && (
                   <div className='flex gap-2 items-center text-muted-foreground'>
-                    <Bot className='h-4 w-4 shrink-0 text-vercel-blue' />
+                    <Bot className='h-4 w-4 shrink-0 text-brand-blue' />
                     <Loader2 className='h-3 w-3 animate-spin' />
                     <span className='text-xs'>Thinking...</span>
                   </div>

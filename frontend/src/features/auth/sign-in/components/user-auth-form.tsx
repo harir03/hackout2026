@@ -7,7 +7,6 @@ import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -16,7 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
 const formSchema = z.object({
@@ -82,19 +80,16 @@ export function UserAuthForm({
         const isAdmin = ['admin@altgrade.in', 'admin@altgrade.com', 'testadmin@altgrade.in'].includes(emailLower)
         const role = isAdmin ? ['admin'] : ['user']
 
-        // Mock successful authentication with expiry computed at success time
         const mockUser = {
           accountNo: 'ACC001',
           email: data.email,
           role: role,
-          exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
+          exp: Date.now() + 24 * 60 * 60 * 1000,
         }
 
-        // Set user and access token
         auth.setUser(mockUser)
         auth.setAccessToken('mock-access-token')
 
-        // Redirect to the stored location or default based on role
         const defaultPath = isAdmin ? '/dashboard' : '/'
         const targetPath = isAdmin ? (redirectTo || defaultPath) : defaultPath
         navigate({ to: targetPath, replace: true })
@@ -120,9 +115,14 @@ export function UserAuthForm({
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-zinc-300 text-sm font-medium">Email</FormLabel>
               <FormControl>
-                <Input placeholder='name@example.com' {...field} />
+                <input
+                  type="email"
+                  placeholder='name@example.com'
+                  className="w-full rounded-md border border-white/10 bg-black px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-[#00dfd8]/50 focus:ring-1 focus:ring-[#00dfd8]/30 transition-colors"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -133,24 +133,32 @@ export function UserAuthForm({
           name='password'
           render={({ field }) => (
             <FormItem className='relative'>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-zinc-300 text-sm font-medium">Password</FormLabel>
               <FormControl>
-                <PasswordInput placeholder='********' {...field} />
+                <PasswordInput
+                  placeholder='********'
+                  className="w-full rounded-md border border-white/10 bg-black px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-[#00dfd8]/50 focus:ring-1 focus:ring-[#00dfd8]/30 transition-colors"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
               <Link
                 to='/forgot-password'
-                className='absolute inset-e-0 -top-0.5 text-sm font-medium text-muted-foreground hover:opacity-75'
+                className='absolute inset-e-0 -top-0.5 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors'
               >
                 Forgot password?
               </Link>
             </FormItem>
           )}
         />
-        <Button className='mt-2' disabled={isLoading}>
-          {isLoading ? <Loader2 className='animate-spin' /> : <LogIn />}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-medium text-black transition-all hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? <Loader2 className='size-4 animate-spin' /> : <LogIn className='size-4' />}
           Sign in
-        </Button>
+        </button>
       </form>
     </Form>
   )

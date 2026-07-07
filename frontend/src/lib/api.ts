@@ -84,7 +84,8 @@ export async function fetchDashboard(adminEmail?: string): Promise<DashboardOver
 export async function verifyPan(
   pan: string,
   phone: string,
-  email?: string
+  email?: string,
+  name?: string
 ): Promise<{
   pan: string
   name: string
@@ -93,7 +94,7 @@ export async function verifyPan(
   aadhaar_linked: boolean
   status: string
 }> {
-  const { data } = await api.post('/identity/pan', { pan, phone, email })
+  const { data } = await api.post('/identity/pan', { pan, phone, email, name })
   return data
 }
 

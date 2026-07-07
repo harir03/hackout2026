@@ -16,7 +16,7 @@ import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
 function bandColor(band: string): string {
   const colors: Record<string, string> = {
-    Excellent: 'text-vercel-blue',
+    Excellent: 'text-brand-blue',
     Good: 'text-graphite',
     Fair: 'text-slate',
     Poor: 'text-rust',
@@ -44,7 +44,7 @@ function ShapBar({ feature, maxAbs, ecomSource }: { feature: ShapFeature; maxAbs
           <div className='absolute left-1/2 h-full w-px bg-border' />
           {positive ? (
             <div
-              className='absolute left-1/2 h-4 rounded-r bg-vercel-blue/80'
+              className='absolute left-1/2 h-4 rounded-r bg-brand-blue/80'
               style={{ width: `${pct / 2}%` }}
             />
           ) : (
@@ -53,19 +53,19 @@ function ShapBar({ feature, maxAbs, ecomSource }: { feature: ShapFeature; maxAbs
               style={{
                 width: `${pct / 2}%`,
                 right: '50%',
-              }}
-            />
-          )}
+                }}
+              />
+            )}
+          </div>
         </div>
-      </div>
-      <div className='w-20 shrink-0 text-right'>
-        <span
-          className={`text-xs font-semibold ${
-            positive
-              ? 'text-vercel-blue'
-              : 'text-rust'
-          }`}
-        >
+        <div className='w-20 shrink-0 text-right'>
+          <span
+            className={`text-xs font-semibold ${
+              positive
+                ? 'text-brand-blue'
+                : 'text-rust'
+            }`}
+          >
           {feature.points > 0 ? '+' : ''}
           {feature.points.toFixed(1)}
         </span>
@@ -168,7 +168,7 @@ export function ScorePage() {
       <div className='max-w-md mx-auto py-12 px-4 space-y-6 animate-fade-up'>
         <div className='text-center mb-6'>
           <h1 className='font-signifier text-3xl font-normal leading-[1.2] text-foreground flex items-center justify-center gap-2'>
-            <Loader2 className='h-6 w-6 animate-spin text-vercel-blue' />
+            <Loader2 className='h-6 w-6 animate-spin text-brand-blue' />
             Running Pipeline Workers
           </h1>
           <p className='text-sm text-muted-foreground mt-2'>
@@ -181,15 +181,15 @@ export function ScorePage() {
             const isCompleted = idx < pipelineStep
             const isActive = idx === pipelineStep
             return (
-              <Card key={idx} className={`shadow-subtle transition-all duration-300 ${isActive ? 'border-vercel-blue bg-vercel-blue/5' : ''} ${isCompleted ? 'opacity-60' : ''}`}>
+              <Card key={idx} className={`shadow-subtle transition-all duration-300 ${isActive ? 'border-brand-blue bg-brand-blue/5' : ''} ${isCompleted ? 'opacity-60' : ''}`}>
                 <CardHeader className='py-3 px-4 flex flex-row items-center justify-between space-y-0'>
                   <div className='flex items-center gap-3'>
-                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isCompleted ? 'bg-vercel-blue text-white' : isActive ? 'bg-vercel-blue/20 text-vercel-blue animate-pulse' : 'bg-muted text-muted-foreground'}`}>
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isCompleted ? 'bg-brand-blue text-white' : isActive ? 'bg-brand-blue/20 text-brand-blue animate-pulse' : 'bg-muted text-muted-foreground'}`}>
                       {isCompleted ? '✓' : idx + 1}
                     </div>
-                    <span className={`text-sm font-medium ${isActive ? 'text-vercel-blue font-semibold' : ''}`}>{name}</span>
+                    <span className={`text-sm font-medium ${isActive ? 'text-brand-blue font-semibold' : ''}`}>{name}</span>
                   </div>
-                  {isActive && <span className='text-xs text-vercel-blue font-medium animate-pulse'>Processing...</span>}
+                  {isActive && <span className='text-xs text-brand-blue font-medium animate-pulse'>Processing...</span>}
                   {isCompleted && <span className='text-xs text-graphite font-medium'>Completed</span>}
                 </CardHeader>
               </Card>
@@ -215,14 +215,14 @@ export function ScorePage() {
       {notification?.has_notification && (
         <div className={`mb-6 rounded-lg border p-4 flex items-start gap-3 animate-fade-up ${
           notification.decision === 'approved'
-            ? 'bg-vercel-blue/5 border-vercel-blue/30'
+            ? 'bg-brand-blue/5 border-brand-blue/30'
             : 'bg-rust/5 border-rust/30'
         }`}>
           <div className={`mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
-            notification.decision === 'approved' ? 'bg-vercel-blue/20' : 'bg-rust/20'
+            notification.decision === 'approved' ? 'bg-brand-blue/20' : 'bg-rust/20'
           }`}>
             {notification.decision === 'approved' ? (
-              <svg className='h-4 w-4 text-vercel-blue' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+              <svg className='h-4 w-4 text-brand-blue' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
                 <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
               </svg>
             ) : (
@@ -231,7 +231,7 @@ export function ScorePage() {
           </div>
           <div>
             <p className={`text-sm font-semibold ${
-              notification.decision === 'approved' ? 'text-vercel-blue' : 'text-rust'
+              notification.decision === 'approved' ? 'text-brand-blue' : 'text-rust'
             }`}>
               Loan Application {notification.decision === 'approved' ? 'Approved' : 'Rejected'}
             </p>
@@ -346,7 +346,7 @@ export function ScorePage() {
                 className='flex items-center justify-between rounded-lg border border-rust/20 bg-rust/5 p-3'
               >
                 <div className='flex items-center gap-2'>
-                  <Badge className='bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30' variant='outline'>
+                  <Badge className='bg-brand-blue/15 text-brand-blue border-brand-blue/30' variant='outline'>
                     {conflict.positive_worker}: {conflict.positive_net_points > 0 ? '+' : ''}{conflict.positive_net_points.toFixed(1)} pts
                   </Badge>
                   <span className='text-xs text-muted-foreground'>vs</span>

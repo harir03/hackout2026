@@ -13,7 +13,7 @@ const hexToRGB = (hex: string): [number, number, number] => {
 }
 
 const prepColors = (input?: string[]) => {
-  const base = (input && input.length ? input : ['#A6C8FF', '#5227FF', '#FF9FFC']).slice(0, MAX_COLORS)
+  const base = (input && input.length ? input : ['#ffffff', '#999999', '#595959', '#333333', '#191919']).slice(0, MAX_COLORS)
   const count = base.length
   const arr: [number, number, number][] = []
   for (let i = 0; i < MAX_COLORS; i++) {
@@ -195,8 +195,8 @@ export function Lightfall({
   className,
   dpr,
   paused = false,
-  colors = ['#A6C8FF', '#5227FF', '#FF9FFC'],
-  backgroundColor = '#0A29FF',
+  colors = ['#ffffff', '#999999', '#595959', '#333333', '#191919'],
+  backgroundColor = '#000000',
   speed = 0.5,
   streakCount = 2,
   streakWidth = 1,

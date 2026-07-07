@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     google_client_id: str = ""
     google_client_secret: str = ""
+    sandbox_api_key: str = ""
+    sandbox_secret: str = ""
 
     model_config = {"env_prefix": "ICA_", "env_file": ".env", "env_file_encoding": "utf-8"}
 

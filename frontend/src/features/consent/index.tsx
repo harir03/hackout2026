@@ -170,9 +170,9 @@ export function ConsentPage() {
     if (user?.email === 'testhari@altgrade.in') {
       setPhone('9876543210')
       setOtpCode('123456')
-      setPan('ABCDE1234F')
-      setAadhaar('123456789012')
-      setAadhaarOtp('123456')
+      setPan('XXXPX1234A')
+      setAadhaar('123412341234')
+      setAadhaarOtp('121212')
       setGstNumber('27AAAAA1111A1Z1')
     } else {
       setPhone('')
@@ -208,7 +208,7 @@ export function ConsentPage() {
   const handleVerifyPan = async () => {
     setVerifyingPan(true)
     try {
-      const res = await verifyPan(pan, phone, user?.email || undefined)
+      const res = await verifyPan(pan, phone, user?.email || undefined, undefined)
       setPanName(res.name)
       setPanDob(res.dob)
       setPanType(res.entity_type)
@@ -377,21 +377,21 @@ export function ConsentPage() {
     <div className='max-w-4xl mx-auto py-8 px-4'>
       {/* Dynamic Stepper Header */}
       <div className='mb-8 flex justify-between items-center text-[10px] sm:text-xs text-graphite border-b border-dove/20 pb-4 overflow-x-auto whitespace-nowrap gap-4'>
-        <span className={step === 1 ? 'text-vercel-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
-        <span className={step === 2 ? 'text-vercel-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
-        <span className={step === 3 ? 'text-vercel-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
-        <span className={step === 4 ? 'text-vercel-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
-        <span className={step === 5 ? 'text-vercel-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
-        <span className={step === 6 ? 'text-vercel-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Email</span>
-        <span className={step === 7 ? 'text-vercel-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
-        <span className={step === 8 ? 'text-vercel-blue font-semibold' : ''}>8. GST (Opt)</span>
+        <span className={step === 1 ? 'text-brand-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
+        <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
+        <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
+        <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
+        <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
+        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Email</span>
+        <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
+        <span className={step === 8 ? 'text-brand-blue font-semibold' : ''}>8. GST (Opt)</span>
       </div>
 
       {step === 1 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Phone className='h-5 w-5 text-vercel-blue' />
+              <Phone className='h-5 w-5 text-brand-blue' />
               Verify Your Mobile
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -460,7 +460,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <CreditCard className='h-5 w-5 text-vercel-blue' />
+              <CreditCard className='h-5 w-5 text-brand-blue' />
               PAN Verification
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -513,7 +513,7 @@ export function ConsentPage() {
                   <div>
                     <span className='text-graphite font-medium'>Aadhaar Link:</span>
                     <p className='mt-0.5'>
-                      <Badge className='bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30' variant='outline'>
+                      <Badge className='bg-brand-blue/15 text-brand-blue border-brand-blue/30' variant='outline'>
                         Linked
                       </Badge>
                     </p>
@@ -537,7 +537,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Fingerprint className='h-5 w-5 text-vercel-blue' />
+              <Fingerprint className='h-5 w-5 text-brand-blue' />
               Aadhaar OKYC
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -603,7 +603,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Camera className='h-5 w-5 text-vercel-blue' />
+              <Camera className='h-5 w-5 text-brand-blue' />
               Liveness Check
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -616,15 +616,15 @@ export function ConsentPage() {
                 <>
                   {!faceCaptured ? (
                     <div className='absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-900/80 animate-pulse'>
-                      <div className='w-40 h-40 rounded-full border-4 border-dashed border-vercel-blue flex items-center justify-center'>
-                        <Camera className='h-12 w-12 text-vercel-blue' />
+                      <div className='w-40 h-40 rounded-full border-4 border-dashed border-brand-blue flex items-center justify-center'>
+                        <Camera className='h-12 w-12 text-brand-blue' />
                       </div>
-                      <p className='mt-4 text-xs font-semibold tracking-wide text-vercel-blue animate-pulse'>{livenessInstruction}</p>
+                      <p className='mt-4 text-xs font-semibold tracking-wide text-brand-blue animate-pulse'>{livenessInstruction}</p>
                     </div>
                   ) : (
-                    <div className='absolute inset-0 flex flex-col items-center justify-center bg-vercel-blue/5'>
-                      <ShieldCheck className='h-16 w-16 text-vercel-blue animate-bounce' />
-                      <p className='mt-4 text-sm font-bold text-vercel-blue'>Verification Completed</p>
+                    <div className='absolute inset-0 flex flex-col items-center justify-center bg-brand-blue/5'>
+                      <ShieldCheck className='h-16 w-16 text-brand-blue animate-bounce' />
+                      <p className='mt-4 text-sm font-bold text-brand-blue'>Verification Completed</p>
                       <p className='text-xs text-graphite mt-1'>Match Confidence: {(livenessScore! * 100).toFixed(1)}%</p>
                     </div>
                   )}
@@ -680,7 +680,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Landmark className='h-5 w-5 text-vercel-blue' />
+              <Landmark className='h-5 w-5 text-brand-blue' />
               Step 5: Bank Connection
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -714,7 +714,7 @@ export function ConsentPage() {
                         className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
                       />
                       {selectedFile ? (
-                        <p className='text-xs font-medium text-vercel-blue truncate px-2'>
+                        <p className='text-xs font-medium text-brand-blue truncate px-2'>
                           Selected: {selectedFile.name}
                         </p>
                       ) : (
@@ -754,9 +754,9 @@ export function ConsentPage() {
               </>
             ) : (
               <div className='space-y-4 animate-fade-up text-center'>
-                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
-                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
-                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>Bank Connection Successful</h3>
+                <div className='flex flex-col items-center justify-center p-6 bg-brand-blue/5 rounded-[16px] border border-brand-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-brand-blue' />
+                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>Bank Connection Successful</h3>
                   <p className='text-xs text-graphite mt-1'>
                     {pdfFile ? 'Parsed statement statement_uploaded.pdf' : 'Consented via Finvu AA sandbox.'}
                   </p>
@@ -784,7 +784,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Mail className='h-5 w-5 text-vercel-blue' />
+              <Mail className='h-5 w-5 text-brand-blue' />
               Step 6: Gmail Verification
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -815,9 +815,9 @@ export function ConsentPage() {
               </>
             ) : (
               <div className='space-y-4 animate-fade-up text-center'>
-                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
-                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
-                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>Gmail Connected Successfully</h3>
+                <div className='flex flex-col items-center justify-center p-6 bg-brand-blue/5 rounded-[16px] border border-brand-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-brand-blue' />
+                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>Gmail Connected Successfully</h3>
                   <p className='text-xs text-graphite mt-1'>
                     Gmail session synchronized. recharges and receipts parsed.
                   </p>
@@ -845,7 +845,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-2xl mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Brain className='h-5 w-5 text-vercel-blue' />
+              <Brain className='h-5 w-5 text-brand-blue' />
               Step 7: Psychometric Assessment
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -868,7 +868,7 @@ export function ConsentPage() {
                           onClick={() => handleSelectAnswer(idx, oIdx)}
                           className={`text-left text-xs p-3 rounded-[12px] border transition-all duration-200 ${
                             isSelected
-                              ? 'border-vercel-blue bg-vercel-blue/5 text-vercel-blue font-medium'
+                              ? 'border-brand-blue bg-brand-blue/5 text-brand-blue font-medium'
                               : 'border-dove/50 hover:bg-muted text-muted-foreground'
                           }`}
                         >
@@ -897,7 +897,7 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Store className='h-5 w-5 text-vercel-blue' />
+              <Store className='h-5 w-5 text-brand-blue' />
               Step 8: GST Connection (Optional)
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
@@ -943,9 +943,9 @@ export function ConsentPage() {
               </div>
             ) : (
               <div className='space-y-4 animate-fade-up text-center'>
-                <div className='flex flex-col items-center justify-center p-6 bg-vercel-blue/5 rounded-[16px] border border-vercel-blue/10'>
-                  <ShieldCheck className='h-12 w-12 text-vercel-blue' />
-                  <h3 className='text-sm font-semibold text-vercel-blue mt-2'>GST Linked Successfully</h3>
+                <div className='flex flex-col items-center justify-center p-6 bg-brand-blue/5 rounded-[16px] border border-brand-blue/10'>
+                  <ShieldCheck className='h-12 w-12 text-brand-blue' />
+                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>GST Linked Successfully</h3>
                   <p className='text-xs text-graphite mt-1'>
                     GSTIN verified. Merchant logs updated.
                   </p>

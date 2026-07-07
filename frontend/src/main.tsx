@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { AxiosError } from 'axios'
 import {
@@ -15,6 +15,7 @@ import { ThemeProvider } from './context/theme-provider'
 import { routeTree } from './routeTree.gen'
 // Styles
 import './styles/index.css'
+import { AppLoader } from '@/components/app-loader'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +86,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+function App() {
+  const [loading, setLoading] = useState(true)
+
+  return (
+    <>
+      {loading && <AppLoader onComplete={() => setLoading(false)} />}
+      <RouterProvider router={router} />
+    </>
+  )
+}
+
 // Render the app
 const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
@@ -93,7 +105,7 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <RouterProvider router={router} />
+          <App />
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>

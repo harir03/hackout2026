@@ -47,7 +47,7 @@ import { Button } from '@/components/ui/button'
 import { Stepper, Step } from '@/components/ui/stepper'
 
 const BAND_COLORS: Record<string, string> = {
-  'Excellent': 'bg-vercel-blue',
+  'Excellent': 'bg-brand-blue',
   'Good': 'bg-sky-wash',
   'Fair': 'bg-graphite',
   'Poor': 'bg-rust',
@@ -55,7 +55,7 @@ const BAND_COLORS: Record<string, string> = {
 }
 
 const BAND_BG: Record<string, string> = {
-  'Excellent': 'bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30',
+  'Excellent': 'bg-brand-blue/15 text-brand-blue border-brand-blue/30',
   'Good': 'bg-sky-wash/40 text-graphite border-sky-wash/60',
   'Fair': 'bg-graphite/15 text-graphite border-graphite/30',
   'Poor': 'bg-rust/15 text-rust border-rust/30',
@@ -79,7 +79,7 @@ function StatsCards({ data }: { data: DashboardOverview }) {
       <Card className='animate-fade-up [animation-delay:50ms]'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Approval Rate</CardTitle>
-          <CheckCircle2 className='h-4 w-4 text-vercel-blue' />
+          <CheckCircle2 className='h-4 w-4 text-brand-blue' />
         </CardHeader>
         <CardContent>
           <div className='text-2xl font-bold tracking-[-0.04em]'>{data.approval_rate}%</div>
@@ -167,7 +167,7 @@ function ConflictsTable({
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center gap-2 text-base'>
-          <AlertTriangle className='h-4 w-4 text-[var(--vercel-warning)]' />
+          <AlertTriangle className='h-4 w-4 text-[var(--brand-warning)]' />
           Applicants Flagged for Contradiction Review
         </CardTitle>
         <CardDescription>
@@ -223,7 +223,7 @@ function ConflictsTable({
                           variant='outline'
                           className={
                             decision === 'approved'
-                              ? 'bg-vercel-blue/15 text-vercel-blue border-vercel-blue/30'
+                              ? 'bg-brand-blue/15 text-brand-blue border-brand-blue/30'
                               : 'bg-destructive/15 text-destructive border-destructive/30'
                           }
                         >
@@ -256,7 +256,7 @@ function FairnessCard({ data }: { data: DashboardOverview }) {
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center gap-2 text-base'>
-          <ShieldCheck className='h-4 w-4 text-vercel-blue' />
+          <ShieldCheck className='h-4 w-4 text-brand-blue' />
           Fairness Audit
         </CardTitle>
         <CardDescription>
@@ -635,12 +635,12 @@ export function LoanOfficerDashboard() {
                               <div className='flex-1 h-4 relative'>
                                 <div className='absolute left-1/2 h-full w-px bg-border' />
                                 {positive ? (
-                                  <div className='absolute left-1/2 h-full rounded-r bg-vercel-blue/70' style={{ width: `${pct / 2}%` }} />
+                                  <div className='absolute left-1/2 h-full rounded-r bg-brand-blue/70' style={{ width: `${pct / 2}%` }} />
                                 ) : (
                                   <div className='absolute h-full rounded-l bg-rust/70' style={{ width: `${pct / 2}%`, right: '50%' }} />
                                 )}
                               </div>
-                              <span className={`w-14 text-right text-[11px] font-semibold ${positive ? 'text-vercel-blue' : 'text-rust'}`}>
+                              <span className={`w-14 text-right text-[11px] font-semibold ${positive ? 'text-brand-blue' : 'text-rust'}`}>
                                 {f.points > 0 ? '+' : ''}{f.points.toFixed(1)}
                               </span>
                               <Badge variant='outline' className='text-[10px] px-1.5 py-0'>{f.worker}</Badge>
@@ -676,7 +676,7 @@ export function LoanOfficerDashboard() {
                       )}
                       {advisorMessages.map((msg, i) => (
                         <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          {msg.role === 'advisor' && <Bot className='h-4 w-4 mt-1 shrink-0 text-vercel-blue' />}
+                          {msg.role === 'advisor' && <Bot className='h-4 w-4 mt-1 shrink-0 text-brand-blue' />}
                           <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
                             msg.role === 'user'
                               ? 'bg-foreground text-background'
@@ -689,7 +689,7 @@ export function LoanOfficerDashboard() {
                       ))}
                       {advisorLoading && (
                         <div className='flex gap-2 items-center text-muted-foreground'>
-                          <Bot className='h-4 w-4 shrink-0 text-vercel-blue' />
+                          <Bot className='h-4 w-4 shrink-0 text-brand-blue' />
                           <Loader2 className='h-3 w-3 animate-spin' />
                           <span className='text-xs'>Thinking...</span>
                         </div>

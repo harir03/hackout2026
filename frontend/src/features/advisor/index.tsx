@@ -80,8 +80,8 @@ export function AdvisorPage() {
               <div className='flex-1 space-y-4 overflow-y-auto p-4'>
                 {history.length === 0 && (
                   <div className='flex h-full flex-col items-center justify-center text-center'>
-                    <div className='mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-vercel-blue/10'>
-                      <Bot className='h-7 w-7 text-vercel-blue' />
+                    <div className='mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-blue/10'>
+                      <Bot className='h-7 w-7 text-brand-blue' />
                     </div>
                     <p className='text-sm text-muted-foreground'>
                       Ask a question about your credit assessment or select
@@ -93,8 +93,8 @@ export function AdvisorPage() {
                 {history.map((entry, i) => (
                   <div key={i} className={`flex gap-3 ${entry.role === 'user' ? 'justify-end' : ''}`}>
                     {entry.role === 'advisor' && (
-                      <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-vercel-blue/10'>
-                        <Bot className='h-4 w-4 text-vercel-blue' />
+                      <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue/10'>
+                        <Bot className='h-4 w-4 text-brand-blue' />
                       </div>
                     )}
                     <div
@@ -142,8 +142,8 @@ export function AdvisorPage() {
 
                  {loading && (
                   <div className='flex gap-3'>
-                    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-vercel-blue/10'>
-                      <Bot className='h-4 w-4 text-vercel-blue' />
+                    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue/10'>
+                      <Bot className='h-4 w-4 text-brand-blue' />
                     </div>
                     <div className='flex items-center gap-2 rounded-lg bg-sky-wash/30 text-ink px-4 py-3'>
                       <Loader2 className='h-4 w-4 animate-spin' />

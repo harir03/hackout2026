@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { StarBorder } from '@/components/ui/star-border'
 import { Lightfall } from '@/components/ui/lightfall'
+import RotatingText from '@/components/ui/rotating-text'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -140,7 +141,6 @@ export function PitchDeckPage() {
 
   return (
     <div ref={containerRef} className='bg-black text-white min-h-screen font-sans selection:bg-white selection:text-black overflow-x-hidden relative'>
-      {/* Vercel-style subtle grain noise overlay */}
       <div className="noise-overlay" />
 
       {/* Dynamic Cursor Light Grid Highlight */}
@@ -153,7 +153,6 @@ export function PitchDeckPage() {
         }}
       />
 
-      {/* Vercel Ambient Glows (Monochrome) */}
       <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[30rem] rounded-full bg-white/[0.02] blur-[130px] pointer-events-none' />
       <div className='absolute top-[120vh] right-1/4 w-[30rem] h-[30rem] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none' />
 
@@ -207,7 +206,7 @@ export function PitchDeckPage() {
         {/* Lightfall background */}
         <div className='absolute inset-0 pointer-events-none opacity-20 z-0'>
           <Lightfall
-            colors={['#ededed']}
+            colors={['#ffffff', '#999999', '#595959', '#333333', '#191919']}
             backgroundColor='#000000'
             speed={0.4}
             streakCount={4}
@@ -232,10 +231,24 @@ export function PitchDeckPage() {
               PSB HACKATHON 2026 • Diet Code
             </div>
             
-            <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase'>
+            <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase flex flex-col items-start'>
               <span className='block hero-title-char overflow-hidden'>Alternate</span>
               <span className='block hero-title-char overflow-hidden text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-400 to-neutral-600'>Credit Scoring</span>
-              <span className='block hero-title-char overflow-hidden'>For India</span>
+              <span className='inline-flex items-center gap-3 hero-title-char overflow-hidden whitespace-nowrap'>
+                <span>For</span>
+                <RotatingText
+                  texts={['INDIA', 'GIG WORKERS', 'MSMEs', 'SEASONAL INCOME', 'STUDENTS', 'EVERYONE']}
+                  mainClassName="text-zinc-600 inline-block uppercase"
+                  staggerFrom="last"
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "-120%", opacity: 0 }}
+                  staggerDuration={0.02}
+                  splitLevelClassName="overflow-hidden pb-0.5"
+                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                  rotationInterval={2500}
+                />
+              </span>
             </h1>
 
             <p className='text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed hero-fade-in font-light'>

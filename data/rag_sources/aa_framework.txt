@@ -1,0 +1,131 @@
+ACCOUNT AGGREGATOR (AA) FRAMEWORK — RBI MASTER DIRECTION
+(RBI/DNBR/2016-17/46, Updated: February 2024)
+
+AND
+
+ACCOUNT AGGREGATOR OPERATIONAL GUIDELINES
+(NBFC-Account Aggregator Directions, 2016)
+
+CHAPTER I: OVERVIEW AND DEFINITIONS
+
+1.1 An Account Aggregator (AA) is an NBFC registered with RBI that facilitates the consent-based sharing of financial data between Financial Information Providers (FIPs) and Financial Information Users (FIUs).
+
+1.2 KEY DEFINITIONS:
+(a) Financial Information Provider (FIP): An entity regulated by a financial sector regulator that stores customer financial data. Examples: banks, insurance companies, mutual funds, pension funds, tax authorities.
+(b) Financial Information User (FIU): An entity registered with the AA ecosystem that consumes financial data with customer consent for specified purposes. Examples: lenders, wealth managers, credit scoring platforms.
+(c) Account Aggregator (AA): The intermediary that facilitates data flow between FIP and FIU based on customer consent. The AA does not store, process, or sell financial data.
+(d) Consent Artefact: A machine-readable electronic document specifying the terms of consent given by the customer for data sharing.
+
+1.3 LICENSED AAs IN INDIA: As of 2024, RBI has licensed multiple AAs including:
+(a) Finvu (COOKIEJAR Technologies)
+(b) OneMoney (CAMS FinServ)
+(c) Sahamati ecosystem coordination
+(d) NADL (NSDL e-Governance)
+(e) CAMSFinServ
+(f) PhonePe (Yotta AA)
+
+CHAPTER II: CONSENT FRAMEWORK
+
+2.1 CONSENT ARTEFACT STRUCTURE: The consent artefact must contain:
+(a) Identity of the FIU requesting the data
+(b) Financial information types requested (deposit, investment, insurance, tax, etc.)
+(c) Purpose of data usage (wealth management, lending, credit assessment, etc.)
+(d) Date range of financial information requested
+(e) Frequency of data fetch (one-time, daily, monthly, etc.)
+(f) Data life (how long the FIU can retain the fetched data)
+(g) Consent expiry date
+
+2.2 GRANULAR CONSENT: The customer must be able to:
+(a) Select which FIPs to share data from (e.g., share HDFC data but not SBI)
+(b) Select which types of financial information to share (e.g., deposits but not investments)
+(c) Set the date range for data sharing
+(d) Revoke consent at any time
+
+2.3 CONSENT FOR CREDIT SCORING: When an FIU uses AA data for credit assessment:
+(a) The purpose must be explicitly stated as "credit assessment" or "lending" in the consent artefact
+(b) The data life must be limited to the assessment period plus any regulatory retention requirement
+(c) The consent frequency should typically be one-time unless ongoing monitoring is required
+(d) The customer must be informed that their bank data will be used for scoring
+
+CHAPTER III: DATA FLOW AND SECURITY
+
+3.1 DATA FLOW ARCHITECTURE:
+(a) Customer initiates consent through the AA app or FIU's application
+(b) AA generates consent artefact and sends to FIP for data
+(c) FIP encrypts data and sends to AA
+(d) AA forwards encrypted data to FIU without decrypting or storing
+(e) FIU decrypts and processes data per consent terms
+
+3.2 ENCRYPTION: All data transmitted through the AA ecosystem must be end-to-end encrypted. The AA cannot decrypt or access the content of financial data.
+
+3.3 NO DATA STORAGE BY AA: The AA must not store financial data. The AA only stores consent artefacts and metadata (timestamps, status) but not the actual financial information.
+
+3.4 DATA SECURITY AT FIU: The FIU (e.g., credit scoring platform) must:
+(a) Decrypt data only in a secure environment
+(b) Use data only for the specified purpose in the consent artefact
+(c) Delete data after the consent data life expires
+(d) Maintain audit trails of data access and usage
+
+CHAPTER IV: AA IN CREDIT SCORING
+
+4.1 BANK STATEMENT ANALYSIS VIA AA: For alternate credit scoring, the AA framework enables:
+(a) Automated retrieval of bank transaction data (replacing manual PDF uploads)
+(b) Structured financial data in machine-readable format (JSON/XML)
+(c) Multi-bank data aggregation (customer can share data from multiple bank accounts)
+(d) Real-time data access with customer consent
+
+4.2 FINANCIAL DATA TYPES FOR CREDIT SCORING:
+(a) Deposit accounts: savings, current, fixed deposits
+(b) Transaction history: credits, debits, UPI, NEFT, RTGS
+(c) Account summary: average balance, minimum balance, monthly inflows/outflows
+(d) Recurring patterns: salary credits, EMI debits, utility payments
+
+4.3 ADVANTAGES OVER MANUAL STATEMENT UPLOAD:
+(a) Tamper-proof: data comes directly from the bank
+(b) Structured: eliminates PDF parsing errors
+(c) Multi-source: multiple bank accounts in a single consent flow
+(d) Real-time: up-to-date data, not month-old statements
+(e) Privacy-preserving: only consented data is shared
+
+4.4 FINVU AA SANDBOX:
+(a) Finvu provides a sandbox environment for FIUs to test AA integration
+(b) Sandbox uses synthetic bank data for testing
+(c) Sandbox API endpoints mirror production but use test credentials
+(d) Credit scoring platforms must complete sandbox testing before production onboarding
+
+CHAPTER V: CUSTOMER RIGHTS IN AA ECOSYSTEM
+
+5.1 RIGHT TO INFORMATION: The customer has the right to know:
+(a) Which FIUs have accessed their data
+(b) When data was accessed
+(c) What data was shared
+(d) The purpose for which data was used
+
+5.2 RIGHT TO REVOKE CONSENT: The customer can revoke consent at any time through the AA app. Upon revocation:
+(a) The AA notifies the FIU immediately
+(b) The FIU must stop using data from that consent
+(c) The FIU must delete data if the consent data life has not expired
+(d) Revocation does not affect credit decisions already made with the data
+
+5.3 RIGHT TO DATA PORTABILITY: The AA framework inherently supports data portability. A customer can:
+(a) Share data with multiple FIUs simultaneously
+(b) Switch between AAs while retaining their consent history
+(c) View all active consents across all AAs through a unified dashboard
+
+CHAPTER VI: REGULATORY OBLIGATIONS
+
+6.1 AAs must maintain minimum net owned fund of Rs. 2 crore.
+
+6.2 AAs must comply with IT Act, 2000 and DPDP Act, 2023 requirements.
+
+6.3 AAs must file periodic returns with RBI including:
+(a) Number of consent artefacts processed
+(b) Number of active customers
+(c) Number of FIPs and FIUs connected
+(d) Grievance statistics
+
+6.4 FIUs using AA data for credit scoring must additionally:
+(a) Maintain records of scoring decisions made using AA data
+(b) Provide the customer with explanation of how AA data influenced their score
+(c) Allow disputes related to AA-sourced data
+(d) Report aggregate scoring statistics to RBI upon request
