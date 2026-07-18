@@ -25,7 +25,12 @@ RULES:
 
 
 def _build_applicant_context(score_result: dict[str, Any]) -> str:
+    from pathlib import Path
+    import json
+    user_id = score_result.get("user_id")
+    
     lines = [
+        f"Applicant User ID: {user_id or 'N/A'}",
         f"Score: {score_result.get('score', 'N/A')} / 850",
         f"Risk Band: {score_result.get('risk_band', 'N/A')}",
         f"Assessment Tier: {score_result.get('tier', 'N/A')}",
@@ -53,6 +58,16 @@ def _build_applicant_context(score_result: dict[str, Any]) -> str:
         if top_negative:
             neg_lines = [f"{f['worker']}/{f['label']}: {f['points']:+.1f} pts" for f in top_negative]
             lines.append(f"Top Negative Factors: {', '.join(neg_lines)}")
+
+    if user_id:
+        try:
+            summaries_file = Path(__file__).resolve().parents[2] / "demo_data" / "interview_summaries.json"
+            if summaries_file.exists():
+                summaries = json.loads(summaries_file.read_text())
+                if user_id in summaries:
+                    lines.append(f"AI Conflict Interview Debate Summary (what applicant answered when cross-questioned): {summaries[user_id]}")
+        except Exception as e:
+            print(f"Failed to load interview summary in advisor context: {e}")
 
     return "\n".join(lines)
 

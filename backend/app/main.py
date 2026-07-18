@@ -10,6 +10,7 @@ from app.routes.consent import router as consent_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.score import router as score_router
 from app.routes.identity import router as identity_router
+from app.routes.eligibility import router as eligibility_router
 
 
 @asynccontextmanager
@@ -38,6 +39,7 @@ app.include_router(advisor_router)
 app.include_router(identity_router)
 
 app.include_router(dashboard_router)
+app.include_router(eligibility_router)
 
 
 

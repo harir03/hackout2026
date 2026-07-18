@@ -494,5 +494,157 @@
       "D2 Telecom"
     ],
     "consented_at": "2026-07-07T11:21:49.060030+00:00"
+  },
+  "9992e007-09f8-41f6-afab-b3ca127e6971": {
+    "consent_id": "9992e007-09f8-41f6-afab-b3ca127e6971",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-07T11:53:53.649689+00:00"
+  },
+  "e783fdf4-398e-49ae-93f7-c100ba100105": {
+    "consent_id": "e783fdf4-398e-49ae-93f7-c100ba100105",
+    "user_id": "test-user-123",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "consented_sources": [
+      "D1 Bank/UPI",
+      "D2 Telecom"
+    ],
+    "consented_at": "2026-07-18T17:23:09.981169+00:00"
+  },
+  "b7d59e81-72ad-472e-a18e-cebc2161a8c7": {
+    "consent_id": "b7d59e81-72ad-472e-a18e-cebc2161a8c7",
+    "user_id": "test-user-123",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "consented_sources": [
+      "D1 Bank/UPI",
+      "D2 Telecom"
+    ],
+    "consented_at": "2026-07-18T18:06:40.501367+00:00"
+  },
+  "92952d32-c879-48f4-9292-4e4ded9359cd": {
+    "consent_id": "92952d32-c879-48f4-9292-4e4ded9359cd",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T18:35:44.454268+00:00"
+  },
+  "c5a587cf-509e-4958-80af-2554dc7eedab": {
+    "consent_id": "c5a587cf-509e-4958-80af-2554dc7eedab",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T18:40:17.177705+00:00"
+  },
+  "f5b89f19-402c-4aba-bb46-b3769595fc85": {
+    "consent_id": "f5b89f19-402c-4aba-bb46-b3769595fc85",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T20:08:16.904795+00:00"
+  },
+  "30b00f7f-4f03-4557-84b5-05bd7de5f76a": {
+    "consent_id": "30b00f7f-4f03-4557-84b5-05bd7de5f76a",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T20:12:10.314705+00:00"
+  },
+  "670c7c0d-0dde-4f1b-9f82-f177f1ba4470": {
+    "consent_id": "670c7c0d-0dde-4f1b-9f82-f177f1ba4470",
+    "user_id": "testhari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T20:28:44.291631+00:00"
+  },
+  "412db427-075e-4ed9-a337-dd640d2e7307": {
+    "consent_id": "412db427-075e-4ed9-a337-dd640d2e7307",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T20:46:38.262472+00:00"
+  },
+  "c5345f08-293b-4d0b-a690-f8253417eef1": {
+    "consent_id": "c5345f08-293b-4d0b-a690-f8253417eef1",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-07-18T21:41:07.023749+00:00"
   }
 }

@@ -63,6 +63,8 @@ class DecisionRequest(BaseModel):
     interest_rate: float
     terms: str
     notes: str = ""
+    loan_amount: int | None = None
+
 
 
 class KnowledgeRequest(BaseModel):
@@ -376,7 +378,8 @@ async def post_decision(body: DecisionRequest) -> dict:
                     "details": json.dumps({
                         "decision": body.decision,
                         "interest_rate": body.interest_rate,
-                        "terms": body.terms
+                        "terms": body.terms,
+                        "loan_amount": body.loan_amount,
                     }),
                     "created_at": datetime.datetime.now(datetime.timezone.utc)
                 }
@@ -385,13 +388,13 @@ async def post_decision(body: DecisionRequest) -> dict:
     except Exception as ex:
         print(f"Failed to log decision to audit_trail: {ex}")
 
-    _save_notification(body.user_id, body.decision, body.interest_rate, body.terms, body.notes)
+    _save_notification(body.user_id, body.decision, body.interest_rate, body.terms, body.notes, body.loan_amount)
 
     return {"status": "ok", "user_id": body.user_id, "decision": body.decision}
 
 
 def _save_notification(
-    user_id: str, decision: str, interest_rate: float, terms: str, notes: str = ""
+    user_id: str, decision: str, interest_rate: float, terms: str, notes: str = "", loan_amount: int | None = None
 ) -> None:
     notifs_path = PROJECT_ROOT / "demo_data" / "notifications.json"
     notifs: dict = {}
@@ -407,8 +410,10 @@ def _save_notification(
         "interest_rate": interest_rate,
         "terms": terms,
         "notes": notes,
+        "loan_amount": loan_amount,
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }
+
 
     notifs_path.parent.mkdir(parents=True, exist_ok=True)
     notifs_path.write_text(json.dumps(notifs, indent=2))

@@ -35,6 +35,7 @@ def _score_for_user(user_id: str) -> dict[str, Any]:
                 if user_scores:
                     latest = sorted(user_scores, key=lambda x: x["created_at"])[-1]
                     return {
+                        "user_id": user_id,
                         "score": latest["score"],
                         "risk_band": latest["risk_band"],
                         "tier": latest["tier"],
@@ -62,6 +63,7 @@ def _score_for_user(user_id: str) -> dict[str, Any]:
     if profile_data:
         sd = profile_data.get("score_details", {})
         return {
+            "user_id": user_id,
             "score": sd.get("final_score", 600),
             "risk_band": sd.get("band", "Good"),
             "tier": sd.get("tier", "Tier 2"),
@@ -91,6 +93,7 @@ def _score_for_user(user_id: str) -> dict[str, Any]:
     )
 
     return {
+        "user_id": user_id,
         "score": consolidated["final_score"],
         "risk_band": score_to_band(consolidated["final_score"]),
         "tier": "Tier 2 (Full)" if tier == "tier2" else "Tier 1 (Zero-history)",

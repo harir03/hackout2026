@@ -12,6 +12,7 @@ from sqlalchemy import text
 from app.db import async_session
 from app.ml.consolidator import run_consolidator
 from app.ml.explainer import ScoringEngine
+from app.ml.explainability import generate_explanations
 from app.ml.features import TIER1_FEATURES, TIER2_FEATURES
 from app.ml.pipeline import score_to_band
 from app.models.schemas import ScoreRequest, ScoreResponse, ShapFeature, SignalConflict
@@ -90,6 +91,8 @@ async def _build_response_with_features(
     feat_dict: dict[str, Any],
     consent_id: str | None = None,
     ecom_source: str = "simulated",
+    profile_data: dict[str, Any] | None = None,
+    answers: dict[str, int] | None = None,
 ) -> ScoreResponse:
     if tier == "tier2":
         x_values = [feat_dict[feat] for feat in TIER2_FEATURES]
@@ -180,13 +183,15 @@ async def _build_response_with_features(
     except Exception as db_ex:
         print(f"PostgreSQL decision audit log skipped: {db_ex}")
 
+    enriched_shap = generate_explanations(result["shap_details"], feat_dict, profile_data, answers)
+
     return ScoreResponse(
         user_id=user_id,
         score=final_score,
         risk_band=band,
         tier=tier_label,
         model_version="blend-calibrated",
-        shap_details=[ShapFeature(**feat) for feat in result["shap_details"]],
+        shap_details=[ShapFeature(**feat) for feat in enriched_shap],
         signal_conflicts=[SignalConflict(**c) for c in consolidated["signal_conflicts"]],
         hard_caps_applied=consolidated["hard_caps_applied"],
         tier1_reweight=consolidated["tier1_reweight"],
@@ -197,7 +202,15 @@ async def _build_response_with_features(
     )
 
 
-def _get_profile_features(user_id: str, phone: str | None, rng: np.random.Generator, profile: str, answers: dict[str, int] | None = None) -> dict[str, Any]:
+def _get_profile_features(
+    user_id: str,
+    phone: str | None,
+    rng: np.random.Generator,
+    profile: str,
+    answers: dict[str, int] | None = None,
+    time_taken_ms: int | None = None,
+    changes_count: int | None = None,
+) -> dict[str, Any]:
     import json
     feat_dict = {}
     feat_dict.update(d1_bank_upi.generate(rng, profile))
@@ -263,13 +276,50 @@ def _get_profile_features(user_id: str, phone: str | None, rng: np.random.Genera
         try:
             ans_values = [int(v) for v in answers.values()]
             ans_sum = sum(ans_values)
-            psych_score = float(max(35, 90 - (ans_sum / 45) * 55))
+            base_psych = float(max(35, 95 - (ans_sum / 45) * 60))
+            
+            time_sec = 120.0
+            time_penalty = 0.0
+            time_consistency_mod = 0.0
+            if time_taken_ms is not None:
+                time_sec = float(time_taken_ms) / 1000.0
+                if time_sec < 15.0:
+                    time_penalty = 40.0
+                    time_consistency_mod = -0.5
+                elif time_sec < 30.0:
+                    time_penalty = 15.0
+                    time_consistency_mod = -0.2
+                elif 35.0 <= time_sec <= 120.0:
+                    time_penalty = -5.0
+            
+            straight_line_ratio = 0.0
+            if len(ans_values) >= 10:
+                from collections import Counter
+                counts = Counter(ans_values)
+                most_common_count = counts.most_common(1)[0][1]
+                straight_line_ratio = float(most_common_count) / len(ans_values)
+            
+            straight_line_penalty = 0.0
+            if straight_line_ratio >= 0.73:
+                straight_line_penalty = 35.0
+            
+            psych_score = float(max(30.0, min(100.0, base_psych - time_penalty - straight_line_penalty)))
             feat_dict["psych_engagement_score"] = psych_score
             feat_dict["psych_mean_answer"] = float(np.mean(ans_values)) if ans_values else 1.5
             feat_dict["psych_std_answer"] = float(np.std(ans_values)) if ans_values else 0.5
-            feat_dict["psych_consistency"] = 0.95 if ans_sum < 20 else 0.70
-            feat_dict["psych_straight_line_ratio"] = 0.0
-            feat_dict["psych_completion_time_sec"] = 120.0
+            
+            base_consistency = 0.95
+            if changes_count is not None:
+                if changes_count > 8:
+                    base_consistency = 0.50
+                elif changes_count > 4:
+                    base_consistency = 0.70
+                elif changes_count > 2:
+                    base_consistency = 0.85
+            
+            feat_dict["psych_consistency"] = float(max(0.2, min(1.0, base_consistency + time_consistency_mod)))
+            feat_dict["psych_straight_line_ratio"] = straight_line_ratio
+            feat_dict["psych_completion_time_sec"] = time_sec
         except Exception as q_ex:
             print(f"Psychometric calculation failed: {q_ex}")
 
@@ -284,91 +334,96 @@ async def _build_response(
     consent_id: str | None = None,
     phone: str | None = None,
     answers: dict[str, int] | None = None,
+    time_taken_ms: int | None = None,
+    changes_count: int | None = None,
+    bypass_cache: bool = False,
 ) -> ScoreResponse:
     import json
-    try:
-        async with async_session() as session:
-            try:
-                db_user_id = uuid.UUID(user_id)
-            except ValueError:
-                db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
-            
-            res = await session.execute(
-                text("SELECT score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap, consent_id "
-                     "FROM scores WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 1"),
-                {"user_id": db_user_id}
-            )
-            row = res.fetchone()
-            if row:
-                return ScoreResponse(
-                    user_id=user_id,
-                    score=row[0],
-                    risk_band=row[1],
-                    tier=row[2],
-                    model_version=row[3],
-                    shap_details=[ShapFeature(**feat) for feat in (json.loads(row[4]) if isinstance(row[4], str) else row[4])],
-                    signal_conflicts=[SignalConflict(**c) for c in (json.loads(row[5]) if isinstance(row[5], str) else row[5])],
-                    hard_caps_applied=json.loads(row[6]) if isinstance(row[6], str) else row[6],
-                    tier1_reweight=None,
-                    has_conflicts=row[7],
-                    has_hard_cap=row[8],
-                    consent_id=str(row[9]) if row[9] else None,
-                    ecom_source="simulated"
+    if not bypass_cache:
+        try:
+            async with async_session() as session:
+                try:
+                    db_user_id = uuid.UUID(user_id)
+                except ValueError:
+                    db_user_id = uuid.uuid5(uuid.NAMESPACE_DNS, user_id)
+                
+                res = await session.execute(
+                    text("SELECT score, risk_band, tier, model_version, shap_details, signal_conflicts, hard_caps_applied, has_conflicts, has_hard_cap, consent_id "
+                         "FROM scores WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 1"),
+                    {"user_id": db_user_id}
                 )
-    except Exception as db_ex:
-        print(f"Failed to check existing score in DB: {db_ex}")
+                row = res.fetchone()
+                if row:
+                    return ScoreResponse(
+                        user_id=user_id,
+                        score=row[0],
+                        risk_band=row[1],
+                        tier=row[2],
+                        model_version=row[3],
+                        shap_details=[ShapFeature(**feat) for feat in (json.loads(row[4]) if isinstance(row[4], str) else row[4])],
+                        signal_conflicts=[SignalConflict(**c) for c in (json.loads(row[5]) if isinstance(row[5], str) else row[5])],
+                        hard_caps_applied=json.loads(row[6]) if isinstance(row[6], str) else row[6],
+                        tier1_reweight=None,
+                        has_conflicts=row[7],
+                        has_hard_cap=row[8],
+                        consent_id=str(row[9]) if row[9] else None,
+                        ecom_source="simulated"
+                    )
+        except Exception as db_ex:
+            print(f"Failed to check existing score in DB: {db_ex}")
 
-    try:
-        scores_file = Path(__file__).resolve().parents[2] / ".." / "demo_data" / "scores_db.json"
-        if scores_file.exists():
-            scores_data = json.loads(scores_file.read_text())
-            user_scores = [s for s in scores_data.values() if s["user_id"] == user_id]
-            if user_scores:
-                latest = sorted(user_scores, key=lambda x: x["created_at"])[-1]
-                return ScoreResponse(
-                    user_id=user_id,
-                    score=latest["score"],
-                    risk_band=latest["risk_band"],
-                    tier=latest["tier"],
-                    model_version=latest["model_version"],
-                    shap_details=[ShapFeature(**feat) for feat in latest["shap_details"]],
-                    signal_conflicts=[SignalConflict(**c) for c in latest["signal_conflicts"]],
-                    hard_caps_applied=latest["hard_caps_applied"],
-                    tier1_reweight=None,
-                    has_conflicts=latest["has_conflicts"],
-                    has_hard_cap=latest["has_hard_cap"],
-                    consent_id=latest.get("consent_id"),
-                    ecom_source="simulated"
-                )
-    except Exception as file_ex:
-        print(f"Failed to check existing score in fallback JSON: {file_ex}")
+        try:
+            scores_file = Path(__file__).resolve().parents[2] / ".." / "demo_data" / "scores_db.json"
+            if scores_file.exists():
+                scores_data = json.loads(scores_file.read_text())
+                user_scores = [s for s in scores_data.values() if s["user_id"] == user_id]
+                if user_scores:
+                    latest = sorted(user_scores, key=lambda x: x["created_at"])[-1]
+                    return ScoreResponse(
+                        user_id=user_id,
+                        score=latest["score"],
+                        risk_band=latest["risk_band"],
+                        tier=latest["tier"],
+                        model_version=latest["model_version"],
+                        shap_details=[ShapFeature(**feat) for feat in latest["shap_details"]],
+                        signal_conflicts=[SignalConflict(**c) for c in latest["signal_conflicts"]],
+                        hard_caps_applied=latest["hard_caps_applied"],
+                        tier1_reweight=None,
+                        has_conflicts=latest["has_conflicts"],
+                        has_hard_cap=latest["has_hard_cap"],
+                        consent_id=latest.get("consent_id"),
+                        ecom_source="simulated"
+                    )
+        except Exception as file_ex:
+            print(f"Failed to check existing score in fallback JSON: {file_ex}")
 
     profiles = ["low", "medium", "high"]
     profile = profiles[hash(user_id) % len(profiles)]
 
-    feat_dict = _get_profile_features(user_id, phone, rng, profile, answers)
+    feat_dict = _get_profile_features(user_id, phone, rng, profile, answers, time_taken_ms, changes_count)
 
-    from app.routes.auth import IN_MEMORY_TOKENS, get_redis_client
-    gmail_token = None
-    r = get_redis_client()
-    if r:
+    profile_data = None
+    profiles_path = Path(__file__).resolve().parents[3] / "demo_data" / "profiles.json"
+    if profiles_path.exists():
         try:
-            gmail_token = r.get(f"gmail_token:{user_id}")
+            all_profiles = json.loads(profiles_path.read_text())
+            search_id = user_id.lower()
+            if search_id in ("testhari@altgrade.in", "hari@altgrade.in"):
+                search_id = "hari"
+            for p_name, p_val in all_profiles.items():
+                if p_name.lower() == search_id or (phone and p_val.get("mobile") == phone):
+                    profile_data = p_val
+                    break
         except Exception:
             pass
-    if not gmail_token:
-        gmail_token = IN_MEMORY_TOKENS.get(user_id)
 
-    if gmail_token:
-        from app.data_gen import d3_gmail
-        ecom_data = await d3_gmail.generate(gmail_token, rng, profile)
-    else:
-        ecom_data = d3_ecommerce.generate(rng, profile)
+    ecom_data = d3_ecommerce.generate(rng, profile)
+    for k, v in ecom_data.items():
+        if k not in feat_dict:
+            feat_dict[k] = v
+    ecom_source = "simulated"
 
-    feat_dict.update(ecom_data)
-    ecom_source = ecom_data.get("source", "simulated")
-
-    return await _build_response_with_features(user_id, tier, engine, rng, feat_dict, consent_id, ecom_source)
+    return await _build_response_with_features(user_id, tier, engine, rng, feat_dict, consent_id, ecom_source, profile_data, answers)
 
 
 @router.post("/score", response_model=ScoreResponse)
@@ -377,7 +432,19 @@ async def post_score(body: ScoreRequest) -> ScoreResponse:
     rng = np.random.default_rng(hash(body.user_id) % (2**32))
     has_bank = "d1_bank" in body.consented_sources
     tier = "tier2" if has_bank else "tier1"
-    return await _build_response(body.user_id, tier, engine, rng, body.consent_id, body.phone, body.answers)
+    return await _build_response(
+        body.user_id,
+        tier,
+        engine,
+        rng,
+        body.consent_id,
+        body.phone,
+        body.answers,
+        body.time_taken_ms,
+        body.changes_count,
+        bypass_cache=True,
+    )
+
 
 
 @router.post("/score/upload-statement", response_model=ScoreResponse)
