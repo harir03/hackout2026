@@ -13076,5 +13076,293 @@
     "has_hard_cap": false,
     "created_at": "2026-07-21T21:06:31.252117+00:00",
     "consent_id": "consent-999"
+  },
+  "50923535-fee7-4cb5-980a-f135117026ba": {
+    "id": "50923535-fee7-4cb5-980a-f135117026ba",
+    "user_id": "9999999999",
+    "score": 563,
+    "risk_band": "Fair",
+    "tier": "Tier 2 (Full)",
+    "model_version": "blend-calibrated",
+    "shap_details": [
+      {
+        "worker": "E-commerce",
+        "label": "ecom_avg_monthly_spend",
+        "points": 12.1,
+        "direction": "positive",
+        "feature_value": 2661.96,
+        "explanation": "Your average monthly e-commerce spend of \u20b92.7K aligns with healthy discretionary spending relative to your income bracket."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_months_operating",
+        "points": 11.4,
+        "direction": "positive",
+        "feature_value": 12.0,
+        "explanation": "Your business has been operating for 12 months (1 years). Businesses operating for >18 months have significantly lower failure rates and demonstrate sustainability."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_min_balance_ratio",
+        "points": 7.0,
+        "direction": "positive",
+        "feature_value": 0.1961,
+        "explanation": "Your minimum balance ratio is 0.20 (minimum balance \u00f7 average inflow). Maintaining a healthy floor balance shows you keep reserves for emergencies."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_inflow_trend",
+        "points": 5.8,
+        "direction": "positive",
+        "feature_value": -0.0033,
+        "explanation": "Your bank inflow trend is growing at -0.3% month-over-month, showing an improving income trajectory."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_plan_value",
+        "points": 4.4,
+        "direction": "positive",
+        "feature_value": 842.38,
+        "explanation": "Your telecom plan value of \u20b9842/month indicates a mid-to-high spending tier, suggesting comfortable discretionary income."
+      },
+      {
+        "worker": "E-commerce",
+        "label": "ecom_return_rate",
+        "points": -3.9,
+        "direction": "negative",
+        "feature_value": 0.1376,
+        "explanation": "Your return rate is 14% (threshold: <10%). High return rates can signal impulsive buying or using e-commerce platforms for trial purchases \u2014 a behavioral risk indicator."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_upi_txn_count",
+        "points": 3.7,
+        "direction": "positive",
+        "feature_value": 26.0,
+        "explanation": "You made 26 UPI/digital transactions in the analysis period. Active digital transacting (>15 txns) correlates with engaged financial behavior and leaves a verifiable audit trail."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_mean_answer",
+        "points": 3.7,
+        "direction": "positive",
+        "feature_value": 3.0667,
+        "explanation": "Your average answer index is 3.07 (lower = more positive selections). This suggests you tend toward confident, proactive financial attitudes."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_data_usage_gb",
+        "points": 3.6,
+        "direction": "positive",
+        "feature_value": 3.87,
+        "explanation": "Your monthly data usage of 3.9 GB indicates active digital engagement \u2014 commonly associated with digital-savvy borrowers who manage finances online."
+      },
+      {
+        "worker": "E-commerce",
+        "label": "ecom_category_diversity",
+        "points": 1.5,
+        "direction": "positive",
+        "feature_value": 6.0,
+        "explanation": "You shop across diverse product categories (electronics, groceries, apparel), indicating a well-rounded lifestyle and stable spending across necessities."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_missed_payments",
+        "points": -1.4,
+        "direction": "negative",
+        "feature_value": 0.0,
+        "explanation": "Zero missed telecom payments detected. Perfect payment history on recurring bills is a strong positive signal."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_filing_regularity",
+        "points": -1.3,
+        "direction": "negative",
+        "feature_value": 0.6087,
+        "explanation": "Your GST filing regularity is only 61% (threshold: >80%). Irregular or late GST filings suggest either cash flow problems, poor record-keeping, or seasonal business gaps."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_std_answer",
+        "points": 1.2,
+        "direction": "positive",
+        "feature_value": 1.0306,
+        "explanation": "Your answer variance is 1.03 \u2014 a healthy spread indicating you differentiated between questions rather than giving uniform responses."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_active_months",
+        "points": -1.1,
+        "direction": "negative",
+        "feature_value": 20.0,
+        "explanation": "Your telecom number has only been active for ~20 months. Short telecom tenure reduces the reliability of your payment history signal."
+      },
+      {
+        "worker": "Location",
+        "label": "loc_owns_home",
+        "points": 0.9,
+        "direction": "positive",
+        "feature_value": 0.0,
+        "explanation": "No home ownership detected. Renting is not inherently negative, but property ownership provides an additional stability signal that strengthens credit profiles."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_annual_turnover",
+        "points": 0.9,
+        "direction": "positive",
+        "feature_value": 323437.2,
+        "explanation": "Your declared annual turnover is \u20b93.2L. This places you in a healthy revenue bracket for MSME lending and supports your loan repayment capacity."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_payment_regularity",
+        "points": 0.9,
+        "direction": "positive",
+        "feature_value": 0.596,
+        "explanation": "Your recurring payment regularity is 60% (bills, EMIs, subscriptions paid on schedule). This demonstrates disciplined financial behavior."
+      },
+      {
+        "worker": "Location",
+        "label": "loc_address_changes_24m",
+        "points": -0.6,
+        "direction": "negative",
+        "feature_value": 0.0,
+        "explanation": "No address changes in 24 months. Residential stability strongly correlates with lower default risk."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_balance_volatility",
+        "points": 0.6,
+        "direction": "positive",
+        "feature_value": 0.3379,
+        "explanation": "Your bank balance volatility is 34% (threshold: <25%), indicating stable cash reserves without large unexplained swings."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_ontime_rate",
+        "points": 0.5,
+        "direction": "positive",
+        "feature_value": 0.5524,
+        "explanation": "Your telecom bill on-time payment rate is 55% on a \u20b9842/month plan. Consistent telecom payments are a strong proxy for general bill-paying discipline."
+      },
+      {
+        "worker": "Location",
+        "label": "loc_years_at_current",
+        "points": 0.3,
+        "direction": "positive",
+        "feature_value": 1.0,
+        "explanation": "You have been at your current address for 1 years. Residential stability (>2 years) is one of the strongest predictors of loan repayment consistency."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_has_gst",
+        "points": 0.3,
+        "direction": "positive",
+        "feature_value": 0.0,
+        "explanation": "No valid GSTIN found. Without GST registration, your business revenue cannot be independently verified through government filings, which significantly limits trust in self-reported income."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_rating",
+        "points": 0.3,
+        "direction": "positive",
+        "feature_value": 2.98,
+        "explanation": "Your merchant/marketplace rating is 3.0/5.0. A strong seller rating indicates customer trust and operational reliability."
+      },
+      {
+        "worker": "Merchant/GST",
+        "label": "merchant_gst_returns_filed",
+        "points": 0.3,
+        "direction": "positive",
+        "feature_value": 9.0,
+        "explanation": "9 GST returns filed. A long filing history provides a verifiable revenue trail that strengthens your credit profile."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_completion_time_sec",
+        "points": -0.2,
+        "direction": "negative",
+        "feature_value": 339.0,
+        "explanation": "You took 339 seconds on the questionnaire. Either very fast (<15s, suggesting random input) or very slow (>300s, suggesting distraction/lookup) completion times reduce confidence in your answers."
+      },
+      {
+        "worker": "Bank/UPI",
+        "label": "bank_avg_monthly_inflow",
+        "points": 0.1,
+        "direction": "positive",
+        "feature_value": 38801.78,
+        "explanation": "Your average monthly bank inflow of \u20b938.8K is above the \u20b912K median for alternate-credit applicants, indicating healthy cash flow into your account."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_straight_line_ratio",
+        "points": 0.1,
+        "direction": "positive",
+        "feature_value": 0.2759,
+        "explanation": "Your straight-line ratio is 28% \u2014 you chose varied answers across questions, indicating genuine engagement with each question."
+      },
+      {
+        "worker": "Telecom",
+        "label": "telecom_ontime_trend",
+        "points": 0.1,
+        "direction": "positive",
+        "feature_value": 0.0041,
+        "explanation": "Your telecom payment punctuality has been improving over the last 6 months, showing strengthening financial discipline."
+      },
+      {
+        "worker": "E-commerce",
+        "label": "ecom_purchase_frequency",
+        "points": -0.0,
+        "direction": "negative",
+        "feature_value": 16.0,
+        "explanation": "Only 16 e-commerce purchases in 6 months. Low purchase frequency limits the data available to assess your spending patterns."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_consistency",
+        "points": -0.0,
+        "direction": "negative",
+        "feature_value": 0.5453,
+        "explanation": "Your answer consistency is only 55%. Contradictory or frequently-changed answers suggest either rushed completion, confusion, or attempts to game the questionnaire."
+      },
+      {
+        "worker": "Questionnaire",
+        "label": "psych_engagement_score",
+        "points": -0.0,
+        "direction": "negative",
+        "feature_value": 0.6228,
+        "explanation": "Your psychometric engagement score is 1/100 (threshold: >60). Your questionnaire responses indicate risk-prone financial attitudes."
+      },
+      {
+        "worker": "E-commerce",
+        "label": "ecom_account_age_months",
+        "points": 0.0,
+        "direction": "negative",
+        "feature_value": 37.0,
+        "explanation": "Your e-commerce account is only 37 months old. Short account history limits the reliability of spending pattern analysis."
+      },
+      {
+        "worker": "Location",
+        "label": "loc_is_metro",
+        "points": -0.0,
+        "direction": "negative",
+        "feature_value": 0.0,
+        "explanation": "Your location (your city) is classified as non-metro. Non-metro borrowers face statistically higher default rates due to limited financial infrastructure, though individual creditworthiness may differ."
+      },
+      {
+        "worker": "E-commerce",
+        "label": "ecom_spend_trend",
+        "points": -0.0,
+        "direction": "negative",
+        "feature_value": 0.0536,
+        "explanation": "Your e-commerce spending has been declining, which may indicate tightening finances or reduced business activity."
+      }
+    ],
+    "signal_conflicts": [],
+    "hard_caps_applied": [],
+    "has_conflicts": false,
+    "has_hard_cap": false,
+    "created_at": "2026-07-21T21:16:53.100115+00:00",
+    "consent_id": "consent-999"
   }
 }

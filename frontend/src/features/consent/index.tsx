@@ -37,7 +37,6 @@ import { LocationMap } from '@/components/ui/location-map'
 import { TermsAndConditions } from './components/terms-and-conditions'
 import { LanguageSelectionStep } from './components/language-selection-step'
 import { VoiceQuestionnaire } from './components/voice-questionnaire'
-import { VapiIvrModal } from './components/vapi-ivr-modal'
 import { LanguageSelector } from '@/components/language-selector'
 import { requestOutboundCall } from '@/lib/api'
 import { PhoneCall } from 'lucide-react'
@@ -590,14 +589,13 @@ export function ConsentPage() {
 
   return (
     <div className='max-w-4xl mx-auto py-8 px-4'>
-      {/* Top Header Bar with Language Selector & IVR Simulator */}
+      {/* Top Header Bar with Language Selector */}
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dove/20 pb-4'>
         <div className='flex items-center gap-2'>
-          <ShieldCheck className='h-5 w-5 text-emerald-400' />
+          <ShieldCheck className='h-5 w-5 text-brand-blue' />
           <span className='text-sm font-bold tracking-tight text-foreground'>AltGrade RBI DLG Portal</span>
         </div>
         <div className='flex items-center gap-2'>
-          <VapiIvrModal />
           <LanguageSelector />
         </div>
       </div>
@@ -1391,14 +1389,14 @@ export function ConsentPage() {
             </CardDescription>
 
             {/* AI Phone Callback Request Banner */}
-            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-xs text-white'>
+            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dove/40 bg-muted/30 p-3.5 text-xs text-foreground'>
               <div className='flex items-center gap-2.5'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue'>
                   <PhoneCall className='h-4 w-4' />
                 </div>
                 <div>
-                  <p className='font-semibold text-emerald-400'>Prefer an AI Voice Call on your phone?</p>
-                  <p className='text-zinc-400 text-[11px]'>The AltGrade AI Voice Officer will call your phone and conduct this survey verbally.</p>
+                  <p className='font-semibold text-foreground'>Prefer an AI Voice Call on your phone?</p>
+                  <p className='text-muted-foreground text-[11px]'>The AltGrade AI Voice Officer will call your phone and conduct this survey verbally.</p>
                 </div>
               </div>
               <Button
@@ -1408,7 +1406,7 @@ export function ConsentPage() {
                   const res = await requestOutboundCall(userId, phone || '9876543215', 'en', profession || 'farmer')
                   alert(res.message || 'AI Voice Call requested!')
                 }}
-                className='bg-emerald-500 text-black hover:bg-emerald-400 font-semibold h-8 text-xs gap-1.5'
+                className='bg-foreground text-background hover:bg-foreground/90 font-medium h-8 text-xs gap-1.5 rounded-full'
               >
                 <PhoneCall className='h-3.5 w-3.5' />
                 Request AI Callback

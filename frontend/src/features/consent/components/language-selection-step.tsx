@@ -21,15 +21,15 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
   }
 
   return (
-    <Card className="mx-auto max-w-xl border-zinc-800 bg-zinc-950 text-white shadow-2xl">
+    <Card className="mx-auto max-w-xl border-dove/40 shadow-subtle text-foreground">
       <CardHeader className="text-center pb-4">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
           <Languages className="h-6 w-6" />
         </div>
-        <CardTitle className="text-xl font-bold tracking-tight sm:text-2xl">
+        <CardTitle className="font-signifier text-xl font-normal leading-snug sm:text-2xl text-foreground">
           Select Your Preferred Language
         </CardTitle>
-        <CardDescription className="text-xs text-zinc-400 sm:text-sm">
+        <CardDescription className="text-xs text-muted-foreground sm:text-sm mt-0.5">
           Choose the language for assessment screens, voice assistant, and AI phone callbacks.
         </CardDescription>
       </CardHeader>
@@ -43,24 +43,24 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
                 key={lang.code}
                 type="button"
                 onClick={() => handleSelectLanguage(lang.code)}
-                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                className={`flex items-center justify-between rounded-[14px] border p-4 text-left transition-all ${
                   isSelected
-                    ? 'border-emerald-500 bg-emerald-500/10 text-white shadow-md'
-                    : 'border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900'
+                    ? 'border-brand-blue bg-brand-blue/5 text-foreground shadow-sm'
+                    : 'border-dove/50 bg-background hover:bg-muted/40'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{lang.flag}</span>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm sm:text-base">{lang.native}</span>
-                      <span className="text-xs text-zinc-400">({lang.label})</span>
+                      <span className="font-semibold text-sm sm:text-base text-foreground">{lang.native}</span>
+                      <span className="text-xs text-muted-foreground">({lang.label})</span>
                     </div>
-                    <p className="text-xs text-zinc-400 mt-0.5">{lang.desc}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{lang.desc}</p>
                   </div>
                 </div>
                 {isSelected && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-black">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue text-white">
                     <Check className="h-4 w-4 stroke-[3]" />
                   </div>
                 )}
@@ -72,7 +72,7 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
         <div className="pt-3">
           <Button
             onClick={onContinue}
-            className="w-full gap-2 bg-emerald-500 text-black font-semibold hover:bg-emerald-400 py-5 rounded-xl text-sm"
+            className="w-full gap-2 rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium py-5 text-sm"
           >
             {t('consent.nextStep')}
             <ArrowRight className="h-4 w-4" />

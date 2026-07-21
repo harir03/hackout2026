@@ -10,7 +10,6 @@ interface VoiceQuestionnaireProps {
   onSelectOption: (optionIndex: number) => void
 }
 
-// Declare Web Speech API types for TypeScript compatibility
 declare global {
   interface Window {
     SpeechRecognition?: any
@@ -93,7 +92,6 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
   const matchOptionFromTranscript = (spokenText: string) => {
     const lowerSpoken = spokenText.toLowerCase().trim()
 
-    // Numerical index matching (1, 2, 3, 4)
     if (lowerSpoken.includes('one') || lowerSpoken.includes('1') || lowerSpoken.includes('पहला') || lowerSpoken.includes('ఒకటి')) {
       onSelectOption(0)
       return
@@ -111,7 +109,6 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
       return
     }
 
-    // Keyword matching
     let bestIndex = 0
     let maxMatch = -1
 
@@ -133,20 +130,20 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
   }
 
   return (
-    <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 text-white">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+    <div className="rounded-xl border border-dove/40 bg-muted/20 p-4 text-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="border-emerald-500/50 bg-emerald-500/10 text-emerald-400 text-xs">
-            Voice Assistant Active
+          <Badge variant="outline" className="border-brand-blue/30 bg-brand-blue/5 text-brand-blue text-xs">
+            Voice Mode Active
           </Badge>
           <Button
             type="button"
             size="sm"
             variant="ghost"
             onClick={speakQuestion}
-            className="h-7 gap-1 px-2 text-xs text-zinc-300 hover:text-white"
+            className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Volume2 className="h-3.5 w-3.5 text-emerald-400" />
+            <Volume2 className="h-3.5 w-3.5 text-brand-blue" />
             Listen Question
           </Button>
         </div>
@@ -155,10 +152,10 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
           type="button"
           size="sm"
           onClick={toggleListening}
-          className={`h-8 gap-2 px-3 text-xs font-semibold ${
+          className={`h-8 gap-2 px-3 text-xs font-medium rounded-full ${
             isListening
               ? 'bg-rose-500 text-white animate-pulse hover:bg-rose-600'
-              : 'bg-emerald-500 text-black hover:bg-emerald-400'
+              : 'bg-foreground text-background hover:bg-foreground/90'
           }`}
         >
           {isListening ? (
@@ -176,23 +173,23 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
       </div>
 
       {isListening && (
-        <div className="flex items-center gap-2 rounded-lg bg-zinc-900 p-2.5 text-xs text-emerald-400">
+        <div className="flex items-center gap-2 rounded-lg bg-muted/60 p-2.5 text-xs text-brand-blue">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-blue"></span>
           </span>
           {t('voice.listening')}
         </div>
       )}
 
       {transcript && (
-        <div className="mt-2 rounded-lg border border-zinc-800 bg-zinc-900/80 p-2.5 text-xs text-zinc-300">
-          <span className="font-medium text-emerald-400">Heard:</span> &quot;{transcript}&quot;
+        <div className="mt-2 rounded-lg border border-dove/30 bg-muted/40 p-2.5 text-xs text-foreground">
+          <span className="font-medium text-brand-blue">Heard:</span> &quot;{transcript}&quot;
         </div>
       )}
 
       {errorMsg && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-400">
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-500">
           <AlertCircle className="h-3.5 w-3.5" />
           {errorMsg}
         </div>
