@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
-import { Loader2, IndianRupee, Percent, Clock, ArrowRight, MessageSquare, ChevronLeft, Phone, CheckCircle2 } from 'lucide-react'
+import { Loader2, IndianRupee, Percent, Clock, MessageSquare, ChevronLeft, Phone, CheckCircle2 } from 'lucide-react'
 import {
   Card,
   CardContent,

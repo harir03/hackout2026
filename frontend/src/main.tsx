@@ -14,6 +14,7 @@ import { ThemeProvider } from './context/theme-provider'
 // Generated Routes
 import { routeTree } from './routeTree.gen'
 // Styles
+import '@/lib/i18n'
 import './styles/index.css'
 import { AppLoader } from '@/components/app-loader'
 

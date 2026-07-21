@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
-import { AlertTriangle, ShieldAlert, MessageSquare, Loader2, IndianRupee, Send, Bot, User, CheckCircle2, ChevronDown } from 'lucide-react'
+import { AlertTriangle, ShieldAlert, MessageSquare, Loader2, IndianRupee, Send, Bot, User, ChevronDown } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -220,92 +220,163 @@ export function ScorePage() {
 
     const questions: Array<{ type: 'conflict' | 'financial' | 'verification'; text: string }> = []
 
-    const gstTurnover = val('merchant_annual_turnover')
-    const gstFiling = val('merchant_filing_regularity')
-    const gstMonths = val('merchant_months_operating')
-    const hasGst = val('merchant_has_gst')
     const bankInflow = val('bank_avg_monthly_inflow')
     const bankVolatility = val('bank_balance_volatility')
     const telecomMissed = val('telecom_missed_payments')
-    const isMetro = val('loc_is_metro')
-    const yearsAtCurrent = val('loc_years_at_current')
-    const addressChanges = val('loc_address_changes_24m')
     const psychEngagement = val('psych_engagement_score')
-    const psychConsistency = val('psych_consistency')
     const completionTime = val('psych_completion_time_sec')
     const straightLine = val('psych_straight_line_ratio')
-    const ecomReturnRate = val('ecom_return_rate')
-    const ecomSpend = val('ecom_avg_monthly_spend')
     const bankPaymentReg = val('bank_payment_regularity')
 
-    if (hasGst < 0.5 || gstTurnover < 50000) {
-      if (isMetro >= 0.5) {
+    const emailLower = userId.toLowerCase()
+    const isFarmer = emailLower.includes('farmer')
+    const isMsme = emailLower.includes('msme')
+
+    if (isFarmer) {
+      if (bankVolatility > 0.3) {
         questions.push({ type: 'conflict', text:
-          `Your location data shows you are in a Tier-1 metro city, yet your GST records show ${hasGst < 0.5 ? 'no registered GSTIN' : `an annual turnover of only ${formatInr(gstTurnover)}`}. Operating in a metro with high costs while declaring ${hasGst < 0.5 ? 'no formal revenue' : 'minimal revenue'} is a red flag. Is your business unregistered? Are you operating in cash? Explain exactly how your business generates income.`
+          `Your bank balance fluctuates by ${(bankVolatility * 100).toFixed(0)}% month-to-month. For agricultural income, seasonal variation is expected — but we need to understand your harvest cycle. Which months do you receive harvest income, and which months have the lowest cash flow? Do you receive PM-Kisan installments regularly?`
         })
       }
-      if (bankInflow > 20000) {
+
+      if (psychEngagement < 60) {
         questions.push({ type: 'conflict', text:
-          `Your bank account receives ${formatInr(bankInflow)}/month in inflows, but your GST records show ${hasGst < 0.5 ? 'no GSTIN' : `only ${formatInr(gstTurnover)} annual turnover`}. Your bank sees ~${formatInr(bankInflow * 12)}/year flowing in, but tax filings account for ${hasGst < 0.5 ? '₹0' : formatInr(gstTurnover)}. Where is this money coming from — salary, informal income, or family transfers? Give exact sources and amounts.`
+          `Your psychometric assessment scored ${psychEngagement.toFixed(0)}/100 on financial discipline. As a farmer, understanding crop loan terms and KCC repayment schedules is important. Did you rush through the questionnaire, or do you find financial planning difficult during non-harvest months?`
         })
       }
-    } else if (gstTurnover > 100000 && bankInflow < gstTurnover / 24) {
-      questions.push({ type: 'conflict', text:
-        `Your GST filings declare ${formatInr(gstTurnover)} annual turnover (~${formatInr(gstTurnover / 12)}/month revenue). But your bank shows only ${formatInr(bankInflow)}/month inflows — that's ${((bankInflow * 12 / gstTurnover) * 100).toFixed(0)}% of declared revenue. Where is the remaining ${formatInr(gstTurnover / 12 - bankInflow)}/month? Are you collecting cash outside the banking system?`
+
+      if (completionTime < 25 && straightLine > 0.4) {
+        questions.push({ type: 'conflict', text:
+          `You completed the assessment in ${completionTime.toFixed(0)} seconds with ${(straightLine * 100).toFixed(0)}% identical answers. This suggests you may not have read the questions carefully. Why should we trust your self-reported financial attitudes?`
+        })
+      }
+
+      if (telecomMissed > 1) {
+        questions.push({ type: 'conflict', text:
+          `You have ${Math.round(telecomMissed)} missed telecom payments. Even with seasonal agricultural income, a small phone recharge should be manageable. Were these missed during a difficult harvest season, or is it a general pattern?`
+        })
+      }
+
+      questions.push({ type: 'financial', text:
+        `Describe your primary agricultural income sources. How many acres do you farm, what crops do you grow, and what is your approximate annual harvest income? Do you receive PM-Kisan Direct Benefit Transfer (₹6,000/year)? Do you have a Kisan Credit Card (KCC) — if yes, what is the credit limit and current outstanding?`
+      })
+
+      questions.push({ type: 'financial', text:
+        `What are your main farming expenses — seeds, fertilizers, labor, equipment rental? How do you fund these during non-harvest months? Do you take seasonal crop loans from any bank or cooperative?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `Do you have any existing loans — KCC, tractor loan, SHG borrowing, or informal debts from moneylenders? List each with the lender, amount, and repayment status. Have you ever defaulted on a crop loan?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `If we verify your PM-Kisan enrollment and KCC records with the district agriculture office, will everything match what you have told us? Is there anything about your financial situation — pending land disputes, shared farming income, or family obligations — that you have not disclosed?`
+      })
+
+    } else if (isMsme) {
+      const gstTurnover = val('merchant_annual_turnover')
+      const gstFiling = val('merchant_filing_regularity')
+      const gstMonths = val('merchant_months_operating')
+      const hasGst = val('merchant_has_gst')
+
+      if (hasGst < 0.5 || gstTurnover < 50000) {
+        if (bankInflow > 20000) {
+          questions.push({ type: 'conflict', text:
+            `Your bank account receives ${formatInr(bankInflow)}/month in inflows, but your GST records show ${hasGst < 0.5 ? 'no registered GSTIN' : `only ${formatInr(gstTurnover)} annual turnover`}. For an MSME, this gap needs explanation. Is your business below the GST threshold, or are you operating informally? Provide exact revenue sources.`
+          })
+        }
+      } else if (gstTurnover > 100000 && bankInflow < gstTurnover / 24) {
+        questions.push({ type: 'conflict', text:
+          `Your GST filings declare ${formatInr(gstTurnover)} annual turnover (~${formatInr(gstTurnover / 12)}/month). But bank inflows show only ${formatInr(bankInflow)}/month — ${((bankInflow * 12 / gstTurnover) * 100).toFixed(0)}% of declared revenue. Where is the remaining ${formatInr(gstTurnover / 12 - bankInflow)}/month? Are customers paying in cash?`
+        })
+      }
+
+      if (gstFiling < 0.8 && gstMonths > 12) {
+        questions.push({ type: 'conflict', text:
+          `Your business has operated for ${Math.round(gstMonths)} months, but GST filing regularity is ${(gstFiling * 100).toFixed(0)}%. For an MSME seeking credit, irregular filings suggest cash flow problems or poor compliance. Which months were missed and why?`
+        })
+      }
+
+      if (psychEngagement < 60 && (bankInflow > 30000 || gstTurnover > 200000)) {
+        questions.push({ type: 'conflict', text:
+          `Your business generates ${bankInflow > 30000 ? `${formatInr(bankInflow)}/month in bank inflows` : `${formatInr(gstTurnover)} annual turnover`}, but your financial literacy assessment scored only ${psychEngagement.toFixed(0)}/100. As a business owner handling this revenue, the gap is concerning. Did you rush the questionnaire?`
+        })
+      }
+
+      questions.push({ type: 'financial', text:
+        `What is your MSME's exact monthly revenue and profit margin? Break down your top 3 business expenses (rent, inventory, salaries) with amounts. What is your average monthly supplier payment cycle — do you pay within 15 days, 30 days, or longer?`
+      })
+
+      questions.push({ type: 'financial', text:
+        `What is your business's yearly turnover for the last financial year? How much working capital do you maintain? Do you have any outstanding supplier credit or trade payables?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `Do you have any existing business loans, CC/OD facilities, or equipment financing? List each with lender, EMI, and remaining tenure. Have you ever restructured a business loan?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `If we verify your GST returns and bank statements with your CA, will the turnover figures match exactly? Are there any pending tax disputes, legal matters, or undisclosed business obligations?`
+      })
+
+    } else {
+      const gstTurnover = val('merchant_annual_turnover')
+      const hasGst = val('merchant_has_gst')
+      const isMetro = val('loc_is_metro')
+
+      if (hasGst < 0.5 || gstTurnover < 50000) {
+        if (isMetro >= 0.5) {
+          questions.push({ type: 'conflict', text:
+            `Your location data shows you are in a Tier-1 metro city, yet your GST records show ${hasGst < 0.5 ? 'no registered GSTIN' : `an annual turnover of only ${formatInr(gstTurnover)}`}. Are you salaried, self-employed, or running an unregistered business? Explain your exact income source.`
+          })
+        }
+        if (bankInflow > 20000) {
+          questions.push({ type: 'conflict', text:
+            `Your bank receives ${formatInr(bankInflow)}/month, but GST records show ${hasGst < 0.5 ? 'no GSTIN' : `only ${formatInr(gstTurnover)} annual turnover`}. If you are salaried, provide your employer name and designation. If self-employed, explain the income sources.`
+          })
+        }
+      }
+
+      if (psychEngagement < 60 && bankInflow > 30000) {
+        questions.push({ type: 'conflict', text:
+          `Your bank inflows are ${formatInr(bankInflow)}/month, but your financial literacy scored only ${psychEngagement.toFixed(0)}/100. Someone earning this much should demonstrate basic financial awareness. Did you rush through the questionnaire?`
+        })
+      }
+
+      if (completionTime < 25 && straightLine > 0.4) {
+        questions.push({ type: 'conflict', text:
+          `You completed the assessment in ${completionTime.toFixed(0)} seconds with ${(straightLine * 100).toFixed(0)}% identical answers. This strongly suggests you did not read the questions. Why should we trust your self-reported attitudes?`
+        })
+      }
+
+      if (telecomMissed > 1 && bankInflow > 20000) {
+        questions.push({ type: 'conflict', text:
+          `You have ${Math.round(telecomMissed)} missed telecom payments, yet your bank receives ${formatInr(bankInflow)}/month. If money is coming in, why are small bills being missed?`
+        })
+      }
+
+      if (bankVolatility > 0.3 && bankPaymentReg < 0.7) {
+        questions.push({ type: 'conflict', text:
+          `Your bank balance swings by ${(bankVolatility * 100).toFixed(0)}% month-to-month and payment regularity is only ${(bankPaymentReg * 100).toFixed(0)}%. How will you handle an additional EMI?`
+        })
+      }
+
+      questions.push({ type: 'financial', text:
+        `State your exact monthly take-home income (salary or business profit after all costs). Then list your top 3 fixed monthly expenses (rent, EMIs, utilities) with exact amounts. We will cross-verify these against your bank data.`
+      })
+
+      questions.push({ type: 'financial', text:
+        `How much do you save or invest each month? Where — bank savings, mutual funds, gold, cash at home? Does the math add up with your stated income and expenses?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `Do you have any existing loans, EMIs, or credit card outstanding balances? List each with lender name, monthly EMI, and remaining tenure. Have you ever taken a loan before?`
+      })
+
+      questions.push({ type: 'verification', text:
+        `If we verify your income with your employer or CA, would the numbers match? Is there anything about your finances you have not disclosed — informal debts, family obligations, or pending liabilities?`
       })
     }
-
-    if (gstFiling < 0.8 && gstMonths > 12) {
-      questions.push({ type: 'conflict', text:
-        `Your business has been operating for ${Math.round(gstMonths)} months, but GST filing regularity is only ${(gstFiling * 100).toFixed(0)}%. That means ~${Math.round((1 - gstFiling) * gstMonths)} filings were late or missed. For a ${Math.round(gstMonths / 12)}-year-old business, this suggests cash flow problems, poor record-keeping, or seasonal gaps. Which is it, and which specific months were missed?`
-      })
-    }
-
-    if (addressChanges > 0 && gstMonths > 12) {
-      questions.push({ type: 'conflict', text:
-        `You changed your address ${Math.round(addressChanges)} time(s) in 24 months, but your business has been operating for ${Math.round(gstMonths)} months. Did you relocate your business too? How did that affect your customer base and revenue? Were there months with zero revenue during the transition?`
-      })
-    }
-
-    if (psychEngagement < 60 && (bankInflow > 30000 || gstTurnover > 200000)) {
-      questions.push({ type: 'conflict', text:
-        `Your financial data looks decent — ${bankInflow > 30000 ? `bank inflows of ${formatInr(bankInflow)}/month` : `GST turnover of ${formatInr(gstTurnover)}`} — but your psychometric assessment scored only ${psychEngagement.toFixed(0)}/100 on financial discipline. This is contradictory: someone earning that much should understand financial basics. Did you rush through the questionnaire, or do your answers genuinely reflect how you manage money?`
-      })
-    }
-
-    if (completionTime < 25 && straightLine > 0.4) {
-      questions.push({ type: 'conflict', text:
-        `You completed a 15-question assessment in ${completionTime.toFixed(0)} seconds with ${(straightLine * 100).toFixed(0)}% identical answers — ${(completionTime / 15).toFixed(1)} seconds per question while selecting the same option repeatedly. This strongly suggests you did not read the questions. Why should we trust your self-reported attitudes if you were not willing to engage?`
-      })
-    }
-
-    if (telecomMissed > 1 && bankInflow > 20000) {
-      questions.push({ type: 'conflict', text:
-        `You have ${Math.round(telecomMissed)} missed telecom payments, yet your bank receives ${formatInr(bankInflow)}/month. If money is coming in, why are you missing a ₹${Math.round(val('telecom_plan_value'))}/month phone bill? Is it carelessness, or are there expenses consuming your income that we cannot see?`
-      })
-    }
-
-    if (bankVolatility > 0.3 && bankPaymentReg < 0.7) {
-      questions.push({ type: 'conflict', text:
-        `Your bank balance swings by ${(bankVolatility * 100).toFixed(0)}% month-to-month and recurring payment regularity is only ${(bankPaymentReg * 100).toFixed(0)}%. If you cannot maintain a stable balance for existing commitments, how will you handle an additional EMI?`
-      })
-    }
-
-    questions.push({ type: 'financial', text:
-      `State your exact monthly take-home income (salary or business profit after all costs). Then list your top 3 fixed monthly expenses (rent, EMIs, utilities) with exact amounts for each. We will cross-verify these against your bank transaction data.`
-    })
-
-    questions.push({ type: 'financial', text:
-      `How much money do you save or invest each month? Where — bank savings, mutual funds, gold, cash at home? If your monthly income is what you stated, and your expenses are what you listed, does the math add up? Walk me through it.`
-    })
-
-    questions.push({ type: 'verification', text:
-      `Do you have any existing loans, EMIs, or credit card outstanding balances? If yes, list each one with the lender name, monthly EMI amount, and remaining tenure. If no, have you ever taken a loan before — when and for how much?`
-    })
-
-    questions.push({ type: 'verification', text:
-      `If we were to verify your income with your employer or your GST CA, would the numbers you just told me match exactly? Is there anything about your financial situation that you have not disclosed — informal debts, family obligations, or pending legal/tax liabilities?`
-    })
 
     if (questions.length < 5 && data.signal_conflicts.length > 0) {
       const c = data.signal_conflicts[0]
@@ -315,7 +386,7 @@ export function ScorePage() {
       const topPos = posFeats[0]
       if (topNeg && topPos) {
         questions.push({ type: 'conflict', text:
-          `${topPos.explanation.split('.')[0]}. But on the other hand, ${topNeg.explanation.split('.')[0].toLowerCase()}. These directly contradict each other. Explain precisely what is happening — address both data points specifically.`
+          `${topPos.explanation.split('.')[0]}. But on the other hand, ${topNeg.explanation.split('.')[0].toLowerCase()}. These directly contradict each other. Explain precisely what is happening.`
         })
       }
     }
@@ -326,7 +397,7 @@ export function ScorePage() {
       ...questions.filter(q => q.type === 'verification'),
     ]
     return ordered.slice(0, 8)
-  }, [data])
+  }, [data, userId])
 
   const totalInterviewQuestions = interviewQuestions.length
 

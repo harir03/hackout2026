@@ -107,7 +107,40 @@ React Dashboard (Vercel) ←→ FastAPI Backend (Render)
 
 The consent-first design isn't just legal compliance — it's a trust mechanism. A first-generation borrower who understands exactly what data is being used and why is more likely to complete the application and engage honestly with the questionnaire.
 
-The SHAP layer transforms the system from a black box into an auditable, RBI-compliant decision record that a credit officer, a regulator, or the borrower themselves can read and challenge.
+---
+
+## What Makes AltGrade Unique & Innovative
+
+### 1. Automated Behavioral Persona & Profile Auto-Detection
+AltGrade does not apply a rigid, one-size-fits-all model. Instead, it dynamically detects applicant demographic and economic personas based on raw behavioral signals:
+
+- **🌾 Farmers & Agriculturalists**:
+  - **Signal Pattern**: Zero e-commerce footprint, 2G/keypad phone telecom recharge behavior (recharges via local offline retail outlets), ancestral village location stability (30+ years in same village), and PM-Kisan / KCC discipline.
+  - **Dynamic Adaptation**: AltGrade completely removes e-commerce and digital recharge penalties for farmers. Instead, it heavily weights **ancestral location stability** (34+ years zero address moves), PM-Kisan Direct Benefit Transfers, and Kisan Credit Card (KCC) post-harvest repayment promptness — producing an **Approved** rating (**710 / Excellent**).
+
+---
+
+### 2. Isotonic Calibration for True Empirical Default Probabilities
+- **The Problem**: Standard tree-based ensemble models (XGBoost and LightGBM) excel at ranking risk, but their raw probability outputs are inherently uncalibrated — clustering near 0 or 1. A raw model score of 0.80 does not mean an 80% default rate.
+- **The Solution**: AltGrade applies non-parametric **Isotonic Regression Calibration** post-ensemble blending.
+- **Mathematical Rigor**: Isotonic calibration fits a monotonic non-decreasing step function $y = f(x)$ over out-of-fold predicted probabilities:
+  $$\min \sum_{i=1}^n (y_i - \hat{p}_i)^2 \quad \text{subject to} \quad \hat{p}_i \le \hat{p}_j \quad \text{whenever} \quad y_i \le y_j$$
+- **Banking Governance**: Converts abstract model scores into true calibrated default probabilities. A score of 700 maps directly to a 70% empirical non-default probability in historical data, satisfying strict RBI Model Risk Governance and Basel III Capital Reserve requirements.
+
+---
+
+### 3. Dual-Tier Scoring & Consolidator Engine
+- **Tier 1 (Zero-History Users)**: D2 (Telecom) + D4 (Location) + D5 (Psychometrics). Evaluates credit-invisible individuals fairly without requiring a bank account.
+- **Tier 2 (Full Digital Footprint)**: Blends D1–D6 for comprehensive multi-signal risk assessment.
+- **Signal Conflict Detection**: When signals contradict (e.g., high income on D1 vs distress purchases on D3), the Consolidator flags the anomaly rather than smoothing it away, feeding an internal "character consistency score" directly into the final rating.
+
+---
+
+### 4. 3-Layer Bias Mitigation & SHAP Auditability
+- **Pre-processing**: Strips demographic PII (gender, caste, religion, ethnicity) prior to model ingestion.
+- **In-processing**: Reweights training samples to prevent group bias.
+- **Post-processing**: Automated Disparate Impact Ratio (DIR) audit enforcing the 80% (Four-Fifths) rule across demographic subgroups.
+- **SHAP Explainability**: Plain-language attribution (+/- points per feature) compliant with RBI Fair Practices Code.
 
 ---
 
@@ -244,5 +277,5 @@ Use the following login credentials to test different user profiles and dashboar
 | `admin@altgrade.com` | `Password@123` | Administrator | Accesses full credit officer decision dashboard |
 | `testadmin@altgrade.in` | `Password@123` | Administrator | Accesses full credit officer decision dashboard (mock view) |
 | `testhari@altgrade.in` | `Password@123` | Individual / Salaried | Static Score: **750 (Excellent)**<br>Outcome: **Rejected** (rejection testing override) |
-| `farmer@altgrade.in` | `Password@123` | Farmer / Agriculturalist | Estimated Score: **490 (Poor)**<br>Outcome: **Rejected** (keypad phone, low literacy signals) |
+| `farmer@altgrade.in` | `Password@123` | Farmer / Agriculturalist | Estimated Score: **710 (Excellent)**<br>Outcome: **Approved** (34-yr village location stability, zero e-commerce penalty, KCC/PM-Kisan discipline) |
 | `msme@altgrade.in` | `Password@123` | MSME Merchant | Estimated Score: **610 (Fair)**<br>Outcome: **Approved** (smartphone, literate, valid GST) |

@@ -18,6 +18,7 @@ import {
   Map,
   Home,
   Briefcase,
+  Mail,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,6 +34,13 @@ import { Label } from '@/components/ui/label'
 import { submitConsent, verifyPan, sendAadhaarOtp, verifyAadhaarOtp, checkLiveness, uploadBankStatement } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import { LocationMap } from '@/components/ui/location-map'
+import { TermsAndConditions } from './components/terms-and-conditions'
+import { LanguageSelectionStep } from './components/language-selection-step'
+import { VoiceQuestionnaire } from './components/voice-questionnaire'
+import { VapiIvrModal } from './components/vapi-ivr-modal'
+import { LanguageSelector } from '@/components/language-selector'
+import { requestOutboundCall } from '@/lib/api'
+import { PhoneCall } from 'lucide-react'
 
 const DEMO_PROFILES: Record<string, string> = {
   "9876543210": "hari",
@@ -44,7 +52,7 @@ const DEMO_PROFILES: Record<string, string> = {
   "9876543216": "msme"
 }
 
-const QUESTIONS = [
+const GENERAL_QUESTIONS = [
   {
     q: "How often do you plan your monthly budget?",
     options: ["Always (every month)", "Sometimes (when needed)", "Rarely", "Never"]
@@ -84,26 +92,92 @@ const QUESTIONS = [
   {
     q: "Have you ever defaulted on a minor subscription or utility payment?",
     options: ["Never", "Once or twice", "Frequently", "Regularly"]
+  }
+]
+
+const FARMER_QUESTIONS = [
+  {
+    q: "What is your primary source of farming finance & PM-Kisan / KCC utilization?",
+    options: ["Kisan Credit Card (KCC) with prompt repayment", "PM-Kisan direct benefit transfers", "Local trader advance", "Personal savings only"]
   },
   {
-    q: "If you receive extra income, what is your first action?",
-    options: ["Save or invest it", "Pay down debt", "Spend on essential needs", "Spend on leisure/lifestyle"]
+    q: "How do you manage expenses during crop harvest & waiting cycles?",
+    options: ["Maintain dedicated harvest reserve fund", "Rely on crop insurance (PMFBY)", "Short-term trader credit", "Borrow from informal sources"]
   },
   {
-    q: "What is your comfort level with using digital banking apps?",
-    options: ["Extremely comfortable", "Moderately comfortable", "Slightly comfortable", "Not comfortable"]
+    q: "How frequently do you repay seeds, fertilizer, or agricultural equipment loans?",
+    options: ["Always post-harvest on time", "Occasionally delayed by crop cycle", "Frequently delayed", "Unable to repay regularly"]
   },
   {
-    q: "How would you handle a decrease in your monthly income?",
-    options: ["Reduce non-essentials immediately", "Use savings/investments", "Find alternate income sources", "Borrow money"]
+    q: "What is your crop insurance coverage status (PM Fasal Bima Yojana)?",
+    options: ["Fully insured every season", "Insured for major crops only", "Rarely insured", "Not insured"]
   },
   {
-    q: "Do you understand the difference between compound and simple interest?",
-    options: ["Yes, fully", "Vaguely", "No"]
+    q: "How do you receive payments for your produce at Mandi / APMC?",
+    options: ["Direct bank account transfer (DBT / e-NAM)", "Cheque payments", "Mix of cash and bank transfer", "Cash settlement only"]
   },
   {
-    q: "How often do you consult financial experts or research before investing?",
-    options: ["Always", "Frequently", "Occasionally", "Never"]
+    q: "How do you handle unexpected crop failure or drought risk?",
+    options: ["Emergency agricultural savings", "Crop insurance claim", "Sell cattle or minor assets", "High-interest informal loan"]
+  },
+  {
+    q: "Do you maintain a record of farm input costs (fertilizer, pesticides, labor)?",
+    options: ["Yes, structured written notebook", "Rough mental estimation", "Only major tractor/seed expenses", "No records maintained"]
+  },
+  {
+    q: "How do you plan investments for farm equipment or solar pumps?",
+    options: ["Government subsidy + bank loan", "Phased personal savings", "Shared village rental", "Informal borrowing"]
+  },
+  {
+    q: "What portion of your agricultural produce is sold through formal APMC/Cooperatives?",
+    options: ["100% formal channels", "50–80% formal channels", "Less than 50%", "100% informal local traders"]
+  },
+  {
+    q: "How comfortable are you using voice/SMS banking for PM-Kisan status checks?",
+    options: ["Very comfortable", "Seek retailer assistance", "Slightly comfortable", "Not comfortable"]
+  }
+]
+
+const MSME_QUESTIONS = [
+  {
+    q: "What is your estimated annual business turnover range?",
+    options: ["₹25 Lakhs – ₹1 Crore", "₹10 Lakhs – ₹25 Lakhs", "₹5 Lakhs – ₹10 Lakhs", "Under ₹5 Lakhs"]
+  },
+  {
+    q: "How do you manage GST return filing and business accounting?",
+    options: ["Prompt monthly CA / CA portal filing", "Quarterly automated software filing", "Manual self-filing", "No GST filing"]
+  },
+  {
+    q: "What are your standard payment terms for supplier invoice settlement?",
+    options: ["Within 15–30 days prompt credit", "30–60 days", "60–90 days delayed credit", "Over 90 days delayed"]
+  },
+  {
+    q: "What share of your business transactions is settled via digital channels (UPI / QR / POS)?",
+    options: ["Over 75% digital payments", "50%–75% digital payments", "25%–50% digital payments", "Under 25% (Mostly Cash)"]
+  },
+  {
+    q: "How do you handle working capital shortages during seasonal low demand?",
+    options: ["Retained business cash reserves", "Overdraft (OD) facility from bank", "Supplier trade credit extension", "Personal emergency savings"]
+  },
+  {
+    q: "What is your main purpose for seeking commercial credit?",
+    options: ["Working capital & inventory expansion", "Machinery / Equipment upgrade", "Opening new outlet / branch", "Refinancing existing debt"]
+  },
+  {
+    q: "How frequently do you audit or restock inventory?",
+    options: ["Weekly structured tracking", "Monthly spot check", "Quarterly when low", "No systematic inventory audit"]
+  },
+  {
+    q: "Have you ever experienced commercial utility or commercial rent payment delays?",
+    options: ["Never delayed", "Delayed once or twice", "Occasionally delayed", "Frequently delayed"]
+  },
+  {
+    q: "Do you offer customer credit / Khata books and how do you track receivables?",
+    options: ["Digital Khata app with SMS reminders", "Physical ledger book", "Rough mental tracking", "Strictly cash-only sales"]
+  },
+  {
+    q: "What is your commercial asset & shop insurance coverage level?",
+    options: ["Comprehensive shop & stock insurance", "Basic fire & burglary policy", "Property only", "No commercial insurance"]
   }
 ]
 
@@ -111,7 +185,7 @@ export function ConsentPage() {
   const navigate = useNavigate()
   const { auth } = useAuthStore()
   const user = auth.user
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [userId] = useState(() => user?.email || `applicant-${Date.now()}`)
   const isMockProfile = ['testhari@altgrade.in', 'farmer@altgrade.in', 'msme@altgrade.in'].includes(user?.email || '')
@@ -197,8 +271,14 @@ export function ConsentPage() {
       setAadhaar('123412341234')
       setAadhaarOtp('121212')
       setGstNumber('27AAAAA1111A1Z1')
+      setProfession('other')
+      setCustomProfession('Consultant')
+      setCurrentAddress({ place: 'Indiranagar, Bengaluru, Karnataka', lat: 12.978, lng: 77.640, fromYear: 2019 })
+      setPermanentAddress({ place: 'Mylapore, Chennai, Tamil Nadu', lat: 13.033, lng: 80.269 })
+      setPermanentSameAsCurrent(false)
+      setLocationEntries([{ place: 'Koramangala, Bengaluru', lat: 12.935, lng: 77.624, fromYear: 2016, toYear: 2019 }])
       setAnswers(
-        Object.fromEntries(QUESTIONS.map((_, i) => [i, 0]))
+        Object.fromEntries(GENERAL_QUESTIONS.map((_, i) => [i, 0]))
       )
     } else if (user?.email === 'farmer@altgrade.in') {
       setPhone('9876543215')
@@ -207,9 +287,13 @@ export function ConsentPage() {
       setAadhaar('123412341235')
       setAadhaarOtp('121212')
       setGstNumber('')
-      setAnswers(
-        Object.fromEntries(QUESTIONS.map((_, i) => [i, 1]))
-      )
+      setProfession('farmer')
+      setCustomProfession('')
+      setCurrentAddress({ place: 'Kovvur Village, Nellore District, Andhra Pradesh', lat: 14.498, lng: 79.986, fromYear: 1992 })
+      setPermanentAddress({ place: 'Kovvur Village, Nellore District, Andhra Pradesh', lat: 14.498, lng: 79.986 })
+      setPermanentSameAsCurrent(true)
+      setLocationEntries([])
+      setAnswers({0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1, 9: 1})
     } else if (user?.email === 'msme@altgrade.in') {
       setPhone('9876543216')
       setOtpCode('123456')
@@ -217,9 +301,13 @@ export function ConsentPage() {
       setAadhaar('123412341236')
       setAadhaarOtp('121212')
       setGstNumber('27BBBBB2222B2Z2')
-      setAnswers(
-        Object.fromEntries(QUESTIONS.map((_, i) => [i, i % 3]))
-      )
+      setProfession('msme')
+      setCustomProfession('')
+      setCurrentAddress({ place: 'Madurai Town Market, Tamil Nadu', lat: 9.925, lng: 78.119, fromYear: 2012 })
+      setPermanentAddress({ place: 'Madurai Town Market, Tamil Nadu', lat: 9.925, lng: 78.119 })
+      setPermanentSameAsCurrent(true)
+      setLocationEntries([])
+      setAnswers({0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 0, 9: 1})
     } else {
       setPhone('')
       setOtpCode('')
@@ -227,6 +315,12 @@ export function ConsentPage() {
       setAadhaar('')
       setAadhaarOtp('')
       setGstNumber('')
+      setProfession('')
+      setCustomProfession('')
+      setCurrentAddress(null)
+      setPermanentAddress(null)
+      setPermanentSameAsCurrent(false)
+      setLocationEntries([])
     }
   }, [user?.email])
 
@@ -412,7 +506,13 @@ export function ConsentPage() {
     setAnswers((prev) => ({ ...prev, [qIdx]: oIdx }))
   }
 
-  const isQuestionnaireComplete = Object.keys(answers).length === QUESTIONS.length
+  const activeQuestions = (profession === 'farmer' || user?.email === 'farmer@altgrade.in')
+    ? FARMER_QUESTIONS
+    : (profession === 'msme' || user?.email === 'msme@altgrade.in')
+    ? MSME_QUESTIONS
+    : GENERAL_QUESTIONS
+
+  const isQuestionnaireComplete = Object.keys(answers).length === activeQuestions.length
 
   // GST Actions
   const handleVerifyGst = () => {
@@ -490,18 +590,45 @@ export function ConsentPage() {
 
   return (
     <div className='max-w-4xl mx-auto py-8 px-4'>
-      {/* Dynamic Stepper Header */}
-      <div className='mb-8 flex justify-between items-center text-[10px] sm:text-xs text-graphite border-b border-dove/20 pb-4 overflow-x-auto whitespace-nowrap gap-4'>
-        <span className={step === 1 ? 'text-brand-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
-        <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
-        <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
-        <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
-        <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Profession</span>
-        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Bank</span>
-        <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Location</span>
-        <span className={step === 8 ? 'text-brand-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>8. Psychometric</span>
-        <span className={step === 9 ? 'text-brand-blue font-semibold' : ''}>9. GST (Opt)</span>
+      {/* Top Header Bar with Language Selector & IVR Simulator */}
+      <div className='mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dove/20 pb-4'>
+        <div className='flex items-center gap-2'>
+          <ShieldCheck className='h-5 w-5 text-emerald-400' />
+          <span className='text-sm font-bold tracking-tight text-foreground'>AltGrade RBI DLG Portal</span>
+        </div>
+        <div className='flex items-center gap-2'>
+          <VapiIvrModal />
+          <LanguageSelector />
+        </div>
       </div>
+
+      {/* Dynamic Stepper Header */}
+      {step > 0 && (
+        <div className='mb-8 flex justify-between items-center text-[10px] sm:text-xs text-graphite border-b border-dove/20 pb-4 overflow-x-auto whitespace-nowrap gap-4'>
+          <span className={step === 1 ? 'text-brand-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
+          <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
+          <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
+          <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
+          <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Profession</span>
+          <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Bank</span>
+          <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Location</span>
+          <span className={step === 8 ? 'text-brand-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>8. Psychometric</span>
+          <span className={step === 9 ? 'text-brand-blue font-semibold' : ''}>9. GST (Opt)</span>
+        </div>
+      )}
+
+      {step === 0 && (
+        <TermsAndConditions
+          onAgree={() => setStep(0.5)}
+          onDecline={() => navigate({ to: '/' })}
+        />
+      )}
+
+      {step === 0.5 && (
+        <LanguageSelectionStep
+          onContinue={() => setStep(1)}
+        />
+      )}
 
       {step === 1 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
@@ -1253,21 +1380,53 @@ export function ConsentPage() {
       {step === 8 && (
         <Card className='shadow-subtle max-w-2xl mx-auto'>
           <CardHeader>
-            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Brain className='h-5 w-5 text-brand-blue' />
-              Step 8: Psychometric Assessment
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center justify-between gap-2'>
+              <div className='flex items-center gap-2'>
+                <Brain className='h-5 w-5 text-brand-blue' />
+                Step 8: Psychometric Assessment
+              </div>
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Answer these 15 questions to evaluate financial planning and responsibility capabilities.
+              Answer these {activeQuestions.length} questions on the screen, or request an automated AI voice call to your phone.
             </CardDescription>
+
+            {/* AI Phone Callback Request Banner */}
+            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-xs text-white'>
+              <div className='flex items-center gap-2.5'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400'>
+                  <PhoneCall className='h-4 w-4' />
+                </div>
+                <div>
+                  <p className='font-semibold text-emerald-400'>Prefer an AI Voice Call on your phone?</p>
+                  <p className='text-zinc-400 text-[11px]'>The AltGrade AI Voice Officer will call your phone and conduct this survey verbally.</p>
+                </div>
+              </div>
+              <Button
+                type='button'
+                size='sm'
+                onClick={async () => {
+                  const res = await requestOutboundCall(userId, phone || '9876543215', 'en', profession || 'farmer')
+                  alert(res.message || 'AI Voice Call requested!')
+                }}
+                className='bg-emerald-500 text-black hover:bg-emerald-400 font-semibold h-8 text-xs gap-1.5'
+              >
+                <PhoneCall className='h-3.5 w-3.5' />
+                Request AI Callback
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className='space-y-6'>
             <div className='space-y-6 max-h-[450px] overflow-y-auto pr-2'>
-              {QUESTIONS.map((item, idx) => (
-                <div key={idx} className='space-y-2 border-b border-dove/10 pb-4'>
+              {activeQuestions.map((item, idx) => (
+                <div key={idx} className='space-y-3 border-b border-dove/10 pb-4'>
                   <p className='text-sm font-semibold text-foreground'>
                     {idx + 1}. {item.q}
                   </p>
+                  <VoiceQuestionnaire
+                    questionText={item.q}
+                    options={item.options}
+                    onSelectOption={(oIdx) => handleSelectAnswer(idx, oIdx)}
+                  />
                   <div className='grid gap-2 grid-cols-1 sm:grid-cols-2'>
                     {item.options.map((opt, oIdx) => {
                       const isSelected = answers[idx] === oIdx

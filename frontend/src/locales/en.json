@@ -1,0 +1,63 @@
+{
+  "nav": {
+    "brand": "AltGrade",
+    "terms": "Terms & Conditions",
+    "consent": "Data Consent",
+    "score": "Score Result",
+    "advisor": "Credit Advisor",
+    "signOut": "Sign Out"
+  },
+  "terms": {
+    "title": "Terms & Conditions & Regulatory Consent",
+    "subtitle": "RBI Digital Lending Guidelines (DLG) 2022 & Account Aggregator Data Processing Agreement",
+    "section1Title": "1. Scope of Data Collection",
+    "section1Desc": "AltGrade collects alternate financial data including bank statement transaction patterns (via Finvu AA), telecom bill regularity, location stability indicators, and self-reported psychometric questionnaires to evaluate credit risk for credit-invisible individuals and MSMEs.",
+    "section2Title": "2. Explicit Borrower Consent",
+    "section2Desc": "By proceeding, you grant explicit, time-bound consent to retrieve and analyze your consented data streams. No data is shared with unauthorized third parties. All data is processed strictly for alternate credit score estimation.",
+    "section3Title": "3. Right to Revoke & Data Deletion",
+    "section3Desc": "Under RBI DLG rules, you retain full ownership of your data and may revoke consent or request data purge at any time through the AltGrade consent dashboard or by emailing support@altgrade.in.",
+    "section4Title": "4. Fair Model Evaluation & Explainability",
+    "section4Desc": "AltGrade uses Isotonic Calibration and SHAP feature explainability. You have the right to receive a human-readable explanation of key factors influencing your risk band and participate in AI conflict resolution.",
+    "agreeCheckbox": "I have read, understood, and agree to the Terms & Conditions and RBI Regulatory Consent.",
+    "proceedBtn": "Agree & Proceed to Verification",
+    "declineBtn": "Decline"
+  },
+  "consent": {
+    "step1": "Phone & OTP",
+    "step2": "PAN Verification",
+    "step3": "Aadhaar e-KYC",
+    "step4": "Liveness & Profession",
+    "step5": "Bank Connection",
+    "step6": "Location Stability",
+    "step7": "Psychometric Survey",
+    "step8": "GST Verification",
+    "professionLabel": "Select Your Occupation / Profession",
+    "farmer": "Farmer / Agriculturalist",
+    "msme": "MSME / Small Business Owner",
+    "worker": "Urban / Gig Worker",
+    "other": "Salaried / Other Professional",
+    "nextStep": "Next Step",
+    "submitConsent": "Generate AltGrade Credit Score"
+  },
+  "voice": {
+    "speakAnswer": "Voice Mode (Speak Answer)",
+    "listening": "Listening... Speak your answer now",
+    "stopListening": "Stop Voice",
+    "voiceNotSupported": "Voice speech recognition is not supported in this browser."
+  },
+  "ivr": {
+    "button": "Simulate Keypad IVR Call",
+    "modalTitle": "IVR Voice Call Simulator (Keypad Phones)",
+    "modalDesc": "Interactive voice response call simulation for farmers and rural users on non-smartphone feature phones.",
+    "startCall": "Call AltGrade IVR (Toll Free 1800-ALT-GRADE)",
+    "endCall": "End Call",
+    "statusCalling": "Dialing 1800-258-4723...",
+    "statusConnected": "Connected. Playing Voice Questionnaire Prompt...",
+    "statusEnded": "Call Ended."
+  },
+  "advisor": {
+    "title": "AI Credit Advisor & RAG Assistant",
+    "placeholder": "Ask a question about your score, loan eligibility, or financial advice in your language...",
+    "send": "Send Query"
+  }
+}

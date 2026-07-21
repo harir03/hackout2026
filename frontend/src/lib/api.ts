@@ -33,6 +33,21 @@ export async function fetchScoreById(userId: string, consentId?: string): Promis
   return data
 }
 
+export async function requestOutboundCall(
+  userId: string,
+  phone: string,
+  language: string,
+  profession: string
+): Promise<{ status: string; message: string; call_id?: string }> {
+  const { data } = await api.post('/vapi/outbound-call', {
+    user_id: userId,
+    phone,
+    language,
+    profession,
+  })
+  return data
+}
+
 export async function submitConsent(
   userId: string,
   consentedSources: string[]
