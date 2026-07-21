@@ -73,7 +73,7 @@ When workers return conflicting signals — for example, D1 shows stable income 
 ## Architecture Overview
 
 ```
-User Consent (DPDP Compliant)
+User-Consent (DPDP Compliant)
         ↓
 6 Parallel Data Workers (Celery + Redis)
         ↓
