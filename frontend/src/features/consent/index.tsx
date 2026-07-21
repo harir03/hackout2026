@@ -17,6 +17,7 @@ import {
   X,
   Map,
   Home,
+  Briefcase,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,7 +39,9 @@ const DEMO_PROFILES: Record<string, string> = {
   "9876543211": "rahul",
   "9876543212": "nikhil",
   "9876543213": "akash",
-  "9876543214": "tejas"
+  "9876543214": "tejas",
+  "9876543215": "farmer",
+  "9876543216": "msme"
 }
 
 const QUESTIONS = [
@@ -111,7 +114,7 @@ export function ConsentPage() {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [userId] = useState(() => user?.email || `applicant-${Date.now()}`)
-  const isMockProfile = user?.email === 'testhari@altgrade.in'
+  const isMockProfile = ['testhari@altgrade.in', 'farmer@altgrade.in', 'msme@altgrade.in'].includes(user?.email || '')
   
   // Step 1: Phone & OTP States
   const [phone, setPhone] = useState('')
@@ -138,6 +141,8 @@ export function ConsentPage() {
   const [cameraActive, setCameraActive] = useState(false)
   const [capturingFace, setCapturingFace] = useState(false)
   const [faceCaptured, setFaceCaptured] = useState(false)
+  const [profession, setProfession] = useState('')
+  const [customProfession, setCustomProfession] = useState('')
   const [livenessInstruction, setLivenessInstruction] = useState('Position your face in the circle')
   const [livenessScore, setLivenessScore] = useState<number | null>(null)
 
@@ -171,7 +176,7 @@ export function ConsentPage() {
   const [changesCount, setChangesCount] = useState(0)
 
   useEffect(() => {
-    if (step === 7 && !questionnaireStartTime) {
+    if (step === 8 && !questionnaireStartTime) {
       setQuestionnaireStartTime(Date.now())
     }
   }, [step, questionnaireStartTime])
@@ -194,6 +199,26 @@ export function ConsentPage() {
       setGstNumber('27AAAAA1111A1Z1')
       setAnswers(
         Object.fromEntries(QUESTIONS.map((_, i) => [i, 0]))
+      )
+    } else if (user?.email === 'farmer@altgrade.in') {
+      setPhone('9876543215')
+      setOtpCode('123456')
+      setPan('XXXPX1234F')
+      setAadhaar('123412341235')
+      setAadhaarOtp('121212')
+      setGstNumber('')
+      setAnswers(
+        Object.fromEntries(QUESTIONS.map((_, i) => [i, 1]))
+      )
+    } else if (user?.email === 'msme@altgrade.in') {
+      setPhone('9876543216')
+      setOtpCode('123456')
+      setPan('XXXPX1234M')
+      setAadhaar('123412341236')
+      setAadhaarOtp('121212')
+      setGstNumber('27BBBBB2222B2Z2')
+      setAnswers(
+        Object.fromEntries(QUESTIONS.map((_, i) => [i, i % 3]))
       )
     } else {
       setPhone('')
@@ -417,6 +442,12 @@ export function ConsentPage() {
       phone,
       answers: answersStr,
     }
+    if (profession) {
+      searchParams.profession = profession
+      if (profession === 'other' && customProfession) {
+        searchParams.customProfession = customProfession
+      }
+    }
     if (timeTakenMs !== undefined) {
       searchParams.timeTaken = timeTakenMs.toString()
     }
@@ -465,10 +496,11 @@ export function ConsentPage() {
         <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
         <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
         <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
-        <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
-        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Location</span>
-        <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
-        <span className={step === 8 ? 'text-brand-blue font-semibold' : ''}>8. GST (Opt)</span>
+        <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Profession</span>
+        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Bank</span>
+        <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Location</span>
+        <span className={step === 8 ? 'text-brand-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>8. Psychometric</span>
+        <span className={step === 9 ? 'text-brand-blue font-semibold' : ''}>9. GST (Opt)</span>
       </div>
 
       {step === 1 && (
@@ -764,8 +796,73 @@ export function ConsentPage() {
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
+              <Briefcase className='h-5 w-5 text-brand-blue' />
+              Step 5: Profession Details
+            </CardTitle>
+            <CardDescription className='text-sm text-muted-foreground'>
+              Select your primary profession to customize the credit assessment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <div className='grid gap-3 grid-cols-1'>
+              {[
+                { id: 'farmer', label: 'Farmers' },
+                { id: 'msme', label: 'MSMEs' },
+                { id: 'gig', label: 'Urban/gig workers' },
+                { id: 'other', label: 'Others' }
+              ].map((p) => {
+                const isSelected = profession === p.id
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setProfession(p.id)
+                      if (p.id !== 'other') {
+                        setCustomProfession('')
+                      }
+                    }}
+                    className={`text-left text-sm p-4 rounded-[12px] border transition-all duration-200 ${
+                      isSelected
+                        ? 'border-brand-blue bg-brand-blue/5 text-brand-blue font-semibold'
+                        : 'border-dove/50 hover:bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {profession === 'other' && (
+              <div className='space-y-2 animate-fade-up'>
+                <Label htmlFor='custom-profession'>Please specify your profession</Label>
+                <Input
+                  id='custom-profession'
+                  placeholder='e.g., Software Engineer, Teacher'
+                  value={customProfession}
+                  onChange={(e) => setCustomProfession(e.target.value)}
+                  className='rounded-[12px] border-dove/80'
+                />
+              </div>
+            )}
+
+            <Button
+              onClick={() => setStep(6)}
+              disabled={!profession || (profession === 'other' && !customProfession.trim())}
+              className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+            >
+              Continue to Bank Connection
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 6 && (
+        <Card className='shadow-subtle max-w-md mx-auto'>
+          <CardHeader>
+            <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Landmark className='h-5 w-5 text-brand-blue' />
-              Step 5: Bank Connection
+              Step 6: Bank Connection
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
               Link your bank account via Finvu Account Aggregator to analyze transaction statements.
@@ -851,7 +948,7 @@ export function ConsentPage() {
                 </div>
 
                 <Button
-                  onClick={() => setStep(6)}
+                  onClick={() => setStep(7)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
                 >
                   Continue to Next Step
@@ -864,12 +961,12 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 6 && (
+      {step === 7 && (
         <Card className='shadow-subtle max-w-lg mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <MapPin className='h-5 w-5 text-brand-blue' />
-              Step 6: Location History
+              Step 7: Location History
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
               Provide your current and permanent addresses. You can also add previous places you've lived.
@@ -1141,7 +1238,7 @@ export function ConsentPage() {
             )}
 
             <Button
-              onClick={() => setStep(7)}
+              onClick={() => setStep(8)}
               disabled={!currentAddress || (!permanentAddress && !permanentSameAsCurrent)}
               className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
             >
@@ -1153,12 +1250,12 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 7 && (
+      {step === 8 && (
         <Card className='shadow-subtle max-w-2xl mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Brain className='h-5 w-5 text-brand-blue' />
-              Step 7: Psychometric Assessment
+              Step 8: Psychometric Assessment
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
               Answer these 15 questions to evaluate financial planning and responsibility capabilities.
@@ -1194,7 +1291,7 @@ export function ConsentPage() {
             </div>
 
             <Button
-              onClick={() => setStep(8)}
+              onClick={() => setStep(9)}
               disabled={!isQuestionnaireComplete}
               className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
             >
@@ -1205,12 +1302,12 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 8 && (
+      {step === 9 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Store className='h-5 w-5 text-brand-blue' />
-              Step 8: GST Connection (Optional)
+              Step 9: GST Connection (Optional)
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
               Link your business GST number to include merchant turnover records in the assessment.

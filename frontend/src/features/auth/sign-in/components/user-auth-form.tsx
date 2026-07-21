@@ -58,6 +58,8 @@ export function UserAuthForm({
       'testadmin@altgrade.in',
       'hari@altgrade.in',
       'testhari@altgrade.in',
+      'farmer@altgrade.in',
+      'msme@altgrade.in',
     ]
 
     const isDemoProfile = targetDemoEmails.includes(emailLower)

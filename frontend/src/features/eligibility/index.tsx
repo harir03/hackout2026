@@ -105,6 +105,12 @@ export function EligibilityPage() {
     if (userId === 'testhari@altgrade.in') {
       setApplyPhone('9876543210')
       setApplyName('Hari R')
+    } else if (userId === 'farmer@altgrade.in') {
+      setApplyPhone('9876543215')
+      setApplyName('Farmer Ram')
+    } else if (userId === 'msme@altgrade.in') {
+      setApplyPhone('9876543216')
+      setApplyName('MSME Vendor')
     }
   }, [userId])
 

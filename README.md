@@ -156,3 +156,93 @@ This prototype uses synthetically generated data modelled on Indian alternate da
 
 **Gemini API key required for advisor.** The RAG-based credit advisor requires a valid `GEMINI_API_KEY` environment variable (Gemini 2.5 Flash). Without it, the advisor endpoint returns a 503 response. ChromaDB collections must be indexed via `POST /advisor/ingest` before the advisor can answer questions. The advisor reduces but does not eliminate the risk of inaccurate responses.
 
+---
+
+## Setup & Launch
+
+### Easiest Way: Using PowerShell Script
+
+The root directory contains a helper script `dev.ps1` to orchestrate local setup and execution:
+
+- **Launch Full Stack (Docker Compose, Backend, Frontend)**:
+  ```powershell
+  .\dev.ps1 dev
+  ```
+- **Launch Infrastructure Only (PostgreSQL + Redis)**:
+  ```powershell
+  .\dev.ps1 infra
+  ```
+- **Run Alembic Migrations**:
+  ```powershell
+  .\dev.ps1 migrate
+  ```
+- **Launch Backend Only**:
+  ```powershell
+  .\dev.ps1 backend
+  ```
+- **Launch Frontend Only**:
+  ```powershell
+  .\dev.ps1 frontend
+  ```
+- **Stop Infrastructure**:
+  ```powershell
+  .\dev.ps1 stop
+  ```
+
+### Manual Steps
+
+#### 1. Backend Server Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Set up virtual environment and install dependencies:
+   ```bash
+   python -m venv .venv
+   # Windows
+   .\.venv\Scripts\activate
+   # Linux/Mac
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. Start the required Docker services:
+   ```bash
+   docker compose up -d
+   ```
+4. Run database migrations:
+   ```bash
+   python -m alembic upgrade head
+   ```
+5. Run the FastAPI development server:
+   ```bash
+   python -m uvicorn app.main:app --reload --port 8000
+   ```
+
+#### 2. Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install npm packages:
+   ```bash
+   npm install
+   ```
+3. Start the Vite dev server:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Demo Accounts
+
+Use the following login credentials to test different user profiles and dashboard flows. The password is the same for all demo accounts.
+
+| User Email | Password | Role / Profile Type | Expected Score & Loan Outcome |
+|------------|----------|---------------------|-------------------------------|
+| `admin@altgrade.in` | `Password@123` | Administrator | Accesses full credit officer decision dashboard |
+| `admin@altgrade.com` | `Password@123` | Administrator | Accesses full credit officer decision dashboard |
+| `testadmin@altgrade.in` | `Password@123` | Administrator | Accesses full credit officer decision dashboard (mock view) |
+| `testhari@altgrade.in` | `Password@123` | Individual / Salaried | Static Score: **750 (Excellent)**<br>Outcome: **Rejected** (rejection testing override) |
+| `farmer@altgrade.in` | `Password@123` | Farmer / Agriculturalist | Estimated Score: **490 (Poor)**<br>Outcome: **Rejected** (keypad phone, low literacy signals) |
+| `msme@altgrade.in` | `Password@123` | MSME Merchant | Estimated Score: **610 (Fair)**<br>Outcome: **Approved** (smartphone, literate, valid GST) |
