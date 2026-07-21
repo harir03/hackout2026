@@ -26,9 +26,15 @@ def detect_worker_conflicts(
     shap_details: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     worker_nets: dict[str, float] = {}
+    worker_neg_totals: dict[str, float] = {}
+    worker_pos_totals: dict[str, float] = {}
     for feat in shap_details:
         w = feat["worker"]
         worker_nets[w] = worker_nets.get(w, 0.0) + feat["points"]
+        if feat["points"] < 0:
+            worker_neg_totals[w] = worker_neg_totals.get(w, 0.0) + feat["points"]
+        else:
+            worker_pos_totals[w] = worker_pos_totals.get(w, 0.0) + feat["points"]
 
     workers = list(worker_nets.keys())
     conflicts = []
@@ -56,6 +62,43 @@ def detect_worker_conflicts(
                 "combined_magnitude": round(combined_magnitude, 1),
                 "description": f"{pos_worker} ({max(net_a, net_b):+.1f} pts) contradicts {neg_worker} ({min(net_a, net_b):+.1f} pts)",
             })
+
+    MIXED_SIGNAL_THRESHOLD = 4.0
+    if not conflicts:
+        mixed_workers = []
+        for w in workers:
+            neg_total = abs(worker_neg_totals.get(w, 0.0))
+            if neg_total >= MIXED_SIGNAL_THRESHOLD and worker_nets[w] > 0:
+                mixed_workers.append((w, worker_nets[w], worker_neg_totals[w]))
+
+        if mixed_workers:
+            mixed_workers.sort(key=lambda x: abs(x[2]))
+            strongest_pos = max(workers, key=lambda w: worker_nets[w])
+
+            for w, net, neg_total in mixed_workers:
+                if w == strongest_pos:
+                    continue
+                conflicts.append({
+                    "positive_worker": strongest_pos,
+                    "positive_net_points": round(worker_nets[strongest_pos], 1),
+                    "negative_worker": w,
+                    "negative_net_points": round(neg_total, 1),
+                    "combined_magnitude": round(worker_nets[strongest_pos] + abs(neg_total), 1),
+                    "description": f"{strongest_pos} ({worker_nets[strongest_pos]:+.1f} pts) has mixed signals with {w} (net {net:+.1f}, but {neg_total:.1f} pts in negative features)",
+                })
+
+            if not conflicts and mixed_workers:
+                w, net, neg_total = mixed_workers[-1]
+                second_strongest = sorted(workers, key=lambda wk: worker_nets[wk], reverse=True)
+                other = second_strongest[1] if len(second_strongest) > 1 else second_strongest[0]
+                conflicts.append({
+                    "positive_worker": other,
+                    "positive_net_points": round(worker_nets[other], 1),
+                    "negative_worker": w,
+                    "negative_net_points": round(neg_total, 1),
+                    "combined_magnitude": round(worker_nets[other] + abs(neg_total), 1),
+                    "description": f"{w} has internal contradictions: net {net:+.1f} pts overall, but {neg_total:.1f} pts in negative features",
+                })
 
     conflicts.sort(key=lambda c: -c["combined_magnitude"])
     return conflicts

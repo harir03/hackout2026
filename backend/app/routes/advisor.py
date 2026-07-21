@@ -48,13 +48,16 @@ def _score_for_user(user_id: str) -> dict[str, Any]:
             print(f"Failed to load scores_db.json in advisor: {file_ex}")
 
     profile_data = None
-    profiles_path = Path(__file__).resolve().parents[2] / "demo_data" / "profiles.json"
+    profiles_path = Path(__file__).resolve().parents[3] / "demo_data" / "profiles.json"
     if profiles_path.exists():
         try:
             with open(profiles_path, "r") as f:
                 all_profiles = json.load(f)
+                search_id = user_id.lower()
+                if search_id in ("testhari@altgrade.in", "hari@altgrade.in"):
+                    search_id = "hari"
                 for p_name, p_val in all_profiles.items():
-                    if p_name.lower() == user_id.lower():
+                    if p_name.lower() == search_id:
                         profile_data = p_val
                         break
         except Exception as e:

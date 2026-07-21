@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routes.advisor import router as advisor_router
-from app.routes.auth import router as auth_router
 from app.routes.consent import router as consent_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.score import router as score_router
@@ -34,7 +33,6 @@ app.add_middleware(
 
 app.include_router(score_router)
 app.include_router(consent_router)
-app.include_router(auth_router)
 app.include_router(advisor_router)
 app.include_router(identity_router)
 

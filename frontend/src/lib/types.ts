@@ -4,6 +4,7 @@ export interface ShapFeature {
   points: number
   direction: string
   feature_value: number
+  explanation: string
 }
 
 export interface SignalConflict {
@@ -80,4 +81,26 @@ export interface DashboardOverview {
   band_distribution: BandCount[]
   flagged_applicants: ConflictApplicant[]
   fairness: FairnessResult
+}
+
+export interface LoanTier {
+  tenure_months: number
+  monthly_emi: number
+  total_repayment: number
+}
+
+export interface EligibilityResponse {
+  user_id: string
+  score: number
+  risk_band: string
+  is_eligible: boolean
+  max_loan_amount: number
+  interest_rate_annual: number
+  tenure_options: LoanTier[]
+}
+
+export interface LoanApplicationResponse {
+  application_id: string
+  status: string
+  message: string
 }

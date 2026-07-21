@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { ScoreResponse, AdvisorResponse, DashboardOverview } from './types'
+import type { ScoreResponse, AdvisorResponse, DashboardOverview, EligibilityResponse, LoanApplicationResponse } from './types'
 
 const api = axios.create({ baseURL: '/api' })
 
@@ -8,7 +8,10 @@ export async function fetchScore(
   sources: string[],
   consentId?: string,
   phone?: string,
-  answers?: string
+  answers?: string,
+  timeTakenMs?: number,
+  changesCount?: number,
+  locationHistory?: string
 ): Promise<ScoreResponse> {
   const { data } = await api.post<ScoreResponse>('/score', {
     user_id: userId,
@@ -16,6 +19,9 @@ export async function fetchScore(
     consent_id: consentId,
     phone: phone,
     answers: answers ? JSON.parse(answers) : undefined,
+    time_taken_ms: timeTakenMs,
+    changes_count: changesCount,
+    location_history: locationHistory ? JSON.parse(locationHistory) : undefined,
   })
   return data
 }
@@ -130,7 +136,8 @@ export async function submitDecision(
   decision: string,
   interestRate: number,
   terms: string,
-  notes: string = ''
+  notes: string = '',
+  loanAmount?: number
 ): Promise<{ status: string; user_id: string; decision: string }> {
   const { data } = await api.post('/dashboard/decision', {
     user_id: userId,
@@ -138,7 +145,9 @@ export async function submitDecision(
     interest_rate: interestRate,
     terms,
     notes,
+    loan_amount: loanAmount,
   })
+
   return data
 }
 
@@ -186,3 +195,61 @@ export async function uploadBankStatement(
   })
   return data
 }
+
+export async function fetchEligibility(
+  userId: string,
+  score: number,
+  band: string
+): Promise<EligibilityResponse> {
+  const { data } = await api.get<EligibilityResponse>(
+    `/eligibility/${encodeURIComponent(userId)}`,
+    { params: { score, band } }
+  )
+  return data
+}
+
+export async function submitLoanApplication(params: {
+  userId: string
+  score: number
+  riskBand: string
+  loanAmount: number
+  tenureMonths: number
+  monthlyEmi: number
+  interestRate: number
+  phone: string
+  name: string
+}): Promise<LoanApplicationResponse> {
+  const { data } = await api.post<LoanApplicationResponse>('/eligibility/apply', {
+    user_id: params.userId,
+    score: params.score,
+    risk_band: params.riskBand,
+    loan_amount: params.loanAmount,
+    tenure_months: params.tenureMonths,
+    monthly_emi: params.monthlyEmi,
+    interest_rate: params.interestRate,
+    phone: params.phone,
+    name: params.name,
+  })
+  return data
+}
+
+export async function submitInterviewSummary(
+  userId: string,
+  summary: string
+): Promise<{ status: string }> {
+  const { data } = await api.post<{ status: string }>('/eligibility/interview/summary', {
+    user_id: userId,
+    summary,
+  })
+  return data
+}
+
+export async function fetchInterviewSummary(
+  userId: string
+): Promise<{ summary: string; status: string }> {
+  const { data } = await api.get<{ summary: string; status: string }>(
+    `/eligibility/interview/summary/${encodeURIComponent(userId)}`
+  )
+  return data
+}
+

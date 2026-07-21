@@ -43,6 +43,7 @@ class ScoreRequest(BaseModel):
     answers: dict[str, int] | None = None
     time_taken_ms: int | None = None
     changes_count: int | None = None
+    location_history: list[dict] | None = None
 
 
 class LoanTier(BaseModel):

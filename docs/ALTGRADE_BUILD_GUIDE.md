@@ -1,4 +1,4 @@
-# IntelliCredit Alternate (ICA) — Build Guide for Antigravity
+# AltGrade — Build Guide for Antigravity
 
 Status: PS1 hackathon deck is locked and presentation-ready. This doc is the engineering spec to actually build it. Written for Antigravity (GEMINI.md + Skills + Workflows), one solo dev.
 
@@ -7,7 +7,7 @@ Status: PS1 hackathon deck is locked and presentation-ready. This doc is the eng
 ## 1. Project Brief (drop this into GEMINI.md verbatim)
 
 ```
-ICA (IntelliCredit Alternate) is an AI-powered alternate credit scoring system for
+AltGrade is an AI-powered alternate credit scoring system for
 credit-invisible individuals and MSMEs in India. It scores users 0-850 using six
 consented alternate data sources (UPI/bank, telecom, e-commerce, geolocation,
 psychometric questionnaire, merchant/GST) instead of traditional credit history.

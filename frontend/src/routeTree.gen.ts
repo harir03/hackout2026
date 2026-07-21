@@ -16,6 +16,7 @@ import { Route as ApplicantIndexRouteImport } from './routes/_applicant/index'
 import { Route as AuthenticatedDecisionsRouteImport } from './routes/_authenticated/decisions'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApplicantScoreRouteImport } from './routes/_applicant/score'
+import { Route as ApplicantEligibilityRouteImport } from './routes/_applicant/eligibility'
 import { Route as ApplicantAdvisorRouteImport } from './routes/_applicant/advisor'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
@@ -60,6 +61,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const ApplicantScoreRoute = ApplicantScoreRouteImport.update({
   id: '/score',
   path: '/score',
+  getParentRoute: () => ApplicantRouteRoute,
+} as any)
+const ApplicantEligibilityRoute = ApplicantEligibilityRouteImport.update({
+  id: '/eligibility',
+  path: '/eligibility',
   getParentRoute: () => ApplicantRouteRoute,
 } as any)
 const ApplicantAdvisorRoute = ApplicantAdvisorRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/advisor': typeof ApplicantAdvisorRoute
+  '/eligibility': typeof ApplicantEligibilityRoute
   '/score': typeof ApplicantScoreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/decisions': typeof AuthenticatedDecisionsRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/advisor': typeof ApplicantAdvisorRoute
+  '/eligibility': typeof ApplicantEligibilityRoute
   '/score': typeof ApplicantScoreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/decisions': typeof AuthenticatedDecisionsRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_applicant/advisor': typeof ApplicantAdvisorRoute
+  '/_applicant/eligibility': typeof ApplicantEligibilityRoute
   '/_applicant/score': typeof ApplicantScoreRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/decisions': typeof AuthenticatedDecisionsRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/advisor'
+    | '/eligibility'
     | '/score'
     | '/dashboard'
     | '/decisions'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/advisor'
+    | '/eligibility'
     | '/score'
     | '/dashboard'
     | '/decisions'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_applicant/advisor'
+    | '/_applicant/eligibility'
     | '/_applicant/score'
     | '/_authenticated/dashboard'
     | '/_authenticated/decisions'
@@ -311,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/score'
       fullPath: '/score'
       preLoaderRoute: typeof ApplicantScoreRouteImport
+      parentRoute: typeof ApplicantRouteRoute
+    }
+    '/_applicant/eligibility': {
+      id: '/_applicant/eligibility'
+      path: '/eligibility'
+      fullPath: '/eligibility'
+      preLoaderRoute: typeof ApplicantEligibilityRouteImport
       parentRoute: typeof ApplicantRouteRoute
     }
     '/_applicant/advisor': {
@@ -402,12 +421,14 @@ declare module '@tanstack/react-router' {
 
 interface ApplicantRouteRouteChildren {
   ApplicantAdvisorRoute: typeof ApplicantAdvisorRoute
+  ApplicantEligibilityRoute: typeof ApplicantEligibilityRoute
   ApplicantScoreRoute: typeof ApplicantScoreRoute
   ApplicantIndexRoute: typeof ApplicantIndexRoute
 }
 
 const ApplicantRouteRouteChildren: ApplicantRouteRouteChildren = {
   ApplicantAdvisorRoute: ApplicantAdvisorRoute,
+  ApplicantEligibilityRoute: ApplicantEligibilityRoute,
   ApplicantScoreRoute: ApplicantScoreRoute,
   ApplicantIndexRoute: ApplicantIndexRoute,
 }

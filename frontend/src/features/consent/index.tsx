@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
   Landmark,
@@ -6,13 +6,17 @@ import {
   Brain,
   Store,
   Loader2,
-  Mail,
+  MapPin,
   Camera,
   ShieldCheck,
   CreditCard,
   Fingerprint,
   ArrowRight,
   AlertCircle,
+  Plus,
+  X,
+  Map,
+  Home,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +31,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { submitConsent, verifyPan, sendAadhaarOtp, verifyAadhaarOtp, checkLiveness, uploadBankStatement } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
+import { LocationMap } from '@/components/ui/location-map'
 
 const DEMO_PROFILES: Record<string, string> = {
   "9876543210": "hari",
@@ -144,27 +149,40 @@ export function ConsentPage() {
   const [uploadingPdf, setUploadingPdf] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  // Step 6: Gmail (Telecom & Ecom) Connection
-  const [gmailConnected, setGmailConnected] = useState(false)
-  const [gmailConnecting, setGmailConnecting] = useState(false)
+  // Step 6: Location History
+  const [currentAddress, setCurrentAddress] = useState<{ place: string; lat: number; lng: number; fromYear: number } | null>(null)
+  const [permanentAddress, setPermanentAddress] = useState<{ place: string; lat: number; lng: number } | null>(null)
+  const [permanentSameAsCurrent, setPermanentSameAsCurrent] = useState(false)
+  const [locationEntries, setLocationEntries] = useState<Array<{ place: string; lat: number; lng: number; fromYear: number; toYear: number | null }>>([])
+  const [locSearchQuery, setLocSearchQuery] = useState('')
+  const [locSearchResults, setLocSearchResults] = useState<Array<{ name: string; lat: number; lng: number }>>([])
+  const [locSearching, setLocSearching] = useState(false)
+  const [locSelectedPlace, setLocSelectedPlace] = useState<{ name: string; lat: number; lng: number } | null>(null)
+  const [locFromYear, setLocFromYear] = useState<number>(new Date().getFullYear())
+  const [locToYear, setLocToYear] = useState<number | null>(null)
+  const [locStillLiving, setLocStillLiving] = useState(true)
+  const [showMap, setShowMap] = useState(false)
+  const [locAddingType, setLocAddingType] = useState<'current' | 'permanent' | 'previous'>('current')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Step 7: Questionnaire
   const [answers, setAnswers] = useState<Record<number, number>>({})
+  const [questionnaireStartTime, setQuestionnaireStartTime] = useState<number | null>(null)
+  const [changesCount, setChangesCount] = useState(0)
+
+  useEffect(() => {
+    if (step === 7 && !questionnaireStartTime) {
+      setQuestionnaireStartTime(Date.now())
+    }
+  }, [step, questionnaireStartTime])
 
   // Step 8: GST Connection
   const [gstNumber, setGstNumber] = useState('')
   const [verifyingGst, setVerifyingGst] = useState(false)
   const [gstVerified, setGstVerified] = useState(false)
 
-  useEffect(() => {
-    function handleMessage(event: MessageEvent) {
-      if (event.data?.type === 'GMAIL_CONNECTED' && event.data?.userId === userId) {
-        setGmailConnected(true)
-      }
-    }
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [userId])
+
+
 
   useEffect(() => {
     if (user?.email === 'testhari@altgrade.in') {
@@ -174,6 +192,9 @@ export function ConsentPage() {
       setAadhaar('123412341234')
       setAadhaarOtp('121212')
       setGstNumber('27AAAAA1111A1Z1')
+      setAnswers(
+        Object.fromEntries(QUESTIONS.map((_, i) => [i, 0]))
+      )
     } else {
       setPhone('')
       setOtpCode('')
@@ -300,35 +321,69 @@ export function ConsentPage() {
     }
   }
 
-  // Gmail Connection
-  const handleConnectGmail = () => {
-    if (gmailConnected) {
-      setGmailConnected(false)
+  const handlePhotonSearch = useCallback((query: string) => {
+    setLocSearchQuery(query)
+    setLocSelectedPlace(null)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (query.length < 3) {
+      setLocSearchResults([])
       return
     }
-
-    setGmailConnecting(true)
-    const width = 500
-    const height = 600
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
-
-    const popup = window.open(
-      `/api/auth/google?user_id=${userId}`,
-      'Connect Gmail Account',
-      `width=${width},height=${height},top=${top},left=${left}`
-    )
-
-    const timer = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(timer)
-        setGmailConnecting(false)
+    debounceRef.current = setTimeout(async () => {
+      setLocSearching(true)
+      try {
+        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=en&lat=20.5937&lon=78.9629`)
+        const data = await res.json()
+        const results = (data.features || []).map((f: any) => {
+          const props = f.properties || {}
+          const parts = [props.name, props.city, props.state, props.country].filter(Boolean)
+          return {
+            name: parts.join(', '),
+            lat: f.geometry?.coordinates?.[1] || 0,
+            lng: f.geometry?.coordinates?.[0] || 0,
+          }
+        })
+        setLocSearchResults(results)
+      } catch {
+        setLocSearchResults([])
+      } finally {
+        setLocSearching(false)
       }
-    }, 1000)
+    }, 350)
+  }, [])
+
+  const handleSelectPlace = (result: { name: string; lat: number; lng: number }) => {
+    setLocSelectedPlace(result)
+    setLocSearchQuery(result.name)
+    setLocSearchResults([])
+  }
+
+  const handleAddLocation = () => {
+    if (!locSelectedPlace) return
+    const toYearVal = locStillLiving ? null : locToYear
+    setLocationEntries(prev => [...prev, {
+      place: locSelectedPlace.name,
+      lat: locSelectedPlace.lat,
+      lng: locSelectedPlace.lng,
+      fromYear: locFromYear,
+      toYear: toYearVal,
+    }])
+    setLocSearchQuery('')
+    setLocSelectedPlace(null)
+    setLocFromYear(new Date().getFullYear())
+    setLocToYear(null)
+    setLocStillLiving(true)
+  }
+
+  const handleRemoveLocation = (index: number) => {
+    setLocationEntries(prev => prev.filter((_, i) => i !== index))
   }
 
   // Questionnaire Actions
   const handleSelectAnswer = (qIdx: number, oIdx: number) => {
+    if (answers[qIdx] !== undefined && answers[qIdx] !== oIdx) {
+      setChangesCount((prev) => prev + 1)
+    }
     setAnswers((prev) => ({ ...prev, [qIdx]: oIdx }))
   }
 
@@ -350,23 +405,52 @@ export function ConsentPage() {
     // Auto consented sources list based on what was connected/completed
     const consentedList = ['d2_telecom', 'd4_location', 'd5_questionnaire']
     if (bankLinked) consentedList.push('d1_bank')
-    if (gmailConnected) consentedList.push('d3_ecommerce')
+    consentedList.push('d3_ecommerce')
     if (gstVerified) consentedList.push('d6_merchant')
 
     const answersStr = JSON.stringify(answers)
+    const timeTakenMs = questionnaireStartTime ? Date.now() - questionnaireStartTime : undefined
+    
+    const searchParams: Record<string, string> = {
+      userId,
+      sources: consentedList.join(','),
+      phone,
+      answers: answersStr,
+    }
+    if (timeTakenMs !== undefined) {
+      searchParams.timeTaken = timeTakenMs.toString()
+    }
+    if (changesCount > 0) {
+      searchParams.changesCount = changesCount.toString()
+    }
+    const fullLocationHistory: Array<Record<string, unknown>> = []
+    if (currentAddress) {
+      fullLocationHistory.push({ ...currentAddress, type: 'current', toYear: null })
+    }
+    if (permanentAddress) {
+      fullLocationHistory.push({ ...permanentAddress, type: 'permanent' })
+    } else if (permanentSameAsCurrent && currentAddress) {
+      fullLocationHistory.push({ place: currentAddress.place, lat: currentAddress.lat, lng: currentAddress.lng, type: 'permanent' })
+    }
+    for (const entry of locationEntries) {
+      fullLocationHistory.push({ ...entry, type: 'previous' })
+    }
+    if (fullLocationHistory.length > 0) {
+      searchParams.locationHistory = JSON.stringify(fullLocationHistory)
+    }
+
     try {
       const res = await submitConsent(userId, consentedList)
-      const sources = consentedList.join(',')
+      searchParams.consentId = res.consent_id
       navigate({
         to: '/score',
-        search: { userId, sources, consentId: res.consent_id, phone, answers: answersStr }
+        search: searchParams,
       })
     } catch (err) {
       console.error('Submission failed:', err)
-      const sources = consentedList.join(',')
       navigate({
         to: '/score',
-        search: { userId, sources, phone, answers: answersStr }
+        search: searchParams,
       })
     } finally {
       setSubmitting(false)
@@ -382,7 +466,7 @@ export function ConsentPage() {
         <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
         <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
         <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Bank</span>
-        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Email</span>
+        <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Location</span>
         <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Psychometric</span>
         <span className={step === 8 ? 'text-brand-blue font-semibold' : ''}>8. GST (Opt)</span>
       </div>
@@ -781,62 +865,290 @@ export function ConsentPage() {
       )}
 
       {step === 6 && (
-        <Card className='shadow-subtle max-w-md mx-auto'>
+        <Card className='shadow-subtle max-w-lg mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
-              <Mail className='h-5 w-5 text-brand-blue' />
-              Step 6: Gmail Verification
+              <MapPin className='h-5 w-5 text-brand-blue' />
+              Step 6: Location History
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Connect Gmail to automatically verify telecom billing, utilities, and delivery addresses.
+              Provide your current and permanent addresses. You can also add previous places you've lived.
             </CardDescription>
           </CardHeader>
-          <CardContent className='space-y-4'>
-            {!gmailConnected ? (
-              <>
-                <div className='rounded-[12px] bg-sky-wash/20 p-4 border border-sky-wash/30 text-xs text-ink leading-relaxed'>
-                  Gmail scanner checks recharges (Jio, Airtel), order receipts (Amazon, Flipkart), and utility bills to establish consumption reliability and residential geolocations.
-                </div>
+          <CardContent className='space-y-6'>
 
-                <Button
-                  onClick={handleConnectGmail}
-                  disabled={gmailConnecting}
-                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
-                >
-                  {gmailConnecting ? (
-                    <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Linking Account...
-                    </>
-                  ) : (
-                    'Link Gmail Account'
+            {/* === CURRENT ADDRESS === */}
+            <div className='space-y-3'>
+              <div className='flex items-center gap-2'>
+                <Home className='h-4 w-4 text-brand-blue' />
+                <Label className='text-sm font-semibold'>Current Address</Label>
+              </div>
+              {!currentAddress ? (
+                <div className='space-y-2'>
+                  <div className='relative'>
+                    <Input
+                      placeholder='Start typing your current city or area'
+                      value={locAddingType === 'current' ? locSearchQuery : ''}
+                      onFocus={() => { setLocAddingType('current'); setLocSearchQuery(''); setLocSearchResults([]); setLocSelectedPlace(null) }}
+                      onChange={(e) => { setLocAddingType('current'); handlePhotonSearch(e.target.value) }}
+                      className='rounded-[12px] border-dove/80 pr-8'
+                    />
+                    {locSearching && locAddingType === 'current' && <Loader2 className='absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground' />}
+                  </div>
+                  {locAddingType === 'current' && locSearchResults.length > 0 && (
+                    <div className='rounded-[12px] border border-dove/50 bg-background shadow-lg overflow-hidden max-h-[180px] overflow-y-auto'>
+                      {locSearchResults.map((r, i) => (
+                        <button key={`cur-${r.name}-${i}`} onClick={() => handleSelectPlace(r)} className='w-full text-left px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors border-b border-dove/10 last:border-b-0 flex items-center gap-2'>
+                          <MapPin className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+                          <span className='truncate'>{r.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   )}
-                </Button>
-              </>
-            ) : (
-              <div className='space-y-4 animate-fade-up text-center'>
-                <div className='flex flex-col items-center justify-center p-6 bg-brand-blue/5 rounded-[16px] border border-brand-blue/10'>
-                  <ShieldCheck className='h-12 w-12 text-brand-blue' />
-                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>Gmail Connected Successfully</h3>
-                  <p className='text-xs text-graphite mt-1'>
-                    Gmail session synchronized. recharges and receipts parsed.
-                  </p>
+                  {locAddingType === 'current' && locSelectedPlace && (
+                    <div className='animate-fade-up space-y-3 rounded-[12px] bg-brand-blue/5 border border-brand-blue/10 p-4'>
+                      <div className='flex items-center gap-2 text-sm font-medium text-brand-blue'>
+                        <MapPin className='h-4 w-4' />
+                        {locSelectedPlace.name}
+                      </div>
+                      <div className='space-y-1'>
+                        <Label className='text-xs'>Living here since (year)</Label>
+                        <Input
+                          type='number'
+                          min={1970}
+                          max={new Date().getFullYear()}
+                          value={locFromYear}
+                          onChange={(e) => setLocFromYear(parseInt(e.target.value, 10) || new Date().getFullYear())}
+                          className='rounded-[12px] border-dove/80 text-sm'
+                        />
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setCurrentAddress({ place: locSelectedPlace.name, lat: locSelectedPlace.lat, lng: locSelectedPlace.lng, fromYear: locFromYear })
+                          setLocSearchQuery('')
+                          setLocSelectedPlace(null)
+                          setLocSearchResults([])
+                          setLocFromYear(new Date().getFullYear())
+                        }}
+                        size='sm'
+                        className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                      >
+                        Set Current Address
+                      </Button>
+                    </div>
+                  )}
                 </div>
-
-                <div className='bg-sky-wash/30 text-ink p-3 rounded-[12px] text-xs text-left'>
-                  <strong>Estimated Score Update:</strong> Consumption and locality checks added. Estimated score is 610 (Excellent).
+              ) : (
+                <div className='flex items-center gap-3 rounded-[12px] border border-brand-blue/20 bg-brand-blue/5 px-3 py-2.5'>
+                  <MapPin className='h-4 w-4 text-brand-blue shrink-0' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-sm font-medium truncate'>{currentAddress.place}</p>
+                    <p className='text-[10px] text-muted-foreground'>Since {currentAddress.fromYear} — Present</p>
+                  </div>
+                  <button onClick={() => setCurrentAddress(null)} className='text-muted-foreground hover:text-destructive transition-colors'>
+                    <X className='h-4 w-4' />
+                  </button>
                 </div>
+              )}
+            </div>
 
-                <Button
-                  onClick={() => setStep(7)}
-                  className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
-                >
-                  Continue to Questionnaire
-                  <ArrowRight className='h-4 w-4' />
-                </Button>
+            {/* === PERMANENT ADDRESS === */}
+            <div className='space-y-3'>
+              <div className='flex items-center gap-2'>
+                <Home className='h-4 w-4 text-emerald-600' />
+                <Label className='text-sm font-semibold'>Permanent Address</Label>
+              </div>
+              <label className='flex items-center gap-2 cursor-pointer'>
+                <input
+                  type='checkbox'
+                  checked={permanentSameAsCurrent}
+                  onChange={(e) => {
+                    setPermanentSameAsCurrent(e.target.checked)
+                    if (e.target.checked && currentAddress) {
+                      setPermanentAddress({ place: currentAddress.place, lat: currentAddress.lat, lng: currentAddress.lng })
+                    } else if (!e.target.checked) {
+                      setPermanentAddress(null)
+                    }
+                  }}
+                  className='rounded border-dove/80'
+                  disabled={!currentAddress}
+                />
+                <span className='text-xs text-muted-foreground'>Same as current address</span>
+              </label>
+              {!permanentSameAsCurrent && !permanentAddress && (
+                <div className='space-y-2'>
+                  <div className='relative'>
+                    <Input
+                      placeholder='Start typing your permanent address'
+                      value={locAddingType === 'permanent' ? locSearchQuery : ''}
+                      onFocus={() => { setLocAddingType('permanent'); setLocSearchQuery(''); setLocSearchResults([]); setLocSelectedPlace(null) }}
+                      onChange={(e) => { setLocAddingType('permanent'); handlePhotonSearch(e.target.value) }}
+                      className='rounded-[12px] border-dove/80 pr-8'
+                    />
+                    {locSearching && locAddingType === 'permanent' && <Loader2 className='absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground' />}
+                  </div>
+                  {locAddingType === 'permanent' && locSearchResults.length > 0 && (
+                    <div className='rounded-[12px] border border-dove/50 bg-background shadow-lg overflow-hidden max-h-[180px] overflow-y-auto'>
+                      {locSearchResults.map((r, i) => (
+                        <button key={`perm-${r.name}-${i}`} onClick={() => handleSelectPlace(r)} className='w-full text-left px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors border-b border-dove/10 last:border-b-0 flex items-center gap-2'>
+                          <MapPin className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+                          <span className='truncate'>{r.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {locAddingType === 'permanent' && locSelectedPlace && (
+                    <div className='animate-fade-up space-y-3 rounded-[12px] bg-emerald-50 border border-emerald-200 p-4'>
+                      <div className='flex items-center gap-2 text-sm font-medium text-emerald-700'>
+                        <MapPin className='h-4 w-4' />
+                        {locSelectedPlace.name}
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setPermanentAddress({ place: locSelectedPlace.name, lat: locSelectedPlace.lat, lng: locSelectedPlace.lng })
+                          setLocSearchQuery('')
+                          setLocSelectedPlace(null)
+                          setLocSearchResults([])
+                        }}
+                        size='sm'
+                        className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                      >
+                        Set Permanent Address
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!permanentSameAsCurrent && permanentAddress && (
+                <div className='flex items-center gap-3 rounded-[12px] border border-emerald-200 bg-emerald-50 px-3 py-2.5'>
+                  <MapPin className='h-4 w-4 text-emerald-600 shrink-0' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-sm font-medium truncate'>{permanentAddress.place}</p>
+                    <p className='text-[10px] text-muted-foreground'>Permanent address</p>
+                  </div>
+                  <button onClick={() => setPermanentAddress(null)} className='text-muted-foreground hover:text-destructive transition-colors'>
+                    <X className='h-4 w-4' />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* === PREVIOUS PLACES === */}
+            <div className='space-y-3'>
+              <div className='flex items-center justify-between'>
+                <Label className='text-sm font-semibold'>Previous Places Lived</Label>
+                <span className='text-[10px] text-muted-foreground'>Optional — add as many as needed</span>
+              </div>
+
+              {locationEntries.length > 0 && (
+                <div className='space-y-2'>
+                  {locationEntries.map((entry, i) => (
+                    <div key={i} className='flex items-center gap-3 rounded-[12px] border border-dove/30 bg-muted/10 px-3 py-2.5'>
+                      <MapPin className='h-4 w-4 text-muted-foreground shrink-0' />
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium truncate'>{entry.place}</p>
+                        <p className='text-[10px] text-muted-foreground'>
+                          {entry.fromYear} — {entry.toYear === null ? 'Present' : entry.toYear}
+                        </p>
+                      </div>
+                      <button onClick={() => handleRemoveLocation(i)} className='text-muted-foreground hover:text-destructive transition-colors'>
+                        <X className='h-4 w-4' />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className='space-y-2'>
+                <div className='relative'>
+                  <Input
+                    placeholder='Add a previous city or area you lived in'
+                    value={locAddingType === 'previous' ? locSearchQuery : ''}
+                    onFocus={() => { setLocAddingType('previous'); setLocSearchQuery(''); setLocSearchResults([]); setLocSelectedPlace(null) }}
+                    onChange={(e) => { setLocAddingType('previous'); handlePhotonSearch(e.target.value) }}
+                    className='rounded-[12px] border-dove/80 pr-8'
+                  />
+                  {locSearching && locAddingType === 'previous' && <Loader2 className='absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground' />}
+                </div>
+                {locAddingType === 'previous' && locSearchResults.length > 0 && (
+                  <div className='rounded-[12px] border border-dove/50 bg-background shadow-lg overflow-hidden max-h-[180px] overflow-y-auto'>
+                    {locSearchResults.map((r, i) => (
+                      <button key={`prev-${r.name}-${i}`} onClick={() => handleSelectPlace(r)} className='w-full text-left px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors border-b border-dove/10 last:border-b-0 flex items-center gap-2'>
+                        <MapPin className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+                        <span className='truncate'>{r.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {locAddingType === 'previous' && locSelectedPlace && (
+                  <div className='animate-fade-up space-y-3 rounded-[12px] bg-muted/20 border border-dove/30 p-4'>
+                    <div className='flex items-center gap-2 text-sm font-medium'>
+                      <MapPin className='h-4 w-4 text-muted-foreground' />
+                      {locSelectedPlace.name}
+                    </div>
+                    <div className='grid grid-cols-2 gap-3'>
+                      <div className='space-y-1'>
+                        <Label className='text-xs'>From Year</Label>
+                        <Input
+                          type='number' min={1970} max={new Date().getFullYear()}
+                          value={locFromYear}
+                          onChange={(e) => setLocFromYear(parseInt(e.target.value, 10) || new Date().getFullYear())}
+                          className='rounded-[12px] border-dove/80 text-sm'
+                        />
+                      </div>
+                      <div className='space-y-1'>
+                        <Label className='text-xs'>To Year</Label>
+                        <Input
+                          type='number' min={locFromYear} max={new Date().getFullYear()}
+                          value={locToYear || new Date().getFullYear()}
+                          onChange={(e) => setLocToYear(parseInt(e.target.value, 10) || new Date().getFullYear())}
+                          className='rounded-[12px] border-dove/80 text-sm'
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleAddLocation}
+                      size='sm'
+                      className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
+                    >
+                      <Plus className='h-4 w-4' />
+                      Add This Place
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* === MAP TOGGLE === */}
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className='text-xs text-brand-blue hover:underline flex items-center gap-1'
+            >
+              <Map className='h-3.5 w-3.5' />
+              {showMap ? 'Hide map' : 'Or tap on a map instead'}
+            </button>
+
+            {showMap && (
+              <div className='rounded-[12px] border border-dove/30 overflow-hidden h-[300px]'>
+                <LocationMap
+                  onLocationSelect={(name, lat, lng) => {
+                    setLocSelectedPlace({ name, lat, lng })
+                    setLocSearchQuery(name)
+                    setLocSearchResults([])
+                  }}
+                />
               </div>
             )}
-            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: Gmail API read-only OAuth 2.0 authorization</p>}
+
+            <Button
+              onClick={() => setStep(7)}
+              disabled={!currentAddress || (!permanentAddress && !permanentSameAsCurrent)}
+              className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
+            >
+              Continue to Questionnaire
+              <ArrowRight className='h-4 w-4' />
+            </Button>
+            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: Photon (OpenStreetMap) geocoding API + Leaflet map</p>}
           </CardContent>
         </Card>
       )}

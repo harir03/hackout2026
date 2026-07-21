@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
-import { AlertTriangle, ShieldAlert, MessageSquare, Loader2 } from 'lucide-react'
+import { AlertTriangle, ShieldAlert, MessageSquare, Loader2, IndianRupee, Send, Bot, User, CheckCircle2, ChevronDown } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -11,7 +11,14 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { fetchScore, fetchScoreById, fetchUserNotifications } from '@/lib/api'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { fetchScore, fetchScoreById, fetchUserNotifications, submitInterviewSummary } from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
 function bandColor(band: string): string {
@@ -25,65 +32,90 @@ function bandColor(band: string): string {
 }
 
 function scoreGradient(score: number): string {
-  if (score >= 700) return 'url(#gradient-develop)'
-  if (score >= 500) return 'url(#gradient-preview)'
-  return 'url(#gradient-ship)'
+  if (score >= 700) return '#0284c7'
+  if (score >= 500) return '#4b5563'
+  return '#dc2626'
 }
 
-function ShapBar({ feature, maxAbs, ecomSource }: { feature: ShapFeature; maxAbs: number; ecomSource?: string }) {
+function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) {
+  const [expanded, setExpanded] = useState(false)
   const pct = Math.min((Math.abs(feature.points) / maxAbs) * 100, 100)
   const positive = feature.points > 0
 
   return (
-    <div className='flex items-center gap-3 py-1.5'>
-      <div className='w-40 shrink-0 text-right text-xs font-medium text-muted-foreground truncate'>
-        {feature.label.replace(/^(bank_|telecom_|ecom_|loc_|psych_|merchant_)/, '')}
-      </div>
-      <div className='flex flex-1 items-center gap-1'>
-        <div className='relative flex h-5 w-full items-center'>
-          <div className='absolute left-1/2 h-full w-px bg-border' />
-          {positive ? (
-            <div
-              className='absolute left-1/2 h-4 rounded-r bg-brand-blue/80'
-              style={{ width: `${pct / 2}%` }}
-            />
-          ) : (
-            <div
-              className='absolute h-4 rounded-l bg-rust/80'
-              style={{
-                width: `${pct / 2}%`,
-                right: '50%',
-                }}
-              />
-            )}
-          </div>
+    <div className='mb-1'>
+      <button
+        type='button'
+        onClick={() => setExpanded(!expanded)}
+        className='flex items-center gap-3 py-1.5 w-full text-left hover:bg-muted/30 rounded-md px-1 transition-colors group'
+      >
+        <div className='w-40 shrink-0 text-right text-xs font-medium text-muted-foreground truncate'>
+          {feature.label.replace(/^(bank_|telecom_|ecom_|loc_|psych_|merchant_)/, '')}
         </div>
-        <div className='w-20 shrink-0 text-right'>
-          <span
-            className={`text-xs font-semibold ${
-              positive
-                ? 'text-brand-blue'
-                : 'text-rust'
-            }`}
-          >
-          {feature.points > 0 ? '+' : ''}
-          {feature.points.toFixed(1)}
-        </span>
-      </div>
-      <Badge variant='outline' className='w-28 justify-center text-xs'>
-        {feature.worker === 'E-commerce' && ecomSource === 'gmail' ? 'E-commerce (Gmail)' : feature.worker}
-      </Badge>
+        <div className='flex flex-1 items-center gap-1'>
+          <div className='relative flex h-5 w-full items-center'>
+            <div className='absolute left-1/2 h-full w-px bg-border' />
+            {positive ? (
+              <div
+                className='absolute left-1/2 h-4 rounded-r bg-brand-blue/80'
+                style={{ width: `${pct / 2}%` }}
+              />
+            ) : (
+              <div
+                className='absolute h-4 rounded-l bg-rust/80'
+                style={{
+                  width: `${pct / 2}%`,
+                  right: '50%',
+                  }}
+                />
+              )}
+            </div>
+          </div>
+          <div className='w-20 shrink-0 text-right'>
+            <span
+              className={`text-xs font-semibold ${
+                positive
+                  ? 'text-brand-blue'
+                  : 'text-rust'
+              }`}
+            >
+            {feature.points > 0 ? '+' : ''}
+            {feature.points.toFixed(1)}
+          </span>
+        </div>
+        <Badge variant='outline' className='w-28 justify-center text-xs'>
+          {feature.worker}
+        </Badge>
+        <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 shrink-0 ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+      {expanded && feature.explanation && (
+        <div className='ml-[11rem] mr-2 mt-1 mb-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 animate-fade-up'>
+          <p className='text-xs text-muted-foreground leading-relaxed'>{feature.explanation}</p>
+        </div>
+      )}
     </div>
   )
 }
 
 export function ScorePage() {
-  const search = useSearch({ strict: false }) as { userId?: string; sources?: string; consentId?: string; phone?: string; answers?: string }
+  const search = useSearch({ strict: false }) as {
+    userId?: string
+    sources?: string
+    consentId?: string
+    phone?: string
+    answers?: string
+    timeTaken?: string
+    changesCount?: string
+    locationHistory?: string
+  }
   const userId = search.userId || 'test-user-001'
   const consentedSources = search.sources?.split(',').filter(Boolean) ?? []
   const consentId = search.consentId
   const phone = search.phone || ''
   const answers = search.answers
+  const timeTaken = search.timeTaken ? parseInt(search.timeTaken, 10) : undefined
+  const changesCount = search.changesCount ? parseInt(search.changesCount, 10) : undefined
+  const locationHistory = search.locationHistory
 
   const [data, setData] = useState<ScoreResponse | null>(null)
   const [dataLoaded, setDataLoaded] = useState(false)
@@ -96,6 +128,16 @@ export function ScorePage() {
     interest_rate?: number
     terms?: string
   } | null>(null)
+
+  // AI Interview State
+  const [interviewOpen, setInterviewOpen] = useState(false)
+  const [interviewStep, setInterviewStep] = useState(0)
+  const [interviewMessages, setInterviewMessages] = useState<Array<{ role: 'bot' | 'user'; content: string }>>([])
+  const [interviewInput, setInterviewInput] = useState('')
+  const [isInterviewSubmitted, setIsInterviewSubmitted] = useState(false)
+  const [submittingSummary, setSubmittingSummary] = useState(false)
+  const [userAnswersLog, setUserAnswersLog] = useState<string[]>([])
+  const chatEndRef = useRef<HTMLDivElement>(null)
 
   const activePipelines = useMemo(() => {
     return consentedSources.map((s) => {
@@ -111,7 +153,7 @@ export function ScorePage() {
 
   useEffect(() => {
     const request = consentedSources.length > 0
-      ? fetchScore(userId, consentedSources, consentId, phone, answers)
+      ? fetchScore(userId, consentedSources, consentId, phone, answers, timeTaken, changesCount, locationHistory)
       : fetchScoreById(userId, consentId)
     request
       .then((res) => {
@@ -162,6 +204,283 @@ export function ScorePage() {
     if (!sortedShap.length) return 1
     return Math.abs(sortedShap[0].points)
   }, [sortedShap])
+
+  const interviewQuestions = useMemo(() => {
+    if (!data) return []
+
+    const feat = (label: string) => data.shap_details.find(f => f.label === label)
+    const val = (label: string) => feat(label)?.feature_value ?? 0
+
+    const formatInr = (v: number) => {
+      if (v >= 10_000_000) return `₹${(v / 10_000_000).toFixed(1)}Cr`
+      if (v >= 100_000) return `₹${(v / 100_000).toFixed(1)}L`
+      if (v >= 1_000) return `₹${(v / 1_000).toFixed(1)}K`
+      return `₹${v.toFixed(0)}`
+    }
+
+    const questions: Array<{ type: 'conflict' | 'financial' | 'verification'; text: string }> = []
+
+    const gstTurnover = val('merchant_annual_turnover')
+    const gstFiling = val('merchant_filing_regularity')
+    const gstMonths = val('merchant_months_operating')
+    const hasGst = val('merchant_has_gst')
+    const bankInflow = val('bank_avg_monthly_inflow')
+    const bankVolatility = val('bank_balance_volatility')
+    const telecomMissed = val('telecom_missed_payments')
+    const isMetro = val('loc_is_metro')
+    const yearsAtCurrent = val('loc_years_at_current')
+    const addressChanges = val('loc_address_changes_24m')
+    const psychEngagement = val('psych_engagement_score')
+    const psychConsistency = val('psych_consistency')
+    const completionTime = val('psych_completion_time_sec')
+    const straightLine = val('psych_straight_line_ratio')
+    const ecomReturnRate = val('ecom_return_rate')
+    const ecomSpend = val('ecom_avg_monthly_spend')
+    const bankPaymentReg = val('bank_payment_regularity')
+
+    if (hasGst < 0.5 || gstTurnover < 50000) {
+      if (isMetro >= 0.5) {
+        questions.push({ type: 'conflict', text:
+          `Your location data shows you are in a Tier-1 metro city, yet your GST records show ${hasGst < 0.5 ? 'no registered GSTIN' : `an annual turnover of only ${formatInr(gstTurnover)}`}. Operating in a metro with high costs while declaring ${hasGst < 0.5 ? 'no formal revenue' : 'minimal revenue'} is a red flag. Is your business unregistered? Are you operating in cash? Explain exactly how your business generates income.`
+        })
+      }
+      if (bankInflow > 20000) {
+        questions.push({ type: 'conflict', text:
+          `Your bank account receives ${formatInr(bankInflow)}/month in inflows, but your GST records show ${hasGst < 0.5 ? 'no GSTIN' : `only ${formatInr(gstTurnover)} annual turnover`}. Your bank sees ~${formatInr(bankInflow * 12)}/year flowing in, but tax filings account for ${hasGst < 0.5 ? '₹0' : formatInr(gstTurnover)}. Where is this money coming from — salary, informal income, or family transfers? Give exact sources and amounts.`
+        })
+      }
+    } else if (gstTurnover > 100000 && bankInflow < gstTurnover / 24) {
+      questions.push({ type: 'conflict', text:
+        `Your GST filings declare ${formatInr(gstTurnover)} annual turnover (~${formatInr(gstTurnover / 12)}/month revenue). But your bank shows only ${formatInr(bankInflow)}/month inflows — that's ${((bankInflow * 12 / gstTurnover) * 100).toFixed(0)}% of declared revenue. Where is the remaining ${formatInr(gstTurnover / 12 - bankInflow)}/month? Are you collecting cash outside the banking system?`
+      })
+    }
+
+    if (gstFiling < 0.8 && gstMonths > 12) {
+      questions.push({ type: 'conflict', text:
+        `Your business has been operating for ${Math.round(gstMonths)} months, but GST filing regularity is only ${(gstFiling * 100).toFixed(0)}%. That means ~${Math.round((1 - gstFiling) * gstMonths)} filings were late or missed. For a ${Math.round(gstMonths / 12)}-year-old business, this suggests cash flow problems, poor record-keeping, or seasonal gaps. Which is it, and which specific months were missed?`
+      })
+    }
+
+    if (addressChanges > 0 && gstMonths > 12) {
+      questions.push({ type: 'conflict', text:
+        `You changed your address ${Math.round(addressChanges)} time(s) in 24 months, but your business has been operating for ${Math.round(gstMonths)} months. Did you relocate your business too? How did that affect your customer base and revenue? Were there months with zero revenue during the transition?`
+      })
+    }
+
+    if (psychEngagement < 60 && (bankInflow > 30000 || gstTurnover > 200000)) {
+      questions.push({ type: 'conflict', text:
+        `Your financial data looks decent — ${bankInflow > 30000 ? `bank inflows of ${formatInr(bankInflow)}/month` : `GST turnover of ${formatInr(gstTurnover)}`} — but your psychometric assessment scored only ${psychEngagement.toFixed(0)}/100 on financial discipline. This is contradictory: someone earning that much should understand financial basics. Did you rush through the questionnaire, or do your answers genuinely reflect how you manage money?`
+      })
+    }
+
+    if (completionTime < 25 && straightLine > 0.4) {
+      questions.push({ type: 'conflict', text:
+        `You completed a 15-question assessment in ${completionTime.toFixed(0)} seconds with ${(straightLine * 100).toFixed(0)}% identical answers — ${(completionTime / 15).toFixed(1)} seconds per question while selecting the same option repeatedly. This strongly suggests you did not read the questions. Why should we trust your self-reported attitudes if you were not willing to engage?`
+      })
+    }
+
+    if (telecomMissed > 1 && bankInflow > 20000) {
+      questions.push({ type: 'conflict', text:
+        `You have ${Math.round(telecomMissed)} missed telecom payments, yet your bank receives ${formatInr(bankInflow)}/month. If money is coming in, why are you missing a ₹${Math.round(val('telecom_plan_value'))}/month phone bill? Is it carelessness, or are there expenses consuming your income that we cannot see?`
+      })
+    }
+
+    if (bankVolatility > 0.3 && bankPaymentReg < 0.7) {
+      questions.push({ type: 'conflict', text:
+        `Your bank balance swings by ${(bankVolatility * 100).toFixed(0)}% month-to-month and recurring payment regularity is only ${(bankPaymentReg * 100).toFixed(0)}%. If you cannot maintain a stable balance for existing commitments, how will you handle an additional EMI?`
+      })
+    }
+
+    questions.push({ type: 'financial', text:
+      `State your exact monthly take-home income (salary or business profit after all costs). Then list your top 3 fixed monthly expenses (rent, EMIs, utilities) with exact amounts for each. We will cross-verify these against your bank transaction data.`
+    })
+
+    questions.push({ type: 'financial', text:
+      `How much money do you save or invest each month? Where — bank savings, mutual funds, gold, cash at home? If your monthly income is what you stated, and your expenses are what you listed, does the math add up? Walk me through it.`
+    })
+
+    questions.push({ type: 'verification', text:
+      `Do you have any existing loans, EMIs, or credit card outstanding balances? If yes, list each one with the lender name, monthly EMI amount, and remaining tenure. If no, have you ever taken a loan before — when and for how much?`
+    })
+
+    questions.push({ type: 'verification', text:
+      `If we were to verify your income with your employer or your GST CA, would the numbers you just told me match exactly? Is there anything about your financial situation that you have not disclosed — informal debts, family obligations, or pending legal/tax liabilities?`
+    })
+
+    if (questions.length < 5 && data.signal_conflicts.length > 0) {
+      const c = data.signal_conflicts[0]
+      const negFeats = data.shap_details.filter(f => f.worker === c.negative_worker && f.points < 0)
+      const posFeats = data.shap_details.filter(f => f.worker === c.positive_worker && f.points > 0)
+      const topNeg = negFeats[0]
+      const topPos = posFeats[0]
+      if (topNeg && topPos) {
+        questions.push({ type: 'conflict', text:
+          `${topPos.explanation.split('.')[0]}. But on the other hand, ${topNeg.explanation.split('.')[0].toLowerCase()}. These directly contradict each other. Explain precisely what is happening — address both data points specifically.`
+        })
+      }
+    }
+
+    const ordered = [
+      ...questions.filter(q => q.type === 'conflict').slice(0, 4),
+      ...questions.filter(q => q.type === 'financial'),
+      ...questions.filter(q => q.type === 'verification'),
+    ]
+    return ordered.slice(0, 8)
+  }, [data])
+
+  const totalInterviewQuestions = interviewQuestions.length
+
+  const analyzeAnswer = (answer: string, questionIndex: number): { reaction: string; credibility: number } => {
+    const words = answer.trim().split(/\s+/)
+    const wordCount = words.length
+    const hasNumbers = /\d/.test(answer)
+    const hasRupee = /₹|rs|lakh|lac|crore|thousand|k\/month|per month/i.test(answer)
+    const vagueWords = ['sometimes', 'usually', 'maybe', 'probably', 'i think', 'not sure', 'it depends', 'hard to say', 'generally', 'approximately', 'around', 'roughly']
+    const vagueCount = vagueWords.filter(w => answer.toLowerCase().includes(w)).length
+    const deflectionPhrases = ['none of your', 'why do you', 'i don\'t see why', 'that\'s personal', 'i prefer not', 'no comment']
+    const isDeflecting = deflectionPhrases.some(p => answer.toLowerCase().includes(p))
+    const q = interviewQuestions[questionIndex]
+
+    let credibility = 50
+    let reaction = ''
+
+    if (wordCount < 5) {
+      credibility -= 30
+      reaction = `That is an extremely short answer for a question about your financial situation. A one-line response does not inspire confidence.`
+    } else if (wordCount < 15) {
+      credibility -= 15
+      reaction = `Your answer lacks detail. When a loan officer reviews this, they will want specifics — not general statements.`
+    } else if (wordCount > 30) {
+      credibility += 10
+    }
+
+    if (q.type === 'financial' && !hasNumbers && !hasRupee) {
+      credibility -= 20
+      reaction += ` You were asked for exact amounts but did not provide any numbers. This makes your response unverifiable.`
+    } else if (hasNumbers && hasRupee) {
+      credibility += 15
+      if (!reaction) reaction = `Thank you for providing specific numbers.`
+    } else if (hasNumbers) {
+      credibility += 5
+    }
+
+    if (vagueCount >= 2) {
+      credibility -= 15
+      reaction += ` Your answer uses vague language ("${vagueWords.find(w => answer.toLowerCase().includes(w))}") multiple times. This suggests uncertainty about your own financial situation.`
+    }
+
+    if (isDeflecting) {
+      credibility -= 25
+      reaction += ` Refusing to answer a financial verification question is a significant red flag that will be noted in your report.`
+    }
+
+    if (q.type === 'verification' && wordCount > 20 && hasNumbers) {
+      credibility += 20
+      if (!reaction) reaction = `Detailed and verifiable — this strengthens your credibility.`
+    }
+
+    credibility = Math.max(10, Math.min(95, credibility))
+    if (!reaction) reaction = `Recorded.`
+
+    return { reaction: reaction.trim(), credibility }
+  }
+
+  const [answerCredibilities, setAnswerCredibilities] = useState<number[]>([])
+
+  useEffect(() => {
+    if (interviewOpen && interviewMessages.length === 0) {
+      setInterviewMessages([
+        {
+          role: 'bot',
+          content: `I am the AltGrade AI Verification Auditor. I've found contradictions in your scoring data that require clarification.\n\nThis interview has ${totalInterviewQuestions} questions in 3 phases:\n• Conflict Resolution — explain data contradictions\n• Financial Verification — provide exact income and expense figures\n• Cross-Verification — confirm consistency and disclose obligations\n\nYour answers will be scored for credibility and sent to the Loan Officer.\n\nQuestion 1 of ${totalInterviewQuestions} [${interviewQuestions[0]?.type?.toUpperCase()}]:\n${interviewQuestions[0]?.text}`
+        }
+      ])
+      setInterviewStep(0)
+      setIsInterviewSubmitted(false)
+      setUserAnswersLog([])
+      setAnswerCredibilities([])
+    }
+  }, [interviewOpen, interviewQuestions, totalInterviewQuestions])
+
+  const handleSendInterviewMessage = async () => {
+    if (!interviewInput.trim()) return
+    const userMsg = interviewInput.trim()
+    setInterviewInput('')
+
+    const updatedMessages = [...interviewMessages, { role: 'user' as const, content: userMsg }]
+    const updatedAnswersLog = [...userAnswersLog, userMsg]
+    setInterviewMessages(updatedMessages)
+    setUserAnswersLog(updatedAnswersLog)
+
+    const { reaction, credibility } = analyzeAnswer(userMsg, interviewStep)
+    const updatedCredibilities = [...answerCredibilities, credibility]
+    setAnswerCredibilities(updatedCredibilities)
+
+    setTimeout(async () => {
+      if (interviewStep < totalInterviewQuestions - 1) {
+        const nextStep = interviewStep + 1
+        setInterviewStep(nextStep)
+        const nextQ = interviewQuestions[nextStep]
+        const credLabel = credibility >= 70 ? '✓ Credible' : credibility >= 40 ? '⚠ Needs verification' : '✗ Low credibility'
+
+        setInterviewMessages((prev) => [
+          ...prev,
+          {
+            role: 'bot',
+            content: `[Answer credibility: ${credLabel} (${credibility}/100)]\n\n${reaction}\n\nQuestion ${nextStep + 1} of ${totalInterviewQuestions} [${nextQ.type.toUpperCase()}]:\n${nextQ.text}`
+          }
+        ])
+        setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+      } else {
+        setSubmittingSummary(true)
+        const avgCred = Math.round(updatedCredibilities.reduce((a, b) => a + b, 0) / updatedCredibilities.length)
+        const overallLabel = avgCred >= 70 ? 'HIGH' : avgCred >= 45 ? 'MEDIUM' : 'LOW'
+
+        const credLabel = credibility >= 70 ? '✓ Credible' : credibility >= 40 ? '⚠ Needs verification' : '✗ Low credibility'
+
+        setInterviewMessages((prev) => [
+          ...prev,
+          {
+            role: 'bot',
+            content: `[Answer credibility: ${credLabel} (${credibility}/100)]\n\n${reaction}\n\n━━━ Interview Complete ━━━\n\nOverall Credibility Score: ${avgCred}/100 (${overallLabel})\n\nCompiling detailed report with per-answer analysis and forwarding to your Loan Officer...`
+          }
+        ])
+        setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+
+        const summaryLines = updatedAnswersLog.map((ans, i) => {
+          const cred = updatedCredibilities[i] || 50
+          const label = cred >= 70 ? 'CREDIBLE' : cred >= 40 ? 'NEEDS_VERIFICATION' : 'LOW_CREDIBILITY'
+          return `[${interviewQuestions[i].type.toUpperCase()}] Q${i + 1}: "${interviewQuestions[i].text}"\nAnswer: "${ans}"\nCredibility: ${cred}/100 (${label})`
+        }).join('\n\n')
+        const summary = `AI VERIFICATION INTERVIEW REPORT\nDate: ${new Date().toISOString().split('T')[0]}\nOverall Credibility: ${avgCred}/100 (${overallLabel})\nQuestions: ${totalInterviewQuestions} (${interviewQuestions.filter(q => q.type === 'conflict').length} conflict, ${interviewQuestions.filter(q => q.type === 'financial').length} financial, ${interviewQuestions.filter(q => q.type === 'verification').length} verification)\n\n${summaryLines}\n\nRECOMMENDATION: ${avgCred >= 70 ? 'Applicant responses are detailed and consistent. Proceed with standard verification.' : avgCred >= 45 ? 'Some answers lack specificity. Recommend manual follow-up on financial verification answers.' : 'Multiple evasive or vague answers detected. Recommend in-person interview before proceeding.'}`
+
+        try {
+          await submitInterviewSummary(userId, summary)
+          setInterviewMessages((prev) => [
+            ...prev,
+            {
+              role: 'bot',
+              content: `Report submitted to Loan Officer.\n\nYour overall credibility score is ${avgCred}/100 (${overallLabel}). ${avgCred >= 70 ? 'Your responses were detailed and consistent.' : avgCred >= 45 ? 'Some of your answers need further verification.' : 'Several of your answers were flagged as evasive or vague.'}\n\nYou may now close this window.`
+            }
+          ])
+          setIsInterviewSubmitted(true)
+        } catch (err) {
+          console.error("Failed to submit summary:", err)
+          setInterviewMessages((prev) => [
+            ...prev,
+            {
+              role: 'bot',
+              content: "Submission failed, but your responses have been saved locally. You may close this window."
+            }
+          ])
+          setIsInterviewSubmitted(true)
+        } finally {
+          setSubmittingSummary(false)
+          setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+        }
+      }
+    }, 1200)
+  }
 
   if (loading) {
     return (
@@ -256,20 +575,6 @@ export function ScorePage() {
           <CardContent className='flex flex-col items-center justify-center py-8'>
             <div className='relative flex h-40 w-40 items-center justify-center'>
               <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
-                <defs>
-                  <linearGradient id='gradient-develop' x1='0%' y1='0%' x2='100%' y2='0%'>
-                    <stop offset='0%' stopColor='#007cf0' />
-                    <stop offset='100%' stopColor='#a3a6af' />
-                  </linearGradient>
-                  <linearGradient id='gradient-preview' x1='0%' y1='0%' x2='100%' y2='0%'>
-                    <stop offset='0%' stopColor='#a3a6af' />
-                    <stop offset='100%' stopColor='#5d2a1a' />
-                  </linearGradient>
-                  <linearGradient id='gradient-ship' x1='0%' y1='0%' x2='100%' y2='0%'>
-                    <stop offset='0%' stopColor='#5d2a1a' />
-                    <stop offset='100%' stopColor='#ee0000' />
-                  </linearGradient>
-                </defs>
                 <circle
                   cx='50' cy='50' r='42'
                   fill='none'
@@ -305,12 +610,12 @@ export function ScorePage() {
           <CardHeader>
             <CardTitle className='text-base'>What Affected Your Score</CardTitle>
             <CardDescription>
-              How each factor contributed (baseline: 600)
+              How each factor contributed (baseline: 600). Click any row for a detailed explanation.
             </CardDescription>
           </CardHeader>
-          <CardContent className='max-h-[400px] overflow-y-auto'>
+          <CardContent className='max-h-[500px] overflow-y-auto'>
             {sortedShap.map((feat) => (
-              <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} ecomSource={data.ecom_source} />
+              <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} />
             ))}
           </CardContent>
         </Card>
@@ -331,13 +636,25 @@ export function ScorePage() {
       {data.has_conflicts && (
         <Card className='mt-4 border-rust/30 shadow-none'>
           <CardHeader>
-            <CardTitle className='flex items-center gap-2 text-base text-rust'>
-              <AlertTriangle className='h-4 w-4' />
-              Conflicting Signals
-            </CardTitle>
-            <CardDescription>
-              Some of your data sources provided contradicting information
-            </CardDescription>
+            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+              <div>
+                <CardTitle className='flex items-center gap-2 text-base text-rust'>
+                  <AlertTriangle className='h-4 w-4' />
+                  Conflicting Signals
+                </CardTitle>
+                <CardDescription>
+                  Some of your data sources provided contradicting information
+                </CardDescription>
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                className='border-rust/40 text-rust hover:bg-rust/5 font-semibold text-xs rounded-full'
+                onClick={() => setInterviewOpen(true)}
+              >
+                Resolve via AI Interview
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className='space-y-3'>
             {data.signal_conflicts.map((conflict, i) => (
@@ -368,8 +685,17 @@ export function ScorePage() {
       )}
 
       <div className='mt-6 flex gap-3'>
-        <Link to='/advisor' search={{ userId }}>
+        <Link
+          to='/eligibility'
+          search={{ userId, score: String(data.score), band: data.risk_band }}
+        >
           <Button>
+            <IndianRupee className='mr-2 h-4 w-4' />
+            View Loan Eligibility
+          </Button>
+        </Link>
+        <Link to='/advisor' search={{ userId }}>
+          <Button variant='outline'>
             <MessageSquare className='mr-2 h-4 w-4' />
             Ask About Your Score
           </Button>
@@ -378,6 +704,72 @@ export function ScorePage() {
           <Button variant='ghost'>Modify Consent</Button>
         </Link>
       </div>
+
+      {/* AI Conflict Resolution Interview Modal */}
+      <Dialog open={interviewOpen} onOpenChange={setInterviewOpen}>
+        <DialogContent className='sm:max-w-[500px] max-h-[80vh] flex flex-col p-6 bg-neutral-950 border-neutral-800 text-foreground rounded-2xl'>
+          <DialogHeader className='pb-3 border-b border-neutral-800 shrink-0'>
+            <DialogTitle className='flex items-center gap-2 text-rust tracking-tight'>
+              <AlertTriangle className='h-5 w-5' />
+              AI Verification Interview
+            </DialogTitle>
+            <DialogDescription className='text-xs text-neutral-400'>
+              Your answers are scored for credibility and sent to the Loan Officer.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Conversation history area */}
+          <div className='flex-1 overflow-y-auto py-4 space-y-4 pr-1 min-h-[250px]'>
+            {interviewMessages.map((msg, i) => (
+              <div key={i} className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {msg.role === 'bot' && (
+                  <div className='h-7 w-7 rounded-full bg-rust/10 flex items-center justify-center shrink-0 border border-rust/20'>
+                    <Bot className='h-4 w-4 text-rust' />
+                  </div>
+                )}
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-wrap ${
+                  msg.role === 'user'
+                    ? 'bg-neutral-200 text-neutral-950 rounded-tr-none'
+                    : 'bg-neutral-900 border border-neutral-800 text-neutral-200 rounded-tl-none'
+                }`}>
+                  {msg.content}
+                </div>
+                {msg.role === 'user' && (
+                  <div className='h-7 w-7 rounded-full bg-brand-blue/10 flex items-center justify-center shrink-0 border border-brand-blue/20'>
+                    <User className='h-4 w-4 text-brand-blue' />
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input field */}
+          <div className='pt-3 border-t border-neutral-800 shrink-0 flex gap-2'>
+            <input
+              type='text'
+              value={interviewInput}
+              onChange={(e) => setInterviewInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !isInterviewSubmitted && handleSendInterviewMessage()}
+              placeholder={isInterviewSubmitted ? 'Conversation finished.' : 'Explain details here...'}
+              disabled={isInterviewSubmitted || submittingSummary}
+              className='flex-1 rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-rust disabled:opacity-50'
+            />
+            <Button
+              size='sm'
+              onClick={handleSendInterviewMessage}
+              disabled={isInterviewSubmitted || submittingSummary || !interviewInput.trim()}
+              className='rounded-xl bg-rust text-white hover:bg-rust/90 px-4 h-9 text-xs font-medium gap-1.5'
+            >
+              {submittingSummary ? (
+                <Loader2 className='h-3.5 w-3.5 animate-spin' />
+              ) : (
+                <><Send className='h-3.5 w-3.5' /> Send</>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

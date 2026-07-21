@@ -337,6 +337,7 @@ async def _build_response(
     time_taken_ms: int | None = None,
     changes_count: int | None = None,
     bypass_cache: bool = False,
+    location_history: list[dict] | None = None,
 ) -> ScoreResponse:
     import json
     if not bypass_cache:
@@ -423,6 +424,28 @@ async def _build_response(
             feat_dict[k] = v
     ecom_source = "simulated"
 
+    if location_history and len(location_history) > 0:
+        METRO_CITIES = {
+            "delhi", "mumbai", "bangalore", "bengaluru", "chennai", "kolkata",
+            "hyderabad", "pune", "ahmedabad", "jaipur", "lucknow", "surat",
+            "kanpur", "nagpur", "indore", "thane", "bhopal", "visakhapatnam",
+            "patna", "vadodara", "ghaziabad", "ludhiana", "coimbatore", "kochi",
+            "chandigarh", "gurgaon", "gurugram", "noida", "navi mumbai",
+        }
+        current_year = 2026
+        current_entry = location_history[0]
+        current_from = current_entry.get("fromYear", current_year)
+        years_at_current = max(0, current_year - current_from)
+        address_changes = max(0, len(location_history) - 1)
+
+        place_name = current_entry.get("place", "").lower()
+        is_metro = any(city in place_name for city in METRO_CITIES)
+
+        feat_dict["loc_address_changes_24m"] = min(address_changes, 5)
+        feat_dict["loc_years_at_current"] = years_at_current
+        feat_dict["loc_is_metro"] = 1 if is_metro else 0
+        feat_dict["loc_owns_home"] = 1 if years_at_current >= 5 else 0
+
     return await _build_response_with_features(user_id, tier, engine, rng, feat_dict, consent_id, ecom_source, profile_data, answers)
 
 
@@ -443,6 +466,7 @@ async def post_score(body: ScoreRequest) -> ScoreResponse:
         body.time_taken_ms,
         body.changes_count,
         bypass_cache=True,
+        location_history=body.location_history,
     )
 
 

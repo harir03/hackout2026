@@ -48,26 +48,72 @@ def _build_applicant_context(score_result: dict[str, Any]) -> str:
 
     shap = score_result.get("shap_details", [])
     if shap:
-        top_positive = [f for f in shap if f["points"] > 0][:3]
+        top_positive = [f for f in shap if f["points"] > 0][:5]
         top_negative = [f for f in shap if f["points"] < 0][:5]
 
         if top_positive:
-            pos_lines = [f"{f['worker']}/{f['label']}: {f['points']:+.1f} pts" for f in top_positive]
+            pos_lines = [f"{f['worker']}/{f['label']}: {f['points']:+.1f} pts (value: {f.get('feature_value')})" for f in top_positive]
             lines.append(f"Top Positive Factors: {', '.join(pos_lines)}")
 
         if top_negative:
-            neg_lines = [f"{f['worker']}/{f['label']}: {f['points']:+.1f} pts" for f in top_negative]
+            neg_lines = [f"{f['worker']}/{f['label']}: {f['points']:+.1f} pts (value: {f.get('feature_value')})" for f in top_negative]
             lines.append(f"Top Negative Factors: {', '.join(neg_lines)}")
 
     if user_id:
+        project_root = Path(__file__).resolve().parents[3]
+        
+        # 1. Load profiles.json for raw values (e.g. city: Bengaluru)
         try:
-            summaries_file = Path(__file__).resolve().parents[2] / "demo_data" / "interview_summaries.json"
+            profiles_file = project_root / "demo_data" / "profiles.json"
+            if profiles_file.exists():
+                profiles = json.loads(profiles_file.read_text())
+                search_id = user_id.lower()
+                if search_id in ("testhari@altgrade.in", "hari@altgrade.in"):
+                    search_id = "hari"
+                if search_id in profiles:
+                    prof = profiles[search_id]
+                    lines.append(f"Applicant Profile Metadata: Mobile={prof.get('mobile')}, Risk Profile={prof.get('risk_profile')}")
+                    if "location_data" in prof:
+                        lines.append(f"Location Data: {json.dumps(prof['location_data'])}")
+                    if "bank_data" in prof:
+                        lines.append(f"Bank Data: {json.dumps(prof['bank_data'])}")
+                    if "ecommerce_data" in prof:
+                        lines.append(f"E-commerce Data: {json.dumps(prof['ecommerce_data'])}")
+                    if "gst_data" in prof:
+                        lines.append(f"GST/Merchant Data: {json.dumps(prof['gst_data'])}")
+                    if "questionnaire_data" in prof:
+                        lines.append(f"Questionnaire Data: {json.dumps(prof['questionnaire_data'])}")
+        except Exception as e:
+            print(f"Failed to load profile in advisor context: {e}")
+
+        # 2. Load interview_summaries.json for applicant answers
+        try:
+            summaries_file = project_root / "demo_data" / "interview_summaries.json"
             if summaries_file.exists():
                 summaries = json.loads(summaries_file.read_text())
                 if user_id in summaries:
-                    lines.append(f"AI Conflict Interview Debate Summary (what applicant answered when cross-questioned): {summaries[user_id]}")
+                    lines.append(f"AI Conflict/Verification Interview Report (applicant's exact answers and credibility scores):\n{summaries[user_id]}")
         except Exception as e:
             print(f"Failed to load interview summary in advisor context: {e}")
+
+        # 3. Load notifications.json for previous decisions/notes
+        try:
+            notifs_file = project_root / "demo_data" / "notifications.json"
+            if notifs_file.exists():
+                notifs = json.loads(notifs_file.read_text())
+                if user_id in notifs:
+                    n = notifs[user_id]
+                    lines.append(
+                        f"Previous Loan Officer Decision Details:\n"
+                        f"- Decision: {n.get('decision')}\n"
+                        f"- Approved Amount: \u20b9{n.get('loan_amount') or 'N/A'}\n"
+                        f"- Interest Rate: {n.get('interest_rate') or 'N/A'}%\n"
+                        f"- Repayment Terms: {n.get('terms') or 'N/A'}\n"
+                        f"- Officer Decision Notes/Reasoning: {n.get('notes') or 'None'}\n"
+                        f"- Timestamp: {n.get('timestamp')}"
+                    )
+        except Exception as e:
+            print(f"Failed to load previous officer decision notes in advisor context: {e}")
 
     return "\n".join(lines)
 

@@ -9,6 +9,11 @@ import {
   Loader2,
   Bot,
   User,
+  IndianRupee,
+  Percent,
+  Clock,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react'
 import {
   Card,
@@ -30,9 +35,9 @@ import {
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { fetchDashboard, submitDecision, submitKnowledge, askAdvisor, fetchApplicantProfile } from '@/lib/api'
+import { fetchDashboard, submitDecision, submitKnowledge, askAdvisor, fetchApplicantProfile, fetchEligibility, fetchInterviewSummary } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
-import type { DashboardOverview, ConflictApplicant } from '@/lib/types'
+import type { DashboardOverview, ConflictApplicant, EligibilityResponse } from '@/lib/types'
 import {
   Dialog,
   DialogContent,
@@ -418,13 +423,18 @@ export function LoanOfficerDashboard() {
 
   const [selectedApplicant, setSelectedApplicant] = useState<ConflictApplicant | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
   const [decision, setDecision] = useState<'approved' | 'rejected'>('approved')
   const [interestRate, setInterestRate] = useState(10.5)
   const [terms, setTerms] = useState('36 months')
+  const [approvedAmount, setApprovedAmount] = useState<number>(200000)
+  const [interviewSummary, setInterviewSummary] = useState<string>('')
+  const [summaryLoading, setSummaryLoading] = useState(false)
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [completedDecisions, setCompletedDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
   const [currentStep, setCurrentStep] = useState(1)
+
 
   const [applicantProfile, setApplicantProfile] = useState<{
     shap_details: Array<{ label: string; points: number; worker: string }>
@@ -436,6 +446,9 @@ export function LoanOfficerDashboard() {
   const [advisorInput, setAdvisorInput] = useState('')
   const [advisorLoading, setAdvisorLoading] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  const [eligibility, setEligibility] = useState<EligibilityResponse | null>(null)
+  const [eligibilityLoading, setEligibilityLoading] = useState(false)
 
   useEffect(() => {
     const isAdminNoMock = user?.email === 'admin@altgrade.in' || user?.email === 'admin@altgrade.com'
@@ -468,18 +481,46 @@ export function LoanOfficerDashboard() {
     setDecision(applicant.score >= 600 ? 'approved' : 'rejected')
     setInterestRate(10.5)
     setTerms('36 months')
+    setApprovedAmount(200000)
+    setInterviewSummary('')
     setNotes('')
     setCurrentStep(1)
     setAdvisorMessages([])
     setAdvisorInput('')
     setApplicantProfile(null)
     setDialogOpen(true)
+    setIsExpanded(false)
 
     setProfileLoading(true)
     fetchApplicantProfile(applicant.user_id)
       .then((p) => setApplicantProfile({ shap_details: p.shap_details, tier: p.tier }))
       .catch(() => setApplicantProfile(null))
       .finally(() => setProfileLoading(false))
+
+    setSummaryLoading(true)
+    fetchInterviewSummary(applicant.user_id)
+      .then((res) => {
+        if (res.summary) {
+          setInterviewSummary(res.summary)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setSummaryLoading(false))
+
+    setEligibilityLoading(true)
+    setEligibility(null)
+    fetchEligibility(applicant.user_id, applicant.score, applicant.band)
+      .then((e) => {
+        setEligibility(e)
+        if (e.is_eligible) {
+          setInterestRate(e.interest_rate_annual)
+          setApprovedAmount(e.max_loan_amount)
+          const maxTenure = e.tenure_options[e.tenure_options.length - 1]
+          if (maxTenure) setTerms(`${maxTenure.tenure_months} months`)
+        }
+      })
+      .catch(() => setEligibility(null))
+      .finally(() => setEligibilityLoading(false))
   }
 
   async function handleAdvisorAsk() {
@@ -503,11 +544,11 @@ export function LoanOfficerDashboard() {
     if (!selectedApplicant) return
     setSubmitting(true)
     try {
-      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms, notes)
+      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms, notes, approvedAmount)
       const chatLog = advisorMessages.map((m) => ({ role: m.role === 'advisor' ? 'assistant' : 'officer', content: m.content }))
       await submitKnowledge(selectedApplicant.user_id, notes, [
         { role: 'system', content: `Applicant core score: ${selectedApplicant.score}. Conflicting signals: ${selectedApplicant.conflicts.join(', ')}` },
-        { role: 'officer', content: `Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` },
+        { role: 'officer', content: `Approved Amount: ₹${approvedAmount}. Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` },
         ...chatLog,
       ])
 
@@ -573,9 +614,23 @@ export function LoanOfficerDashboard() {
 
       {selectedApplicant && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className='sm:max-w-[640px] max-h-[85vh] overflow-y-auto'>
-            <DialogHeader>
-              <DialogTitle className='tracking-tight'>Review Credit Application</DialogTitle>
+          <DialogContent className={`transition-all duration-300 flex flex-col ${
+            isExpanded
+              ? 'max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] md:max-w-[95vw] lg:max-w-[95vw] xl:max-w-[95vw] p-6'
+              : 'sm:max-w-[640px] max-h-[85vh] overflow-y-auto'
+          }`}>
+            <DialogHeader className='relative pr-10 shrink-0'>
+              <div className='flex items-center justify-between'>
+                <DialogTitle className='tracking-tight'>Review Credit Application</DialogTitle>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className='absolute right-10 top-0 h-6 w-6 text-muted-foreground hover:text-foreground'
+                >
+                  {isExpanded ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
+                </Button>
+              </div>
               <DialogDescription>
                 Inspect per-source scores, consult the AI advisor, then log your final decision.
               </DialogDescription>
@@ -592,11 +647,11 @@ export function LoanOfficerDashboard() {
               backButtonProps={{
                 disabled: submitting
               }}
-              stepCircleContainerClassName='border-0 shadow-none bg-transparent w-full p-0'
-              className='w-full p-0 min-h-0 aspect-auto bg-transparent border-0 flex-none'
+              stepCircleContainerClassName='border-0 shadow-none bg-transparent w-full p-0 shrink-0'
+              className={`w-full p-0 min-h-0 aspect-auto bg-transparent border-0 flex-1 flex flex-col ${isExpanded ? 'overflow-hidden' : 'flex-none'}`}
             >
               <Step>
-                <div className='space-y-4 py-2 text-sm'>
+                <div className={`space-y-4 py-2 text-sm ${isExpanded ? 'overflow-y-auto max-h-[70vh] pr-2' : ''}`}>
                   <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 1: Per-Source Score Breakdown</h3>
                   <div className='rounded-lg bg-neutral-50 p-3.5 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 space-y-2.5'>
                     <div className='flex justify-between'>
@@ -658,15 +713,59 @@ export function LoanOfficerDashboard() {
                       <p key={i} className='text-xs text-muted-foreground leading-relaxed'>• {c}</p>
                     ))}
                   </div>
+
+                  {summaryLoading ? (
+                    <div className='space-y-1.5 pt-2 border-t border-neutral-100 dark:border-neutral-800'>
+                      <span className='text-xs font-medium text-neutral-500 uppercase tracking-wider block'>AI Conflict Interview</span>
+                      <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
+                        <Loader2 className='h-3 w-3 animate-spin text-neutral-500' /> Loading interview summary...
+                      </div>
+                    </div>
+                  ) : interviewSummary ? (
+                    <div className='space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-100/50 dark:bg-neutral-900/50 p-2.5 rounded-lg border border-rust/10'>
+                      <span className='text-xs font-semibold text-rust uppercase tracking-wider block'>AI Conflict Interview Summary</span>
+                      <p className='text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap'>{interviewSummary}</p>
+                    </div>
+                  ) : null}
+
+                  <div className='space-y-2 pt-2 border-t border-neutral-100 dark:border-neutral-800'>
+                    <span className='text-xs font-medium text-neutral-500 uppercase tracking-wider'>Loan Eligibility</span>
+                    {eligibilityLoading ? (
+                      <div className='flex items-center gap-2 text-muted-foreground'>
+                        <Loader2 className='h-3 w-3 animate-spin' />
+                        <span className='text-xs'>Loading eligibility...</span>
+                      </div>
+                    ) : eligibility?.is_eligible ? (
+                      <div className='grid grid-cols-3 gap-2'>
+                        <div className='rounded-lg bg-brand-blue/5 border border-brand-blue/20 p-2.5 text-center'>
+                          <IndianRupee className='h-3.5 w-3.5 text-brand-blue mx-auto mb-1' />
+                          <div className='text-sm font-bold'>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(eligibility.max_loan_amount)}</div>
+                          <div className='text-[10px] text-muted-foreground'>Max Amount</div>
+                        </div>
+                        <div className='rounded-lg bg-brand-blue/5 border border-brand-blue/20 p-2.5 text-center'>
+                          <Percent className='h-3.5 w-3.5 text-brand-blue mx-auto mb-1' />
+                          <div className='text-sm font-bold'>{eligibility.interest_rate_annual}%</div>
+                          <div className='text-[10px] text-muted-foreground'>Annual Rate</div>
+                        </div>
+                        <div className='rounded-lg bg-brand-blue/5 border border-brand-blue/20 p-2.5 text-center'>
+                          <Clock className='h-3.5 w-3.5 text-brand-blue mx-auto mb-1' />
+                          <div className='text-sm font-bold'>{eligibility.tenure_options[eligibility.tenure_options.length - 1]?.tenure_months || 0}m</div>
+                          <div className='text-[10px] text-muted-foreground'>Max Tenure</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className='text-xs text-rust'>Not eligible for loan based on current score.</p>
+                    )}
+                  </div>
                 </div>
               </Step>
 
               <Step>
-                <div className='space-y-3 py-2 text-sm'>
+                <div className={`space-y-3 py-2 text-sm ${isExpanded ? 'flex flex-col flex-1 overflow-hidden h-[70vh] pr-2' : ''}`}>
                   <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 2: AI Credit Advisor</h3>
-                  <p className='text-xs text-muted-foreground'>Ask the AI about this applicant&apos;s score factors, risk indicators, or regulatory context.</p>
+                  <p className='text-xs text-muted-foreground shrink-0'>Ask the AI about this applicant&apos;s score factors, risk indicators, or regulatory context.</p>
 
-                  <div className='rounded-lg border border-neutral-200 dark:border-neutral-800 h-[240px] flex flex-col'>
+                  <div className={`rounded-lg border border-neutral-200 dark:border-neutral-800 flex flex-col transition-all duration-300 ${isExpanded ? 'flex-1 min-h-[300px]' : 'h-[240px]'}`}>
                     <div className='flex-1 overflow-y-auto p-3 space-y-3'>
                       {advisorMessages.length === 0 && (
                         <div className='flex flex-col items-center justify-center h-full gap-2 text-muted-foreground'>
@@ -735,7 +834,7 @@ export function LoanOfficerDashboard() {
               </Step>
 
               <Step>
-                <div className='space-y-4 py-2 text-sm'>
+                <div className={`space-y-4 py-2 text-sm ${isExpanded ? 'overflow-y-auto max-h-[70vh] pr-2' : ''}`}>
                   <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Credit Decision</h3>
                   <div className='space-y-3.5'>
                     <div className='space-y-1.5'>
@@ -752,7 +851,16 @@ export function LoanOfficerDashboard() {
                     </div>
 
                     {decision === 'approved' && (
-                      <div className='grid grid-cols-2 gap-3.5'>
+                      <div className='grid grid-cols-2 gap-3.5 animate-fade-up'>
+                        <div className='col-span-2 space-y-1.5'>
+                          <Label htmlFor='amount'>Approved Loan Amount (₹)</Label>
+                          <Input
+                            id='amount'
+                            type='number'
+                            value={approvedAmount}
+                            onChange={(e) => setApprovedAmount(parseInt(e.target.value, 10) || 0)}
+                          />
+                        </div>
                         <div className='space-y-1.5'>
                           <Label htmlFor='rate'>Interest Rate (%)</Label>
                           <Input
@@ -778,7 +886,7 @@ export function LoanOfficerDashboard() {
               </Step>
 
               <Step>
-                <div className='space-y-4 py-2 text-sm'>
+                <div className={`space-y-4 py-2 text-sm ${isExpanded ? 'overflow-y-auto max-h-[70vh] pr-2' : ''}`}>
                   <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 4: Reasoning & Audit Log</h3>
                   <div className='space-y-1.5'>
                     <Label htmlFor='notes'>Decision Notes & Reasoning</Label>

@@ -1,10 +1,12 @@
 {
   "testhari@altgrade.in": {
     "user_id": "testhari@altgrade.in",
-    "decision": "rejected",
+    "decision": "approved",
     "interest_rate": 10.5,
-    "terms": "36 months",
-    "timestamp": "2026-06-30T18:19:57.130300+00:00"
+    "terms": "60 months",
+    "notes": "ik hinm ",
+    "loan_amount": 1000000,
+    "timestamp": "2026-07-19T09:37:03.219385+00:00"
   },
   "USR-8931A": {
     "user_id": "USR-8931A",
@@ -20,7 +22,8 @@
     "interest_rate": 11.25,
     "terms": "36 months",
     "notes": "",
-    "timestamp": "2026-07-07T11:21:34.334982+00:00"
+    "loan_amount": null,
+    "timestamp": "2026-07-19T01:23:54.475085+00:00"
   },
   "test-user-decision": {
     "user_id": "test-user-decision",
@@ -28,6 +31,7 @@
     "interest_rate": 10.5,
     "terms": "36 months",
     "notes": "",
-    "timestamp": "2026-07-07T11:22:01.999564+00:00"
+    "loan_amount": null,
+    "timestamp": "2026-07-19T01:24:19.687437+00:00"
   }
 }
