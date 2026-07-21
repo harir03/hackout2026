@@ -1,4 +1,4 @@
-# AltGrade — Alternate Credit Scoring
+# AltGrade - Alternate Credit Scoring
 > AI-powered alternate credit scoring for individuals and MSMEs with no credit history — built for underserved India.
 
 ---
