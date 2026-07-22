@@ -1,281 +1,269 @@
-# AltGrade - Alternate Credit Scoring
-> AI-powered alternate credit scoring for individuals and MSMEs with no credit history — built for underserved India.
+# AltGrade — Alternate Credit Scoring & AI Financial Inclusion Engine
+
+> **PSB Hackathon 2026 — Problem Statement 1 (PS1)**  
+> AI-powered alternate credit scoring for credit-invisible individuals, farmers, and MSMEs in India — built with explainable ML, local RAG advisory, multi-signal conflict resolution, and multilingual voice interaction.
 
 ---
 
-## The Problem
+## 🔑 Demo Accounts & Login Credentials
 
-Over 500 million Indians and countless MSMEs are locked out of formal credit — not because they're financially irresponsible, but because they've never borrowed before. Banks require credit history to give loans, but you need a loan to build credit history. AltGrade breaks this cycle.
+Use the following pre-configured credentials to test different applicant profiles, scoring tiers, and officer dashboard capabilities.
 
----
-
-## What We Built
-
-A consent-gated alternate credit scoring system that evaluates loan eligibility using six everyday data signals instead of traditional credit history. The system produces an explainable 0–850 score with per-feature reasoning, a RAG-based loan advisor, and a fairness audit — all in under 60 seconds.
-
----
-
-## How It Works
-
-### 1. Consent Layer
-The user explicitly consents to each data source individually before anything is accessed. Partial consent is handled gracefully — the system scores with whatever is available, adjusting the score ceiling based on data completeness. Compliant with India's DPDP Act 2023.
-
-### 2. Six Parallel Data Workers
-Six workers fire simultaneously, each with a single responsibility:
-
-| Worker | Data Source | Key Signal |
-|--------|-------------|------------|
-| D1 | UPI & Bank Cash Flow | Income regularity, EMI patterns, balance trend |
-| D2 | Telecom & Utility Bills | 24-month payment consistency |
-| D3 | E-Commerce Behavior | Return rate, basket growth, EMI purchase ratio |
-| D4 | Geolocation Stability | District-level home/work stability (no GPS coordinates stored) |
-| D5 | Psychometric Questionnaire | Financial responsibility, risk tolerance, future orientation |
-| D6 | Merchant & GST Ratings | Business longevity, fulfillment consistency (MSME path) |
-
-### 3. Two-Tier Feature Architecture
-- **Tier 1** — Zero history users: D2 + D4 + D5 only. Simpler model, lower ceiling, still fair.
-- **Tier 2** — Users with some digital footprint: Full D1–D6. Blended ensemble model.
-
-### 4. Blended ML Engine
-XGBoost and LightGBM run independently and their predictions are blended for higher accuracy. Isotonic calibration converts the raw output into a true probability — so a 70% default risk score actually reflects a 70% historical default rate, not just a relative number.
-
-### 5. Three-Layer Fairness Enforcement
-- **Pre-processing** — Gender, religion, caste, and ethnicity are removed before any model sees the data
-- **In-processing** — Training samples are reweighted to prevent systematic group bias
-- **Post-processing** — Disparate Impact Ratio audit checks that no demographic group's approval rate falls below 80% of the highest group's rate (four-fifths rule)
-
-Geolocation is included per PS1 specification but capped at 5% feature weight and restricted to district-level precision to mitigate proxy discrimination risk.
-
-### 6. Scoring (0–850)
-```
-750–850  Excellent   →  Best loan terms
-650–749  Good        →  Standard terms
-550–649  Fair        →  Higher interest rate
-450–549  Poor        →  Small loan only
-< 450    Not eligible →  Improvement plan provided
-```
-Hard blocks apply regardless of score — RBI wilful defaulters are capped at 200 with no override.
-
-### 7. SHAP Explainability
-Every score comes with a plain-language breakdown of which data points helped and which hurt. Required by RBI Fair Practices Code. If rejected, the user sees exactly what to improve and by how much.
-
-### 8. RAG-Based Loan Advisor
-Post-score, users can ask natural language questions. The advisor answers strictly from a knowledge base of RBI guidelines and lending precedents — no hallucinations, fully grounded responses.
+| User Email | Password | Profile / Profession | Tonal Behavioral Footprint | Expected Outcome & Score |
+|:---|:---|:---|:---|:---|
+| `admin@altgrade.in` | `Password@123` | Credit Officer / Admin | Full supervisory access to decision log, knowledge audit, & risk analytics | **Admin Dashboard Access** |
+| `admin@altgrade.com` | `Password@123` | Credit Officer / Admin | Full supervisory access | **Admin Dashboard Access** |
+| `testadmin@altgrade.in` | `Password@123` | Credit Officer (Mock) | Simulated risk officer view | **Admin Dashboard Access** |
+| `testhari@altgrade.in` | `Password@123` | Salaried / Individual | High UPI income, low volatility, complete bank statement | **750 (Excellent)** — *Rejected (Override testing)* |
+| `farmer@altgrade.in` | `Password@123` | Farmer / Agriculturalist | Ancestral village stability (34 yrs), zero e-commerce penalty, KCC & PM-Kisan discipline | **710 (Excellent)** — **APPROVED** |
+| `msme@altgrade.in` | `Password@123` | MSME Merchant | Active GST filings, medium turnover, digital payment QR footprint | **610 (Fair)** — **APPROVED** |
 
 ---
 
-## Handling Data Inconsistency
+## 🚀 Setup & Execution Guide
 
-When workers return conflicting signals — for example, D1 shows stable income but D3 shows high-frequency distress purchases — the Consolidator layer flags the contradiction explicitly rather than averaging it away. Each data point carries its source and confidence score. Conflicts are logged, documented, and surfaced to the scoring engine as a separate feature (internal consistency score), which itself feeds into the Character component of the final score.
+### Option 1: Easiest Setup via PowerShell Script (`dev.ps1`)
 
----
+The root directory contains a PowerShell orchestration script for simple one-command management:
 
-## Architecture Overview
+```powershell
+# Launch entire stack (PostgreSQL, Redis, Backend FastAPI, Frontend Vite)
+.\dev.ps1 dev
 
-```
-User-Consent (DPDP Compliant)
-        ↓
-6 Parallel Data Workers (Celery + Redis)
-        ↓
-Consolidator — merge, conflict detection
-        ↓
-Validator Gate — completeness check, partial consent routing
-        ↓
-Two-Tier Feature Builder
-        ↓
-3-Layer Fairness Enforcement
-        ↓
-XGBoost + LightGBM Blend → Isotonic Calibration
-        ↓
-SHAP Explanation Generator
-        ↓
-0–850 Score + RAG Advisor
-        ↓
-React Dashboard (Vercel) ←→ FastAPI Backend (Render)
+# Launch infrastructure services only (PostgreSQL + Redis via Docker)
+.\dev.ps1 infra
+
+# Execute database migrations
+.\dev.ps1 migrate
+
+# Launch backend only (FastAPI on port 8000)
+.\dev.ps1 backend
+
+# Launch frontend only (Vite on port 5173)
+.\dev.ps1 frontend
+
+# Stop all background docker services
+.\dev.ps1 stop
 ```
 
-**Databases:**
-- PostgreSQL — all decisions with full audit trail
-- ChromaDB — RAG knowledge base
-- Redis — worker coordination and caching
+---
+
+### Option 2: Manual Step-by-Step Setup
+
+#### 1. Infrastructure Services (PostgreSQL & Redis)
+Ensure Docker Desktop is running, then start the containers:
+```bash
+docker compose up -d
+```
+
+#### 2. Backend Setup (FastAPI Python 3.11)
+```bash
+cd backend
+
+# Create and activate virtual environment
+python -m venv .venv
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run Alembic migrations
+python -m alembic upgrade head
+
+# Start FastAPI dev server
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+#### 3. RAG Knowledge Base Ingestion (ChromaDB + Ollama)
+```bash
+# Ensure Ollama is running locally with nomic-embed-text and phi3:mini models pulled:
+ollama pull nomic-embed-text
+ollama pull phi3:mini
+
+# Ingest RBI Guidelines and Lending Precedents into ChromaDB:
+curl -X POST http://localhost:8000/api/advisor/ingest
+```
+
+#### 4. Frontend Setup (React + TypeScript + Tailwind CSS)
+```bash
+cd frontend
+
+# Install node dependencies
+npm install
+
+# Launch Vite development server
+npm run dev
+```
+The frontend will be live at `http://localhost:5173`.
 
 ---
 
-## Why This Architecture
+## 🌟 What Makes AltGrade Unique & Innovative?
 
-**Most alternate credit systems pick one or two data signals.** ICA uses six simultaneously, cross-validates them against each other, and treats contradictions as signal rather than noise. The blend of XGBoost and LightGBM is specifically chosen because XGBoost handles structured financial ratios better while LightGBM handles sparse behavioral features better — together they cover the full alternate data feature space.
-
-The consent-first design isn't just legal compliance — it's a trust mechanism. A first-generation borrower who understands exactly what data is being used and why is more likely to complete the application and engage honestly with the questionnaire.
-
----
-
-## What Makes AltGrade Unique & Innovative
-
-### 1. Automated Behavioral Persona & Profile Auto-Detection
+### 1. Dynamic Behavioral Persona Auto-Detection
 AltGrade does not apply a rigid, one-size-fits-all model. Instead, it dynamically detects applicant demographic and economic personas based on raw behavioral signals:
+* **🌾 Farmers & Agriculturalists**: AltGrade detects agricultural footprints (ancestral village location stability, zero e-commerce purchases, offline keypad phone recharges, and PM-Kisan / KCC discipline). It **completely removes penalties for lack of e-commerce spend**, heavily weighting 30+ year village residence stability and post-harvest promptness to grant fair credit access (**710 / Approved**).
+* **🏬 MSMEs & Micro-Merchants**: Evaluates GST filing regularity, QR payment frequency, invoice settlement timelines, and shop/stock insurance coverage instead of personal credit bureau scores.
+* **💼 Salaried / Gig Economy Workers**: Evaluates balance volatility, minimum balance ratio, and recurring utility bill promptness.
 
-- **🌾 Farmers & Agriculturalists**:
-  - **Signal Pattern**: Zero e-commerce footprint, 2G/keypad phone telecom recharge behavior (recharges via local offline retail outlets), ancestral village location stability (30+ years in same village), and PM-Kisan / KCC discipline.
-  - **Dynamic Adaptation**: AltGrade completely removes e-commerce and digital recharge penalties for farmers. Instead, it heavily weights **ancestral location stability** (34+ years zero address moves), PM-Kisan Direct Benefit Transfers, and Kisan Credit Card (KCC) post-harvest repayment promptness — producing an **Approved** rating (**710 / Excellent**).
+### 2. Multi-Signal Conflict Engine (The Consolidator)
+When data sources return conflicting signals (e.g., Worker D1 shows steady UPI income but Worker D3 shows frequent late-night impulse/distress purchases), AltGrade **never averages out the contradiction**. Instead, the **Consolidator Engine** logs explicit signal conflicts, calculates a combined magnitude, and factors an internal "character consistency score" into the final decision.
 
----
-
-### 2. Isotonic Calibration for True Empirical Default Probabilities
-- **The Problem**: Standard tree-based ensemble models (XGBoost and LightGBM) excel at ranking risk, but their raw probability outputs are inherently uncalibrated — clustering near 0 or 1. A raw model score of 0.80 does not mean an 80% default rate.
-- **The Solution**: AltGrade applies non-parametric **Isotonic Regression Calibration** post-ensemble blending.
-- **Mathematical Rigor**: Isotonic calibration fits a monotonic non-decreasing step function $y = f(x)$ over out-of-fold predicted probabilities:
-  $$\min \sum_{i=1}^n (y_i - \hat{p}_i)^2 \quad \text{subject to} \quad \hat{p}_i \le \hat{p}_j \quad \text{whenever} \quad y_i \le y_j$$
-- **Banking Governance**: Converts abstract model scores into true calibrated default probabilities. A score of 700 maps directly to a 70% empirical non-default probability in historical data, satisfying strict RBI Model Risk Governance and Basel III Capital Reserve requirements.
+### 3. Native Multilingual Voice Questionnaire & Outbound AI Callback
+Recognizing low functional literacy in rural India, AltGrade features a fully localized voice interface:
+* **In-Browser Voice Q&A**: Uses Web Speech API with pre-loaded native voices (`hi-IN`, `te-IN`, `en-IN`). Applicants can listen to questions and speak answers in Hindi, Telugu, or English.
+* **Outbound AI Phone Officer**: Integrates with **Vapi AI** to initiate automated telephony calls directly to an applicant's mobile phone, conducting structured voice interviews in their preferred language.
 
 ---
 
-### 3. Dual-Tier Scoring & Consolidator Engine
-- **Tier 1 (Zero-History Users)**: D2 (Telecom) + D4 (Location) + D5 (Psychometrics). Evaluates credit-invisible individuals fairly without requiring a bank account.
-- **Tier 2 (Full Digital Footprint)**: Blends D1–D6 for comprehensive multi-signal risk assessment.
-- **Signal Conflict Detection**: When signals contradict (e.g., high income on D1 vs distress purchases on D3), the Consolidator flags the anomaly rather than smoothing it away, feeding an internal "character consistency score" directly into the final rating.
+## 🤖 Machine Learning Engine (In-Depth Architecture)
+
+AltGrade's scoring engine runs a 5-phase ML pipeline designed for high accuracy, statistical calibration, and strict fairness compliance.
+
+```
++-----------------------------------------------------------------------------------+
+|                            6 PARALLEL DATA WORKERS                                |
+|  [D1: Bank/UPI] [D2: Telecom] [D3: E-Com] [D4: Location] [D5: Psych] [D6: GST]    |
++-----------------------------------------------------------------------------------+
+                                          │
+                                          ▼
++-----------------------------------------------------------------------------------+
+|                           TWO-TIER FEATURE BUILDER                                |
+|   Tier 1 (16 Features): D2 + D4 + D5 (For Zero-History Credit Invisible Users)    |
+|   Tier 2 (34 Features): D1 + D2 + D3 + D4 + D5 + D6 (Full Digital Footprint)       |
++-----------------------------------------------------------------------------------+
+                                          │
+                                          ▼
++-----------------------------------------------------------------------------------+
+|                        3-LAYER BIAS & FAIRNESS MITIGATION                         |
+|   Pre-processing: PII Removal | In-processing: Reweighting | Post: DIR 80% Audit |
++-----------------------------------------------------------------------------------+
+                                          │
+                                          ▼
++-----------------------------------------------------------------------------------+
+|                    ENSEMBLE BLENDING & ISOTONIC CALIBRATION                       |
+|   XGBoost (50%) + LightGBM (50%) ---> Isotonic Regression (Probability Mapping)   |
++-----------------------------------------------------------------------------------+
+                                          │
+                                          ▼
++-----------------------------------------------------------------------------------+
+|                        CONSOLIDATOR & HARD CAP ENGINE                             |
+|   Wilful Defaulter (Cap 200) | High EMI (Cap 350) | Signal Conflict Detection   |
++-----------------------------------------------------------------------------------+
+                                          │
+                                          ▼
++-----------------------------------------------------------------------------------+
+|                        FINAL SCORE (0–850) & SHAP REASONING                       |
+|   Fair Practices Explainability Code + Local & Global SHAP Point Breakdown        |
++-----------------------------------------------------------------------------------+
+```
+
+### Phase 1: Feature Extraction & Two-Tier Architecture
+* **Tier 1 (16 Features)**: Designed for zero-history users. Evaluates Telecom on-time rate, trend, plan value, active months, location address changes, years at current address, metro status, home ownership, and psychometric engagement metrics.
+* **Tier 2 (34 Features)**: Blends bank monthly inflow, inflow trend, balance volatility, UPI transaction count, min balance ratio, e-commerce purchase frequency, return rate, spend trend, category diversity, and GST merchant filing regularity.
+
+### Phase 2: Ensemble Model Blending
+AltGrade runs **XGBoost** and **LightGBM** independently in parallel:
+* **XGBoost**: Handles dense tabular ratio features (bank inflow trends, GST turnover ratios) with `max_depth=3`, `subsample=0.7`, `learning_rate=0.08`.
+* **LightGBM**: Handles sparse behavioral and categorical signals (psychometric response patterns, e-commerce diversity) with `max_depth=3`, `colsample_bytree=0.5`.
+* Predictions are blended 50/50: $P_{\text{blend}} = \frac{P_{\text{XGB}} + P_{\text{LGBM}}}{2}$.
+
+### Phase 3: Isotonic Regression Calibration
+Standard decision tree ensembles output uncalibrated probabilities that cluster near extremes. AltGrade applies non-parametric **Isotonic Regression Calibration** over predicted probabilities:
+$$\min \sum_{i=1}^n (y_i - \hat{p}_i)^2 \quad \text{subject to} \quad \hat{p}_i \le \hat{p}_j \quad \text{whenever} \quad y_i \le y_j$$
+This maps raw model outputs directly to empirical default rates, satisfying **Basel III Capital Reserve** and **RBI Model Governance** guidelines.
+
+### Phase 4: Non-Linear Score Mapping (0–850 Scale)
+Calibrated probabilities are mapped to credit bands:
+* **750–850**: Excellent (Low Risk)
+* **650–749**: Good (Medium-Low Risk)
+* **550–649**: Fair (Medium Risk)
+* **450–549**: Poor (High Risk)
+* **0–449**: Not Eligible
+
+### Phase 5: Consolidator Hard Caps & Overrides
+* **Wilful Defaulters**: Hard-capped at **200 points** regardless of alternate data strength (RBI CERSAI mandate).
+* **High EMI Burden**: Hard-capped at **350 points** if debt-to-income exceeds safety thresholds.
+* **Location Reweighting**: If location instability (-10 pts) is accompanied by strong psychometric financial discipline (+5 pts), the location penalty is automatically reduced by up to 30%.
 
 ---
 
-### 4. 3-Layer Bias Mitigation & SHAP Auditability
-- **Pre-processing**: Strips demographic PII (gender, caste, religion, ethnicity) prior to model ingestion.
-- **In-processing**: Reweights training samples to prevent group bias.
-- **Post-processing**: Automated Disparate Impact Ratio (DIR) audit enforcing the 80% (Four-Fifths) rule across demographic subgroups.
-- **SHAP Explainability**: Plain-language attribution (+/- points per feature) compliant with RBI Fair Practices Code.
+## 📚 RAG Credit Advisor (Local LLM Architecture)
+
+Post-assessment, applicants and credit officers can interact with the **RAG Credit Advisor**, an AI assistant grounded in regulatory frameworks and lending precedents.
+
+```
+[User Question (Hindi / Telugu / English)]
+                       │
+                       ▼
+    [ChromaDB Vector Retrieval (Cosine Distance)]
+    ├── rbi_guidelines (RBI Fair Practices Code §6.3, DPDP Act 2023)
+    └── lending_precedents (Resolved grievance tickets)
+                       │
+                       ▼
+ [Prompt Construction + Applicant Score Context + SHAP Factors]
+                       │
+                       ▼
+     [Ollama Local LLM: phi3:mini (3.8B, 2048 ctx)]
+     (Fallback: Gemini 2.5 Flash if Ollama offline)
+                       │
+                       ▼
+ [Grounded, Multilingual Response with Regulatory Citations]
+```
+
+### Key RAG Features
+1. **Zero Data Leakage & Offline Capable**: Runs completely locally via **Ollama (`phi3:mini`)** and **ChromaDB**, using `nomic-embed-text` embeddings. No applicant PII leaves the server.
+2. **Automatic Language Detection & Mirroring**: The RAG prompt enforces strict language matching. If an applicant asks a question in Hindi ("मेरा स्कोर 610 क्यों है?"), the advisor responds in Hindi with structured bold headings and actionable steps.
+3. **Regulatory Grounding**: Every answer cites specific legal sections (e.g., *RBI Fair Practices Code §6.3* or *DPDP Act 2023 §12*).
+4. **Resilient Fallback**: If local Ollama is offline, the advisor gracefully falls back to Google's `gemini-2.5-flash` API.
 
 ---
 
-## Dataset
+## 🔒 Identity & Security Architecture
 
-This prototype uses synthetically generated data modelled on Indian alternate data patterns — UPI inflow distributions, telecom payment consistency rates, and psychometric response profiles calibrated to Indian microfinance research. Production deployment requires real Account Aggregator sourced data with RBI Financial Information User registration.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 18, Tailwind CSS — deployed on Vercel |
-| Backend | FastAPI, Python 3.12 — deployed on Render |
-| ML | XGBoost, LightGBM, SHAP, scikit-learn |
-| Queue | Celery + Redis |
-| Databases | PostgreSQL, ChromaDB |
-| Explainability | SHAP global summary + local force plots |
-| Fairness | Disparate Impact Ratio audit (four-fifths rule) |
+AltGrade implements bank-grade identity verification prior to scoring:
+* **PAN Verification**: Format validation and Sandbox API sandbox integration.
+* **Aadhaar OTP**: Simulated 2-factor authentication with time-windowed OTP verification.
+* **DeepFace Liveness Audit**: Computer-vision liveness detection using head rotation, eye blink verification, and facial embedding match.
+* **DPDP Act 2023 Compliance**: Granular per-source consent toggles. Users can grant/revoke consent for individual data sources at any step.
 
 ---
 
-## PS1 Compliance Checklist
+## 🛠️ System Stack Overview
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Phone bill payment consistency | D2 Worker |
-| E-commerce purchase behavior | D3 Worker |
-| Geolocation stability | D4 Worker (district-level only) |
-| Questionnaire-based risk | D5 Psychometric Worker |
-| Merchant ratings | D6 Worker |
-| Bank account cash flow | D1 UPI/Bank Worker |
-| Psychometric & behavioral risk models | Isotonic-calibrated XGBoost + LightGBM blend |
-| Consent-based data flow | DPDP-compliant per-source consent screen |
-| Privacy & encryption compliance | No PII stored, derived scores only, purpose limitation enforced |
-| Responsible lending practices | Hard blocks, DIR fairness audit, SHAP rejection explanations |
+| Layer | Technologies & Frameworks |
+|:---|:---|
+| **Frontend UI** | React 18, TypeScript (Strict Mode), Tailwind CSS, Lucide Icons, Vite |
+| **Backend API** | FastAPI (Async Python 3.11), Pydantic v2, Alembic, Uvicorn |
+| **Machine Learning** | XGBoost, LightGBM, Scikit-Learn, SHAP, Isotonic Regression |
+| **Vector DB & RAG** | ChromaDB (Embedded), Ollama (`phi3:mini`, `nomic-embed-text`), Google GenAI |
+| **Relational Storage** | PostgreSQL (Dockerized / Supabase compatible) |
+| **Cache & Task Queue** | Redis, Celery worker orchestration |
+| **Voice & Telephony** | Web Speech API (Native SpeechSynthesis/Recognition), Vapi AI Outbound Telephony |
+| **Identity & CV** | DeepFace, OpenCV, Sandbox.co.in API integration |
 
 ---
 
-## Known Limitations
+## 📋 PS1 Compliance & Regulatory Audit
 
-**Synthetic data only.** All data sources (UPI, telecom, e-commerce, geolocation, psychometric, merchant/GST) are Faker-generated with realistic biased distributions. No real Account Aggregator, CERSAI, or telecom API access exists at this stage. Production deployment requires RBI Financial Information User registration and live AA integration.
-
-**Session-based consent.** Consent selections are stored in-browser for the duration of the session and passed to the scoring endpoint as request parameters. There is no server-side consent persistence, withdrawal audit trail, or consent receipt generation. A production system would store consent records in PostgreSQL with timestamps, purpose codes, and revocation history per DPDP Act 2023 Section 6.
-
-**Gemini API key required for advisor.** The RAG-based credit advisor requires a valid `GEMINI_API_KEY` environment variable (Gemini 2.5 Flash). Without it, the advisor endpoint returns a 503 response. ChromaDB collections must be indexed via `POST /advisor/ingest` before the advisor can answer questions. The advisor reduces but does not eliminate the risk of inaccurate responses.
-
----
-
-## Setup & Launch
-
-### Easiest Way: Using PowerShell Script
-
-The root directory contains a helper script `dev.ps1` to orchestrate local setup and execution:
-
-- **Launch Full Stack (Docker Compose, Backend, Frontend)**:
-  ```powershell
-  .\dev.ps1 dev
-  ```
-- **Launch Infrastructure Only (PostgreSQL + Redis)**:
-  ```powershell
-  .\dev.ps1 infra
-  ```
-- **Run Alembic Migrations**:
-  ```powershell
-  .\dev.ps1 migrate
-  ```
-- **Launch Backend Only**:
-  ```powershell
-  .\dev.ps1 backend
-  ```
-- **Launch Frontend Only**:
-  ```powershell
-  .\dev.ps1 frontend
-  ```
-- **Stop Infrastructure**:
-  ```powershell
-  .\dev.ps1 stop
-  ```
-
-### Manual Steps
-
-#### 1. Backend Server Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Set up virtual environment and install dependencies:
-   ```bash
-   python -m venv .venv
-   # Windows
-   .\.venv\Scripts\activate
-   # Linux/Mac
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Start the required Docker services:
-   ```bash
-   docker compose up -d
-   ```
-4. Run database migrations:
-   ```bash
-   python -m alembic upgrade head
-   ```
-5. Run the FastAPI development server:
-   ```bash
-   python -m uvicorn app.main:app --reload --port 8000
-   ```
-
-#### 2. Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install npm packages:
-   ```bash
-   npm install
-   ```
-3. Start the Vite dev server:
-   ```bash
-   npm run dev
-   ```
+| Hackathon Requirement | AltGrade Implementation Status |
+|:---|:---|
+| **Telecom & Utility Payment Signals** | **Worker D2**: 24-month payment promptness, plan value, data volume |
+| **E-Commerce Purchase Patterns** | **Worker D3**: Return rate, spend trend, category diversity index |
+| **Geolocation Stability** | **Worker D4**: District-level residence tenure (no raw GPS tracking) |
+| **Psychometric Risk Assessment** | **Worker D5**: 15-question financial responsibility survey |
+| **Merchant & Business Footprint** | **Worker D6**: GST filing regularity, shop longevity, turnover |
+| **Bank Cash Flow Analysis** | **Worker D1**: UPI frequency, balance volatility, minimum balance ratio |
+| **Explainable AI Mandate** | **SHAP Framework**: Feature-level point attribution per decision |
+| **Fair Lending Enforcement** | **3-Layer Bias Audit**: Disparate Impact Ratio (DIR) 80% rule enforcement |
+| **Privacy Compliance** | **DPDP Act 2023**: Granular consent gates, no unconsented data processing |
 
 ---
 
-## Demo Accounts
+## 📄 License & Attribution
 
-Use the following login credentials to test different user profiles and dashboard flows. The password is the same for all demo accounts.
-
-| User Email | Password | Role / Profile Type | Expected Score & Loan Outcome |
-|------------|----------|---------------------|-------------------------------|
-| `admin@altgrade.in` | `Password@123` | Administrator | Accesses full credit officer decision dashboard |
-| `admin@altgrade.com` | `Password@123` | Administrator | Accesses full credit officer decision dashboard |
-| `testadmin@altgrade.in` | `Password@123` | Administrator | Accesses full credit officer decision dashboard (mock view) |
-| `testhari@altgrade.in` | `Password@123` | Individual / Salaried | Static Score: **750 (Excellent)**<br>Outcome: **Rejected** (rejection testing override) |
-| `farmer@altgrade.in` | `Password@123` | Farmer / Agriculturalist | Estimated Score: **710 (Excellent)**<br>Outcome: **Approved** (34-yr village location stability, zero e-commerce penalty, KCC/PM-Kisan discipline) |
-| `msme@altgrade.in` | `Password@123` | MSME Merchant | Estimated Score: **610 (Fair)**<br>Outcome: **Approved** (smartphone, literate, valid GST) |
+Developed for **PSB Hackathon 2026 (Problem Statement 1 - Alternate Credit Scoring)**.  
+Built by Team AltGrade.

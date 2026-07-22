@@ -23,6 +23,32 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
   const [transcript, setTranscript] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [recognition, setRecognition] = useState<any>(null)
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([])
+
+  const LANG_MAP: Record<string, string> = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    te: 'te-IN',
+  }
+
+  const baseLang = (i18n.language || 'en').split('-')[0]
+
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices()
+      if (voices.length > 0) {
+        setAvailableVoices(voices)
+      }
+    }
+
+    loadVoices()
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices)
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices)
+    }
+  }, [])
 
   useEffect(() => {
     const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -34,13 +60,7 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
     const rec = new SpeechRecognitionClass()
     rec.continuous = false
     rec.interimResults = false
-
-    const langMap: Record<string, string> = {
-      en: 'en-US',
-      hi: 'hi-IN',
-      te: 'te-IN',
-    }
-    rec.lang = langMap[i18n.language] || 'en-US'
+    rec.lang = LANG_MAP[baseLang] || 'en-IN'
 
     rec.onresult = (event: any) => {
       const text = event.results[0][0].transcript
@@ -60,19 +80,36 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
     }
 
     setRecognition(rec)
-  }, [i18n.language, questionText])
+  }, [baseLang, questionText])
 
   const speakQuestion = () => {
     if (!('speechSynthesis' in window)) return
     window.speechSynthesis.cancel()
 
-    const utterance = new SpeechSynthesisUtterance(questionText)
-    const langMap: Record<string, string> = {
-      en: 'en-US',
-      hi: 'hi-IN',
-      te: 'te-IN',
+    let textToSpeak = `${questionText}.`
+    if (options && options.length > 0) {
+      if (baseLang === 'hi') {
+        textToSpeak += ` विकल्प: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
+      } else if (baseLang === 'te') {
+        textToSpeak += ` ఎంపికలు: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
+      } else {
+        textToSpeak += ` Options: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
+      }
     }
-    utterance.lang = langMap[i18n.language] || 'en-US'
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak)
+    const targetLang = LANG_MAP[baseLang] || 'en-IN'
+    utterance.lang = targetLang
+    utterance.rate = 0.9
+
+    const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices()
+    const matchingVoice =
+      voices.find((v) => v.lang.replace('_', '-').toLowerCase() === targetLang.toLowerCase()) ||
+      voices.find((v) => v.lang.replace('_', '-').toLowerCase().startsWith(baseLang.toLowerCase()))
+    if (matchingVoice) {
+      utterance.voice = matchingVoice
+    }
+
     window.speechSynthesis.speak(utterance)
   }
 
@@ -134,7 +171,7 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="border-brand-blue/30 bg-brand-blue/5 text-brand-blue text-xs">
-            Voice Mode Active
+            {t('voice.voiceModeActive', 'Voice Mode Active')}
           </Badge>
           <Button
             type="button"
@@ -144,7 +181,7 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
             className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
             <Volume2 className="h-3.5 w-3.5 text-brand-blue" />
-            Listen Question
+            {t('voice.listenQuestion', 'Listen Question')}
           </Button>
         </div>
 

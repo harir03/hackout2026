@@ -32,6 +32,15 @@
     "terms": "36 months",
     "notes": "",
     "loan_amount": null,
-    "timestamp": "2026-07-21T21:16:50.121746+00:00"
+    "timestamp": "2026-07-22T05:00:59.429669+00:00"
+  },
+  "test-farmer-001": {
+    "user_id": "test-farmer-001",
+    "decision": "approved",
+    "interest_rate": 8.5,
+    "terms": "12 months",
+    "notes": "Verified farmer harvest cycle and KCC record.",
+    "loan_amount": 150000,
+    "timestamp": "2026-07-22T05:01:20.400740+00:00"
   }
 }

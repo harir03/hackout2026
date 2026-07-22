@@ -1,19 +1,20 @@
 import { Outlet, useMatches, Link, useNavigate } from '@tanstack/react-router'
 import { CheckCircle2, ArrowLeft, LogOut } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 
-const STEPS = [
-  { path: '/', label: 'Data Consent' },
-  { path: '/score', label: 'Score Result' },
-  { path: '/advisor', label: 'Credit Advisor' },
-]
-
 function StepIndicator({ currentPath }: { currentPath: string }) {
-  const currentIndex = STEPS.findIndex((s) => s.path === currentPath)
+  const { t } = useTranslation()
+  const steps = [
+    { path: '/', label: t('nav.consent', 'Data Consent') },
+    { path: '/score', label: t('nav.score', 'Score Result') },
+    { path: '/advisor', label: t('nav.advisor', 'Credit Advisor') },
+  ]
+  const currentIndex = steps.findIndex((s) => s.path === currentPath)
 
   return (
     <div className='flex items-center justify-center gap-2'>
-      {STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const isActive = i === currentIndex
         const isComplete = i < currentIndex
 
@@ -60,13 +61,19 @@ function StepIndicator({ currentPath }: { currentPath: string }) {
 }
 
 export function ApplicantLayout() {
+  const { t } = useTranslation()
   const matches = useMatches()
   const currentPath = matches[matches.length - 1]?.pathname ?? '/'
   const navigate = useNavigate()
   const { auth } = useAuthStore()
 
-  const currentIndex = STEPS.findIndex((s) => s.path === currentPath)
-  const prevStep = currentIndex > 0 ? STEPS[currentIndex - 1] : null
+  const steps = [
+    { path: '/', label: t('nav.consent', 'Data Consent') },
+    { path: '/score', label: t('nav.score', 'Score Result') },
+    { path: '/advisor', label: t('nav.advisor', 'Credit Advisor') },
+  ]
+  const currentIndex = steps.findIndex((s) => s.path === currentPath)
+  const prevStep = currentIndex > 0 ? steps[currentIndex - 1] : null
 
   function handleSignOut() {
     auth.reset()
@@ -84,7 +91,7 @@ export function ApplicantLayout() {
                 className='flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors'
               >
                 <ArrowLeft className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Back</span>
+                <span className='hidden sm:inline'>{t('nav.back', 'Back')}</span>
               </Link>
             ) : (
               <Link
@@ -92,14 +99,14 @@ export function ApplicantLayout() {
                 className='flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors'
               >
                 <ArrowLeft className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Home</span>
+                <span className='hidden sm:inline'>{t('nav.home', 'Home')}</span>
               </Link>
             )}
             <Link to='/pitch' className='flex items-center gap-2.5 hover:opacity-80 transition-opacity'>
               <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
                 AG
               </div>
-              <span className='text-sm font-semibold tracking-[-0.02em]'>AltGrade</span>
+              <span className='text-sm font-semibold tracking-[-0.02em]'>{t('nav.brand', 'AltGrade')}</span>
             </Link>
           </div>
 
@@ -110,7 +117,7 @@ export function ApplicantLayout() {
             className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors'
           >
             <LogOut className='h-3.5 w-3.5' />
-            <span className='hidden sm:inline'>Sign Out</span>
+            <span className='hidden sm:inline'>{t('nav.signOut', 'Sign Out')}</span>
           </button>
         </div>
       </header>

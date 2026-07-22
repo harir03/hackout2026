@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearch } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { Send, BookOpen, Loader2, Bot, User } from 'lucide-react'
 import {
   Card,
@@ -29,6 +30,7 @@ const SUGGESTED_QUESTIONS = [
 ]
 
 export function AdvisorPage() {
+  const { t } = useTranslation()
   const search = useSearch({ strict: false }) as { userId?: string }
   const userId = search.userId || 'test-user-001'
 
@@ -65,11 +67,9 @@ export function AdvisorPage() {
   return (
     <div>
       <div className='mb-6'>
-        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>Credit Advisor</h1>
+        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>{t('advisor.title', 'AI Credit Advisor & RAG Assistant')}</h1>
         <p className='text-sm text-muted-foreground'>
-          Ask questions about your credit score, improvement steps, or your
-          rights as a borrower. Answers reference your assessment data and
-          regulatory guidelines.
+          {t('advisor.subtitle', 'Ask questions about your credit score, improvement steps, or your rights as a borrower.')}
         </p>
       </div>
 
@@ -166,7 +166,7 @@ export function AdvisorPage() {
                   <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder='Ask about your score, rights, or improvement steps…'
+                    placeholder={t('advisor.placeholder', 'Ask a question about your score, loan eligibility, or financial advice...')}
                     className='flex-1 min-h-[36px] resize-none border-none bg-transparent py-2.5 px-0 text-[15px] leading-relaxed placeholder:text-graphite shadow-none outline-none focus-visible:border-none focus-visible:ring-0 focus-visible:ring-offset-0'
                     rows={1}
                     onKeyDown={(e) => {
@@ -192,7 +192,7 @@ export function AdvisorPage() {
         <div className='lg:col-span-1'>
           <Card>
             <CardHeader className='pb-3'>
-              <CardTitle className='text-sm'>Common Questions</CardTitle>
+              <CardTitle className='text-sm'>{t('advisor.suggestedQuestions', 'Suggested Questions')}</CardTitle>
               <CardDescription className='text-xs'>
                 Select a question or type your own
               </CardDescription>

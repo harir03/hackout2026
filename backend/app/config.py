@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     sandbox_api_key: str = ""
     sandbox_secret: str = ""
 
-    model_config = {"env_prefix": "ICA_", "env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {"env_prefix": "ICA_", "env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 settings = Settings()

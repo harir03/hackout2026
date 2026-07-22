@@ -15,6 +15,8 @@ i18n
       hi: { translation: hi },
       te: { translation: te },
     },
+    supportedLngs: ['en', 'hi', 'te'],
+    nonExplicitSupportedLngs: false,
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,

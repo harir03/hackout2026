@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, ShieldAlert, MessageSquare, Loader2, IndianRupee, Send, Bot, User, ChevronDown } from 'lucide-react'
 import {
   Card,
@@ -98,6 +99,7 @@ function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) 
 }
 
 export function ScorePage() {
+  const { t } = useTranslation()
   const search = useSearch({ strict: false }) as {
     userId?: string
     sources?: string
@@ -635,9 +637,9 @@ export function ScorePage() {
       )}
 
       <div className='mb-6'>
-        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>Your Credit Score</h1>
+        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>{t('score.title', 'AltGrade Alternate Credit Score')}</h1>
         <p className='text-sm text-muted-foreground'>
-          {data.tier} assessment
+          {t('score.subtitle', 'Explainable risk estimation based on multi-source non-traditional financial data')}
         </p>
       </div>
 

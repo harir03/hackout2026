@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   Landmark,
   Phone,
@@ -180,8 +182,93 @@ const MSME_QUESTIONS = [
   }
 ]
 
+const FARMER_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[] }>> = {
+  en: FARMER_QUESTIONS,
+  hi: [
+    { q: "आपकी कृषि वित्त पोषण और पीएम-किसान / केसीसी उपयोग का प्राथमिक स्रोत क्या है?", options: ["किसान क्रेडिट कार्ड (KCC) समय पर भुगतान के साथ", "पीएम-किसान प्रत्यक्ष लाभ हस्तांतरण (DBT)", "स्थानीय व्यापारी का अग्रिम (आढ़तिया)", "केवल व्यक्तिगत बचत"] },
+    { q: "फसल की कटाई और प्रतीक्षा चक्र के दौरान आप खर्चों का प्रबंधन कैसे करते हैं?", options: ["कटाई के लिए समर्पित आरक्षित कोष रखते हैं", "फसल बीमा (PMFBY) पर भरोसा करते हैं", "अल्पकालिक व्यापारी क्रेडिट", "अनौपचारिक स्रोतों से उधार लेते हैं"] },
+    { q: "आप बीज, उर्वरक या कृषि उपकरण ऋण का भुगतान कितनी बार करते हैं?", options: ["हमेशा कटाई के बाद समय पर", "फसल चक्र के कारण कभी-कभी देरी होती है", "अक्सर देरी होती है", "नियमित रूप से भुगतान करने में असमर्थ"] },
+    { q: "आपकी फसल बीमा कवरेज स्थिति (प्रधानमंत्री फसल बीमा योजना) क्या है?", options: ["हर सीजन में पूरी तरह से बीमित", "केवल प्रमुख फसलों के लिए बीमित", "शायद ही कभी बीमित", "बीमित नहीं"] },
+    { q: "मंडी / एपीएमसी में अपनी उपज का भुगतान आप कैसे प्राप्त करते हैं?", options: ["सीधे बैंक खाते में हस्तांतरण (DBT / e-NAM)", "चेक द्वारा भुगतान", "नकद और बैंक ट्रांसफर का मिश्रण", "केवल नकद निपटान"] },
+    { q: "आप अप्रत्याशित फसल खराब होने या सूखे के जोखिम को कैसे संभालते हैं?", options: ["आपातकालीन कृषि बचत", "फसल बीमा दावा", "मवेशी या छोटी संपत्तियां बेचना", "उच्च ब्याज वाला अनौपचारिक ऋण"] },
+    { q: "क्या आप कृषि लागत (उर्वरक, कीटनाशक, श्रम) का रिकॉर्ड रखते हैं?", options: ["हाँ, व्यवस्थित लिखित नोटबुक", "मोटा मानसिक अनुमान", "केवल बड़े ट्रैक्टर/बीज खर्च", "कोई रिकॉर्ड नहीं रखा गया"] },
+    { q: "आप कृषि उपकरण या सौर पंपों के लिए निवेश की योजना कैसे बनाते हैं?", options: ["सरकारी सब्सिडी + बैंक ऋण", "चरणबद्ध व्यक्तिगत बचत", "साझा गांव किराए पर लेना", "अनौपचारिक उधार"] },
+    { q: "आपकी कृषि उपज का कितना हिस्सा औपचारिक एपीएमसी/सहकारी समितियों के माध्यम से बेचा जाता है?", options: ["100% औपचारिक चैनल", "50-80% औपचारिक चैनल", "50% से कम", "100% अनौपचारिक स्थानीय व्यापारी"] },
+    { q: "पीएम-किसान स्थिति जांच के लिए वॉइस/एसएमएस बैंकिंग का उपयोग करने में आप कितने सहज हैं?", options: ["बहुत सहज", "खुदरा विक्रेता की सहायता लेते हैं", "थोड़ा सहज", "सहज नहीं"] }
+  ],
+  te: [
+    { q: "మీ వ్యవసాయ ఆర్థిక సహాయం మరియు పిఎమ్-కిసాన్ / కెసిసి వినియోగానికి ప్రధాన మూలం ఏమిటి?", options: ["సకాలంలో చెల్లింపుతో కిసాన్ క్రెడిట్ కార్డ్ (KCC)", "పిఎమ్-కిసాన్ ప్రత్యక్ష ప్రయోజన బదిలీలు (DBT)", "స్థానిక వ్యాపారి అడ్వాన్స్", "వ్యక్తిగత పొదుపు మాత్రమే"] },
+    { q: "పంట కోత మరియు వేచి ఉండే సమయంలో మీరు ఖర్చులను ఎలా నిర్వహిస్తారు?", options: ["ప్రత్యేక పంట పొదుపు నిధిని నిర్వహిస్తాను", "పంట భీమా (PMFBY) పై ఆధారపడతాను", "స్వల్పకాలిక వ్యాపారి రుణం", "అనధికార మూలాల నుండి అప్పు పొందుతాను"] },
+    { q: "మీరు విత్తనాలు, ఎరువులు లేదా వ్యవసాయ పరికరాల రుణాలను ఎంత తరచుగా తిరిగి చెల్లిస్తారు?", options: ["ఎల్లప్పుడూ పంట కోత తర్వాత సకాలంలో", "పంట చక్రం వల్ల అప్పుడప్పుడు ఆలస్యం", "తరచుగా ఆలస్యం అవుతుంది", "క్రమంగా తిరిగి చెల్లించలేను"] },
+    { q: "మీ పంట భీమా కవరేజ్ పరిస్థితి (PM ఫసల్ భీమా యోజన) ఏమిటి?", options: ["ప్రతి సీజన్ లో పూర్తిగా భీమా చేయబడింది", "ప్రధాన పంటలకు మాత్రమే భీమా", "అరుదుగా భీమా చేస్తాను", "భీమా చేయలేదు"] },
+    { q: "మండి / APMC వద్ద మీ ఉత్పత్తులకు చెల్లింపులను మీరు ఎలా పొందుతారు?", options: ["నేరుగా బ్యాంక్ ఖాతా బదిలీ (DBT / e-NAM)", "చెక్కు చెల్లింపులు", "నగదు మరియు బ్యాంక్ బదిలీ కలయిక", "నగదు చెల్లింపు మాత్రమే"] },
+    { q: "అనుకోకుండా పంట నష్టం లేదా కరువు ప్రమాదాన్ని మీరు ఎలా నివారిస్తారు?", options: ["అత్యవసర వ్యవసాయ పొదుపులు", "పంట భీమా క్లెయిమ్", "పశువులు లేదా చిన్న ఆస్తులను అమ్మడం", "అధిక వడ్డీ అనధికార రుణం"] },
+    { q: "మీరు వ్యవసాయ ఖర్చుల (ఎరువులు, పురుగుమందులు, కూలీలు) రికార్డును నిర్వహిస్తున్నారా?", options: ["అవును, క్రమబద్ధమైన రాతపూర్వక నోట్‌బుక్", "అంచనా మాత్రమే", "కేవలం ట్రాక్టర్/విత్తనాల ఖర్చులు మాత్రమే", "ఎలాంటి రికార్డులు లేవు"] },
+    { q: "మీరు వ్యవసాయ పరికరాలు లేదా సోలార్ పంపుల పెట్టుబడులను ఎలా ప్రణాళిక చేస్తారు?", options: ["ప్రభుత్వ సబ్సిడీ + బ్యాంక్ రుణం", "దశలవారీగా వ్యక్తిగత పొదుపు", "గ్రామంలో అద్దెకు తీసుకోవడం", "అనధికార అప్పు"] },
+    { q: "మీ వ్యవసాయ ఉత్పత్తులలో ఎంత శాతం అధికారిక APMC/సహకార సంఘాల ద్వారా విక్రయించబడుతుంది?", options: ["100% అధికారిక మార్గాలు", "50–80% అధికారిక మార్గాలు", "50% కంటే తక్కువ", "100% అనధికార స్థానిక వ్యాపారులు"] },
+    { q: "పిఎమ్-కిసాన్ స్థితి తనిఖీల కోసం వాయిస్/SMS బ్యాంకింగ్ ఉపయోగించడం మీకు ఎంత అనుకూలంగా ఉంది?", options: ["చాలా అనుకూలం", "రిటైలర్ సాయం పొందుతాను", "కొద్దిగా అనుకూలం", "అనుకూలం కాదు"] }
+  ]
+}
+
+const MSME_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[] }>> = {
+  en: MSME_QUESTIONS,
+  hi: [
+    { q: "आपकी अनुमानित वार्षिक व्यवसाय टर्नओवर सीमा क्या है?", options: ["₹25 लाख – ₹1 करोड़", "₹10 लाख – ₹25 लाख", "₹5 लाख – ₹10 लाख", "₹5 लाख से कम"] },
+    { q: "आप जीएसटी रिटर्न दाखिल करने और व्यावसायिक लेखांकन का प्रबंधन कैसे करते हैं?", options: ["सीए / पोर्टल के माध्यम से समय पर मासिक दाखिल करना", "त्रैमासिक स्वचालित सॉफ्टवेयर फाइलिंग", "मैनुअल स्वयं फाइलिंग", "कोई जीएसटी फाइलिंग नहीं"] },
+    { q: "आपूर्तिकर्ता चालान निपटान के लिए आपकी मानक भुगतान शर्तें क्या हैं?", options: ["15-30 दिनों के भीतर तुरंत क्रेडिट", "30-60 दिन", "60-90 दिन विलंबित क्रेडिट", "90 दिनों से अधिक विलंबित"] },
+    { q: "आपके व्यावसायिक लेनदेन का कितना हिस्सा डिजिटल चैनलों (UPI / QR / POS) के माध्यम से तय किया जाता है?", options: ["75% से अधिक डिजिटल भुगतान", "50%–75% डिजिटल भुगतान", "25%–50% डिजिटल भुगतान", "25% से कम (अधिकांश नकद)"] },
+    { q: "मौसमी कम मांग के दौरान आप कार्यशील पूंजी की कमी को कैसे संभालते हैं?", options: ["व्यावसायिक नकद भंडार रखा गया", "बैंक से ओवरड्राफ्ट (OD) सुविधा", "आपूर्तिकर्ता व्यापार क्रेडिट विस्तार", "व्यक्तिगत आपातकालीन बचत"] },
+    { q: "वाणिज्यिक क्रेडिट प्राप्त करने का आपका मुख्य उद्देश्य क्या है?", options: ["कार्यशील पूंजी और इन्वेंट्री विस्तार", "मशीनरी / उपकरण अपग्रेड", "नया आउटलेट / शाखा खोलना", "मौजूदा ऋण का पुनर्वित्त"] },
+    { q: "आप कितनी बार इन्वेंट्री का ऑडिट या पुनर्भंडारण करते हैं?", options: ["साप्ताहिक व्यवस्थित ट्रैकिंग", "मासिक स्थान जांच", "त्रैमासिक जब कम हो", "कोई व्यवस्थित इन्वेंट्री ऑडिट नहीं"] },
+    { q: "क्या आपने कभी वाणिज्यिक उपयोगिता या वाणिज्यिक किराया भुगतान में देरी का अनुभव किया है?", options: ["कभी देरी नहीं हुई", "एक या दो बार देरी हुई", "कभी-कभी देरी हुई", "अक्सर देरी हुई"] },
+    { q: "क्या आप ग्राहक क्रेडिट / खाता पुस्तकें प्रदान करते हैं और आप प्राप्तियों को कैसे ट्रैक करते हैं?", options: ["एसएमएस रिमाइंडर के साथ डिजिटल खाता ऐप", "भौतिक बहीखाता पुस्तक", "मोटा मानसिक ट्रैकिंग", "सख्ती से केवल नकद बिक्री"] },
+    { q: "आपकी व्यावसायिक संपत्ति और दुकान बीमा कवरेज स्तर क्या है?", options: ["व्यापक दुकान और स्टॉक बीमा", "बुनियादी आग और चोरी नीति", "केवल संपत्ति", "कोई व्यावसायिक बीमा नहीं"] }
+  ],
+  te: [
+    { q: "మీ అంచనా వేసిన వార్షిక వ్యాపార టర్నోవర్ పరిధి ఎంత?", options: ["₹25 లక్షలు – ₹1 కోటి", "₹10 లక్షలు – ₹25 లక్షలు", "₹5 లక్షలు – ₹10 లక్షలు", "₹5 లక్షల కంటే తక్కువ"] },
+    { q: "మీరు GST రిటర్న్ ఫైలింగ్ మరియు వ్యాపార అకౌంటింగ్‌ను ఎలా నిర్వహిస్తారు?", options: ["నెలవారీ CA / పోర్టల్ ఫైలింగ్", "త్రైమాసిక సాఫ్ట్‌వేర్ ఫైలింగ్", "మాన్యువల్ ఫైలింగ్", "GST ఫైలింగ్ లేదు"] },
+    { q: "సరఫరాదారు ఇన్‌వాయిస్ చెల్లింపు కోసం మీ ప్రామాణిక నిబంధనలు ఏమిటి?", options: ["15–30 రోజులలోపు సకాలంలో", "30–60 రోజులు", "60–90 రోజులు ఆలస్యంగా", "90 రోజులకు పైగా ఆలస్యం"] },
+    { q: "మీ వ్యాపార లావాదేవీలలో ఎంత శాతం డిజిటల్ మార్గాల ద్వారా (UPI / QR / POS) జరుగుతాయి?", options: ["75% కంటే ఎక్కువ డిజిటల్ చెల్లింపులు", "50%–75% డిజిటల్", "25%–50% డిజిటల్", "25% కంటే తక్కువ (ఎక్కువగా నగదు)"] },
+    { q: "వ్యాపార సీజన్ తగ్గినప్పుడు వర్కింగ్ క్యాపిటల్ కొరతను ఎలా నిర్వహిస్తారు?", options: ["వ్యాపార రిజర్వు నిధులు", "బ్యాంక్ ఓవర్‌డ్రాఫ్ట్ (OD) సౌకర్యం", "సరఫరాదారు క్రెడిట్ పొడిగింపు", "వ్యక్తిగత అత్యవసర పొదుపు"] },
+    { q: "మీరు క్రెడిట్ రుణం కోరడానికి ప్రధాన ఉద్దేశ్యం ఏమిటి?", options: ["వర్కింగ్ క్యాపిటల్ & వ్యాపార విస్తరణ", "యంత్రాలు / పరికరాల నవీకరణ", "కొత్త షాపు / బ్రాంచ్ ప్రారంభం", "పాత రుణాల పునరుద్ధరణ"] },
+    { q: "మీరు ఇన్వెంటరీ నిల్వలను ఎంత తరచుగా తనిఖీ చేస్తారు?", options: ["వారానికోసారి క్రమబద్ధమైన తనిఖీ", "నెలవారీ స్పాట్ చెక్", "మూడు నెలలకోసారి", "ఎలాంటి తనిఖీ లేదు"] },
+    { q: "మీరు ఎప్పుడైనా షాపు అద్దె లేదా కరెంట్ బిల్లుల చెల్లింపులో ఆలస్యం అనుభవించారా?", options: ["ఎప్పుడూ ఆలస్యం కాలేదు", "1-2 సార్లు ఆలస్యమైంది", "అప్పుడప్పుడు ఆలస్యం", "తరచుగా ఆలస్యం"] },
+    { q: "మీరు కస్టమర్ క్రెడిట్ / ఖాతా పుస్తకాలను ఎలా నిర్వహిస్తారు?", options: ["SMS రికార్డులతో డిజిటల్ ఖాతా యాప్", "భౌతిక పుస్తకం", "అంచనా మాత్రమే", "కేవలం నగదు విక్రయాలు"] },
+    { q: "మీ షాపు మరియు సరుకుల భీమా పరిస్థితి ఏమిటి?", options: ["పూర్తి షాపు & సరుకుల భీమా", "మంటలు & దొంగతనాల భీమా", "ఆస్తికి మాత్రమే", "ఎలాంటి భీమా లేదు"] }
+  ]
+}
+
+const PSYCHOMETRIC_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[] }>> = {
+  en: GENERAL_QUESTIONS,
+  hi: [
+    { q: "आप मासिक आवर्ती खर्चों और बिलों की योजना कैसे बनाते हैं?", options: ["सख्त बजट बनाए रखते हैं और समय पर भुगतान करते हैं", "रिमाइंडर आने पर भुगतान करते हैं", "कैश फ्लो के कारण कभी-कभी देर से भुगतान करते हैं", "कोई औपचारिक योजना नहीं"] },
+    { q: "यदि ₹10,000 का अप्रत्याशित आपातकालीन खर्च आता है, तो आप इसे कैसे पूरा करेंगे?", options: ["समर्पित आपातकालीन बचत से", "अगले महीने की कमाई से", "दोस्तों या परिवार से उधार लेंगे", "कम अवधि का उच्च ब्याज ऋण लेंगे"] },
+    { q: "दैनिक लेनदेन के लिए आप डिजिटल भुगतान विधियों (UPI, नेटबैंकिंग) का कितनी बार उपयोग करते हैं?", options: ["लगभग सभी लेनदेन के लिए दैनिक", "सप्ताह में कई बार", "कभी-कभी (महीने में 1-2 बार)", "कभी नहीं / केवल नकद"] },
+    { q: "नया ऋण या ऋण प्रतिबद्धता लेने के प्रति आपका दृष्टिकोण क्या है?", options: ["केवल तभी लें जब आवश्यक हो और पुनर्भुगतान की गारंटी हो", "यदि ब्याज दर कम और प्रबंधनीय हो तो लें", "जब भी क्रेडिट उपलब्ध हो तब लें", "ऋण से पूरी तरह बचें"] },
+    { q: "आप अपनी आय और दैनिक वित्तीय लेनदेन को कैसे ट्रैक करते हैं?", options: ["डिजिटल अकाउंटिंग ऐप या व्यवस्थित बहीखाता", "नोटबुक / डायरी रिकॉर्ड", "मोटा मानसिक अनुमान", "कोई ट्रैकिंग नहीं"] },
+    { q: "भविष्य के लक्ष्यों के लिए आपकी मासिक आय का कितना हिस्सा बचाया या निवेश किया जाता है?", options: ["20% से अधिक", "10% से 20%", "10% से कम", "नियमित रूप से कुछ नहीं बचाया"] },
+    { q: "आप उपयोगिता बिल भुगतानों (बिजली, पानी, एलपीजी) का प्रबंधन कैसे करते हैं?", options: ["हमेशा नियत तारीख से पहले भुगतान", "नियत तारीख पर भुगतान", "विलंब शुल्क के साथ नियत तारीख के बाद भुगतान", "भुगतान न करने के कारण अक्सर डिस्कनेक्ट"] },
+    { q: "आप वित्तीय उत्पादों या निवेश के अवसरों का मूल्यांकन कैसे करते हैं?", options: ["विस्तृत शोध और तुलना", "विश्वसनीय परिवार या सलाहकार से परामर्श", "लोकप्रिय रुझानों का पालन करें", "आवेगपूर्ण निर्णय लें"] },
+    { q: "अगले 12 महीनों के लिए आपका प्राथमिक वित्तीय लक्ष्य क्या है?", options: ["व्यवसाय का विस्तार / आय स्रोतों में वृद्धि", "आपातकालीन कोष का निर्माण", "मौजूदा ऋणों का भुगतान करें", "कोई विशिष्ट वित्तीय लक्ष्य नहीं"] },
+    { q: "क्या आपने पिछले 2 वर्षों में कभी ऋण ईएमआई या क्रेडिट पुनर्भुगतान समय सीमा को याद किया है?", options: ["कभी कोई भुगतान नहीं चूका", "तकनीकी समस्या के कारण एक या दो बार", "अक्सर देरी हुई", "नियमित रूप से छूटा"] }
+  ],
+  te: [
+    { q: "మీరు నెలవారీ పునరావృత ఖర్చులు మరియు బిల్లులను ఎలా ప్రణాళిక చేస్తారు?", options: ["ఖచ్చితమైన బడ్జెట్‌ను నిర్వహిస్తాను మరియు సకాలంలో చెల్లిస్తాను", "జ్ఞాపికలు వచ్చినప్పుడు చెల్లిస్తాను", "నగదు ప్రవాహం వల్ల అప్పుడప్పుడు ఆలస్యంగా చెల్లిస్తాను", "ఎలాంటి ఔపచారిక ప్రణాళిక లేదు"] },
+    { q: "₹10,000 అనుకోని అత్యవసర ఖర్చు వస్తే, మీరు దానిని ఎలా భరిస్తారు?", options: ["అత్యవసర పొదుపు నిధి నుండి", "తదుపరి నెల సంపాదన నుండి", "స్నేహితులు లేదా కుటుంబ సభ్యుల నుండి అప్పు పొందుతాను", "స్వల్పకాలిక అధిక వడ్డీ రుణం తీసుకుంటాను"] },
+    { q: "రోజువారీ లావాదేవీల కోసం డిజిటల్ చెల్లింపు పద్ధతులను (UPI, నెట్‌బ్యాంకింగ్) ఎంత తరచుగా ఉపయోగిస్తారు?", options: ["దాదాపు అన్ని లావాదేవీలకు రోజూ", "వారానికి పలుమార్లు", "అప్పుడప్పుడు (నెలలో 1-2 సార్లు)", "ఎప్పుడూ లేదు / నగదు మాత్రమే"] },
+    { q: "కొత్త రుణం తీసుకోవడం పట్ల మీ వైఖరి ఏమిటి?", options: ["అవసరమైతే మరియు తిరోగమనం ఖచ్చితంగా ఉంటేనే తీసుకుంటాను", "వడ్డీ రేటు తక్కువగా ఉంటే తీసుకుంటాను", "రుణం అందుబాటులో ఉన్నప్పుడు తీసుకుంటాను", "రుణాలను పూర్తిగా నివారిస్తాను"] },
+    { q: "మీ ఆదాయం మరియు రోజువారీ ఆర్థిక లావాదేవీలను ఎలా నమోదు చేస్తారు?", options: ["డిజిటల్ అకౌంటింగ్ యాప్ లేదా లేజర్ బుక్", "నోట్‌బుక్ / డైరీ రికార్డులు", "అంచనా మాత్రమే", "ఎలాంటి నమోదు లేదు"] },
+    { q: "భవిష్యత్తు లక్ష్యాల కోసం మీ నెలవారీ ఆదాయంలో ఎంత శాతం పొదుపు చేస్తారు?", options: ["20% కంటే ఎక్కువ", "10% నుండి 20%", "10% కంటే తక్కువ", "క్రమబద్ధంగా ఏమీ పొదుపు చేయలేదు"] },
+    { q: "మీరు విద్యుత్, నీరు, గ్యాస్ బిల్లుల చెల్లింపులను ఎలా నిర్వహిస్తారు?", options: ["ఎల్లప్పుడూ ఆఖరి తేదీ కంటే ముందే చెల్లిస్తాను", "ఆఖరి తేదీ రోజున చెల్లిస్తాను", "ఆలస్య రుసుముతో ఆఖరి తేదీ తర్వాత", "చెల్లించకపోవడం వల్ల కనెక్షన్ కట్ అయ్యేది"] },
+    { q: "మీరు ఆర్థిక ఉత్పత్తులు లేదా పెట్టుబడి అవకాశాలను ఎలా మూల్యాంకనం చేస్తారు?", options: ["పూర్తి పరిశోధన మరియు పోలిక", "నమ్మకమైన కుటుంబం లేదా సలహాదారుని సంప్రదిస్తాను", "ట్రెండ్స్ అనుసరిస్తాను", "తక్షణ నిర్ణయాలు తీసుకుంటాను"] },
+    { q: "తదుపరి 12 నెలలకు మీ ప్రధాన ఆర్థిక లక్ష్యం ఏమిటి?", options: ["వ్యాపార విస్తరణ / ఆదాయ వనరులను పెంచడం", "అత్యవసర నిధి నిర్మాణం", "పాత రుణాలను తీర్చడం", "ప్రత్యేక ఆర్థిక లక్ష్యం లేదు"] },
+    { q: "గత 2 సంవత్సరాలలో మీరు ఎప్పుడైనా రుణం ఇఎంఐ లేదా క్రెడిట్ చెల్లింపు గడువు తప్పారా?", options: ["ఎప్పుడూ చెల్లింపులు తప్పలేదు", "సాంకేతిక సమస్య వల్ల 1-2 సార్లు", "తరచుగా ఆలస్యమైంది", "క్రమంగా తప్పేది"] }
+  ]
+}
+
 export function ConsentPage() {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
   const { auth } = useAuthStore()
   const user = auth.user
   const [step, setStep] = useState(0)
@@ -247,6 +334,7 @@ export function ConsentPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [questionnaireStartTime, setQuestionnaireStartTime] = useState<number | null>(null)
   const [changesCount, setChangesCount] = useState(0)
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
 
   useEffect(() => {
     if (step === 8 && !questionnaireStartTime) {
@@ -505,11 +593,12 @@ export function ConsentPage() {
     setAnswers((prev) => ({ ...prev, [qIdx]: oIdx }))
   }
 
+  const currentLang = (i18n.language || 'en').split('-')[0]
   const activeQuestions = (profession === 'farmer' || user?.email === 'farmer@altgrade.in')
-    ? FARMER_QUESTIONS
+    ? (FARMER_QUESTIONS_BY_LANG[currentLang] || FARMER_QUESTIONS)
     : (profession === 'msme' || user?.email === 'msme@altgrade.in')
-    ? MSME_QUESTIONS
-    : GENERAL_QUESTIONS
+    ? (MSME_QUESTIONS_BY_LANG[currentLang] || MSME_QUESTIONS)
+    : (PSYCHOMETRIC_QUESTIONS_BY_LANG[currentLang] || GENERAL_QUESTIONS)
 
   const isQuestionnaireComplete = Object.keys(answers).length === activeQuestions.length
 
@@ -593,7 +682,7 @@ export function ConsentPage() {
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dove/20 pb-4'>
         <div className='flex items-center gap-2'>
           <ShieldCheck className='h-5 w-5 text-brand-blue' />
-          <span className='text-sm font-bold tracking-tight text-foreground'>AltGrade RBI DLG Portal</span>
+          <span className='text-sm font-bold tracking-tight text-foreground'>{t('consent.portalTitle', 'AltGrade RBI DLG Portal')}</span>
         </div>
         <div className='flex items-center gap-2'>
           <LanguageSelector />
@@ -603,15 +692,15 @@ export function ConsentPage() {
       {/* Dynamic Stepper Header */}
       {step > 0 && (
         <div className='mb-8 flex justify-between items-center text-[10px] sm:text-xs text-graphite border-b border-dove/20 pb-4 overflow-x-auto whitespace-nowrap gap-4'>
-          <span className={step === 1 ? 'text-brand-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>1. Mobile</span>
-          <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>2. PAN</span>
-          <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>3. Aadhaar</span>
-          <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>4. Liveness</span>
-          <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>5. Profession</span>
-          <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>6. Bank</span>
-          <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>7. Location</span>
-          <span className={step === 8 ? 'text-brand-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>8. Psychometric</span>
-          <span className={step === 9 ? 'text-brand-blue font-semibold' : ''}>9. GST (Opt)</span>
+          <span className={step === 1 ? 'text-brand-blue font-semibold' : step > 1 ? 'text-foreground' : ''}>{t('consent.step1', '1. Mobile')}</span>
+          <span className={step === 2 ? 'text-brand-blue font-semibold' : step > 2 ? 'text-foreground' : ''}>{t('consent.step2', '2. PAN')}</span>
+          <span className={step === 3 ? 'text-brand-blue font-semibold' : step > 3 ? 'text-foreground' : ''}>{t('consent.step3', '3. Aadhaar')}</span>
+          <span className={step === 4 ? 'text-brand-blue font-semibold' : step > 4 ? 'text-foreground' : ''}>{t('consent.step4', '4. Liveness')}</span>
+          <span className={step === 5 ? 'text-brand-blue font-semibold' : step > 5 ? 'text-foreground' : ''}>{t('consent.step5', '5. Profession')}</span>
+          <span className={step === 6 ? 'text-brand-blue font-semibold' : step > 6 ? 'text-foreground' : ''}>{t('consent.step6', '6. Bank')}</span>
+          <span className={step === 7 ? 'text-brand-blue font-semibold' : step > 7 ? 'text-foreground' : ''}>{t('consent.step7', '7. Location')}</span>
+          <span className={step === 8 ? 'text-brand-blue font-semibold' : step > 8 ? 'text-foreground' : ''}>{t('consent.step8', '8. Psychometric')}</span>
+          <span className={step === 9 ? 'text-brand-blue font-semibold' : ''}>{t('consent.step9', '9. GST (Opt)')}</span>
         </div>
       )}
 
@@ -633,20 +722,20 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Phone className='h-5 w-5 text-brand-blue' />
-              Verify Your Mobile
+              {t('consent.verifyMobile', 'Verify Your Mobile')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Enter your 10-digit mobile number to generate a secure credit assessment session.
+              {t('consent.enterMobileDesc', 'Enter your 10-digit mobile number to generate a secure credit assessment session.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='phone'>Mobile Number</Label>
+              <Label htmlFor='phone'>{t('consent.mobileNumber', 'Mobile Number')}</Label>
               <div className='flex gap-2'>
                 <span className='flex items-center justify-center border border-dove/80 rounded-[12px] px-3 bg-muted text-sm text-muted-foreground'>+91</span>
                 <Input
                   id='phone'
-                  placeholder='Enter mobile number'
+                  placeholder={t('consent.enterMobilePlaceholder', 'Enter mobile number')}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   className='rounded-[12px] border-dove/80'
@@ -661,15 +750,15 @@ export function ConsentPage() {
                 disabled={phone.length !== 10}
                 className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
               >
-                Send Verification Code
+                {t('consent.sendOtp', 'Send Verification Code')}
               </Button>
             ) : (
               <div className='space-y-4 animate-fade-up'>
                 <div className='space-y-2'>
-                  <Label htmlFor='otp'>Verification Code (OTP)</Label>
+                  <Label htmlFor='otp'>{t('consent.otpLabel', 'Verification Code (OTP)')}</Label>
                   <Input
                     id='otp'
-                    placeholder='Enter 6-digit code'
+                    placeholder={t('consent.otpPlaceholder', 'Enter 6-digit code')}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     className='rounded-[12px] border-dove/80'
@@ -684,10 +773,10 @@ export function ConsentPage() {
                   {verifyingOtp ? (
                     <>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Verifying Code...
+                      {t('consent.verifyingCode', 'Verifying Code...')}
                     </>
                   ) : (
-                    'Verify & Proceed'
+                    t('consent.verifyProceed', 'Verify & Proceed')
                   )}
                 </Button>
               </div>
@@ -702,15 +791,15 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <CreditCard className='h-5 w-5 text-brand-blue' />
-              PAN Verification
+              {t('consent.panTitle', 'PAN Verification')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Enter your Permanent Account Number to verify tax registry identity.
+              {t('consent.panDesc', 'Enter your Permanent Account Number to verify tax registry identity.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='pan'>PAN Card Number</Label>
+              <Label htmlFor='pan'>{t('consent.panLabel', 'PAN Card Number')}</Label>
               <Input
                 id='pan'
                 placeholder='ABCDE1234F'
@@ -730,17 +819,17 @@ export function ConsentPage() {
                 {verifyingPan ? (
                   <>
                     <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Verifying PAN...
+                    {t('consent.verifyingPan', 'Verifying PAN...')}
                   </>
                 ) : (
-                  'Verify PAN'
+                  t('consent.verifyPanBtn', 'Verify PAN')
                 )}
               </Button>
             ) : (
               <div className='space-y-4 animate-fade-up border-t border-dove/20 pt-4'>
                 <div className='grid grid-cols-2 gap-3 text-xs'>
                   <div>
-                    <span className='text-graphite font-medium'>Full Name:</span>
+                    <span className='text-graphite font-medium'>{t('consent.fullName', 'Full Name')}:</span>
                     <p className='text-sm font-semibold mt-0.5 text-foreground'>{panName}</p>
                   </div>
                   <div>
@@ -752,7 +841,7 @@ export function ConsentPage() {
                     <p className='text-sm font-semibold mt-0.5 text-foreground'>{panType}</p>
                   </div>
                   <div>
-                    <span className='text-graphite font-medium'>Aadhaar Link:</span>
+                    <span className='text-graphite font-medium'>{t('consent.aadhaarLinked', 'Aadhaar Link')}:</span>
                     <p className='mt-0.5'>
                       <Badge className='bg-brand-blue/15 text-brand-blue border-brand-blue/30' variant='outline'>
                         Linked
@@ -765,7 +854,7 @@ export function ConsentPage() {
                   onClick={() => setStep(3)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
                 >
-                  Confirm & Continue
+                  {t('consent.verifyPanProceed', 'Verify PAN & Proceed')}
                 </Button>
               </div>
             )}
@@ -779,15 +868,15 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Fingerprint className='h-5 w-5 text-brand-blue' />
-              Aadhaar OKYC
+              {t('consent.aadhaarTitle', 'Aadhaar e-KYC Verification')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Enter your Aadhaar number to verify identity with UIDAI registry.
+              {t('consent.aadhaarDesc', 'Enter your 12-digit Aadhaar number for UIDAI instant verification.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='aadhaar'>Aadhaar Number</Label>
+              <Label htmlFor='aadhaar'>{t('consent.aadhaarLabel', 'Aadhaar Number')}</Label>
               <Input
                 id='aadhaar'
                 placeholder='12-digit number'
@@ -804,15 +893,15 @@ export function ConsentPage() {
                 disabled={aadhaar.length !== 12}
                 className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
               >
-                Send Aadhaar OTP
+                {t('consent.sendAadhaarOtp', 'Send Aadhaar OTP')}
               </Button>
             ) : (
               <div className='space-y-4 animate-fade-up'>
                 <div className='space-y-2'>
-                  <Label htmlFor='aadhaarOtp'>Aadhaar Verification Code</Label>
+                  <Label htmlFor='aadhaarOtp'>{t('consent.aadhaarOtpLabel', 'UIDAI OTP Code')}</Label>
                   <Input
                     id='aadhaarOtp'
-                    placeholder='Enter 6-digit code'
+                    placeholder={t('consent.otpPlaceholder', 'Enter 6-digit code')}
                     value={aadhaarOtp}
                     onChange={(e) => setAadhaarOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     className='rounded-[12px] border-dove/80'
@@ -827,10 +916,10 @@ export function ConsentPage() {
                   {verifyingAadhaar ? (
                     <>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Verifying Aadhaar...
+                      {t('consent.verifyingAadhaar', 'Verifying Aadhaar...')}
                     </>
                   ) : (
-                    'Verify & Proceed'
+                    t('consent.verifyAadhaarProceed', 'Verify Aadhaar & Proceed')
                   )}
                 </Button>
               </div>
@@ -845,10 +934,10 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Camera className='h-5 w-5 text-brand-blue' />
-              Liveness Check
+              {t('consent.livenessTitle', 'Liveness & Identity Verification')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Perform a quick liveness scan to complete your identity verification.
+              {t('consent.livenessDesc', 'Real-time AI face liveness detection to prevent impersonation.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
@@ -896,10 +985,10 @@ export function ConsentPage() {
                 {capturingFace ? (
                   <>
                     <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Analyzing Facial Liveness...
+                    {t('consent.verifyingLiveness', 'Analyzing Face Liveness...')}
                   </>
                 ) : (
-                  'Analyze Liveness & Capture'
+                  t('consent.captureVerify', 'Capture & Verify Face')
                 )}
               </Button>
             )}
@@ -922,19 +1011,19 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Briefcase className='h-5 w-5 text-brand-blue' />
-              Step 5: Profession Details
+              {t('consent.professionTitle', 'Occupation & Business Details')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Select your primary profession to customize the credit assessment.
+              {t('consent.professionDesc', 'Select your primary source of livelihood to tailor credit evaluation.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='grid gap-3 grid-cols-1'>
               {[
-                { id: 'farmer', label: 'Farmers' },
-                { id: 'msme', label: 'MSMEs' },
-                { id: 'gig', label: 'Urban/gig workers' },
-                { id: 'other', label: 'Others' }
+                { id: 'farmer', label: t('consent.farmerLabel', 'Farmer / Agriculturalist') },
+                { id: 'msme', label: t('consent.msmeLabel', 'MSME / Small Business Owner') },
+                { id: 'gig', label: t('consent.gigLabel', 'Urban / Gig Worker') },
+                { id: 'other', label: t('consent.otherLabel', 'Salaried / Other Professional') }
               ].map((p) => {
                 const isSelected = profession === p.id
                 return (
@@ -960,7 +1049,7 @@ export function ConsentPage() {
 
             {profession === 'other' && (
               <div className='space-y-2 animate-fade-up'>
-                <Label htmlFor='custom-profession'>Please specify your profession</Label>
+                <Label htmlFor='custom-profession'>{t('consent.customProfessionLabel', 'Specify Your Occupation')}</Label>
                 <Input
                   id='custom-profession'
                   placeholder='e.g., Software Engineer, Teacher'
@@ -976,7 +1065,7 @@ export function ConsentPage() {
               disabled={!profession || (profession === 'other' && !customProfession.trim())}
               className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
             >
-              Continue to Bank Connection
+              {t('consent.confirmProfession', 'Confirm Profession & Proceed')}
             </Button>
           </CardContent>
         </Card>
@@ -987,10 +1076,10 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Landmark className='h-5 w-5 text-brand-blue' />
-              Step 6: Bank Connection
+              {t('consent.bankTitle', 'Bank Statement Data Stream')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Link your bank account via Finvu Account Aggregator to analyze transaction statements.
+              {t('consent.bankDesc', 'Connect via Finvu Account Aggregator (AA) or upload PDF bank statements.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
@@ -1053,7 +1142,7 @@ export function ConsentPage() {
                         Connecting via Finvu AA...
                       </>
                     ) : (
-                      'Link Bank Account'
+                      t('consent.connectFinvu', 'Connect Finvu AA (Recommended)')
                     )}
                   </Button>
                 )}
@@ -1062,7 +1151,7 @@ export function ConsentPage() {
               <div className='space-y-4 animate-fade-up text-center'>
                 <div className='flex flex-col items-center justify-center p-6 bg-brand-blue/5 rounded-[16px] border border-brand-blue/10'>
                   <ShieldCheck className='h-12 w-12 text-brand-blue' />
-                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>Bank Connection Successful</h3>
+                  <h3 className='text-sm font-semibold text-brand-blue mt-2'>{t('consent.bankLinkedSuccess', 'Bank Statement Linked Successfully!')}</h3>
                   <p className='text-xs text-graphite mt-1'>
                     {pdfFile ? 'Parsed statement statement_uploaded.pdf' : 'Consented via Finvu AA sandbox.'}
                   </p>
@@ -1076,7 +1165,7 @@ export function ConsentPage() {
                   onClick={() => setStep(7)}
                   className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
                 >
-                  Continue to Next Step
+                  {t('consent.continueLocation', 'Proceed to Location Verification')}
                   <ArrowRight className='h-4 w-4' />
                 </Button>
               </div>
@@ -1091,10 +1180,10 @@ export function ConsentPage() {
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <MapPin className='h-5 w-5 text-brand-blue' />
-              Step 7: Location History
+              {t('consent.locationTitle', 'Location Stability & Geolocation')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Provide your current and permanent addresses. You can also add previous places you've lived.
+              {t('consent.locationDesc', 'Verify residential continuity and address history.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-6'>
@@ -1103,7 +1192,7 @@ export function ConsentPage() {
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Home className='h-4 w-4 text-brand-blue' />
-                <Label className='text-sm font-semibold'>Current Address</Label>
+                <Label className='text-sm font-semibold'>{t('consent.currentAddress', 'Current Residential Address')}</Label>
               </div>
               {!currentAddress ? (
                 <div className='space-y-2'>
@@ -1134,7 +1223,7 @@ export function ConsentPage() {
                         {locSelectedPlace.name}
                       </div>
                       <div className='space-y-1'>
-                        <Label className='text-xs'>Living here since (year)</Label>
+                        <Label className='text-xs'>{t('consent.livingSince', 'Living here since (year)')}</Label>
                         <Input
                           type='number'
                           min={1970}
@@ -1155,7 +1244,7 @@ export function ConsentPage() {
                         size='sm'
                         className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
                       >
-                        Set Current Address
+                        {t('consent.setCurrentAddress', 'Set Current Address')}
                       </Button>
                     </div>
                   )}
@@ -1165,7 +1254,7 @@ export function ConsentPage() {
                   <MapPin className='h-4 w-4 text-brand-blue shrink-0' />
                   <div className='flex-1 min-w-0'>
                     <p className='text-sm font-medium truncate'>{currentAddress.place}</p>
-                    <p className='text-[10px] text-muted-foreground'>Since {currentAddress.fromYear} — Present</p>
+                    <p className='text-[10px] text-muted-foreground'>{t('consent.sincePresent', 'Since {{year}} — Present', { year: currentAddress.fromYear })}</p>
                   </div>
                   <button onClick={() => setCurrentAddress(null)} className='text-muted-foreground hover:text-destructive transition-colors'>
                     <X className='h-4 w-4' />
@@ -1178,7 +1267,7 @@ export function ConsentPage() {
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Home className='h-4 w-4 text-emerald-600' />
-                <Label className='text-sm font-semibold'>Permanent Address</Label>
+                <Label className='text-sm font-semibold'>{t('consent.permanentAddress', 'Permanent Address')}</Label>
               </div>
               <label className='flex items-center gap-2 cursor-pointer'>
                 <input
@@ -1195,13 +1284,13 @@ export function ConsentPage() {
                   className='rounded border-dove/80'
                   disabled={!currentAddress}
                 />
-                <span className='text-xs text-muted-foreground'>Same as current address</span>
+                <span className='text-xs text-muted-foreground'>{t('consent.sameAsCurrent', 'Same as current address')}</span>
               </label>
               {!permanentSameAsCurrent && !permanentAddress && (
                 <div className='space-y-2'>
                   <div className='relative'>
                     <Input
-                      placeholder='Start typing your permanent address'
+                      placeholder={t('consent.startTypingPermanent', 'Start typing your permanent address')}
                       value={locAddingType === 'permanent' ? locSearchQuery : ''}
                       onFocus={() => { setLocAddingType('permanent'); setLocSearchQuery(''); setLocSearchResults([]); setLocSelectedPlace(null) }}
                       onChange={(e) => { setLocAddingType('permanent'); handlePhotonSearch(e.target.value) }}
@@ -1235,7 +1324,7 @@ export function ConsentPage() {
                         size='sm'
                         className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
                       >
-                        Set Permanent Address
+                        {t('consent.setPermanentAddress', 'Set Permanent Address')}
                       </Button>
                     </div>
                   )}
@@ -1246,7 +1335,7 @@ export function ConsentPage() {
                   <MapPin className='h-4 w-4 text-emerald-600 shrink-0' />
                   <div className='flex-1 min-w-0'>
                     <p className='text-sm font-medium truncate'>{permanentAddress.place}</p>
-                    <p className='text-[10px] text-muted-foreground'>Permanent address</p>
+                    <p className='text-[10px] text-muted-foreground'>{t('consent.permanentAddressText', 'Permanent address')}</p>
                   </div>
                   <button onClick={() => setPermanentAddress(null)} className='text-muted-foreground hover:text-destructive transition-colors'>
                     <X className='h-4 w-4' />
@@ -1258,8 +1347,8 @@ export function ConsentPage() {
             {/* === PREVIOUS PLACES === */}
             <div className='space-y-3'>
               <div className='flex items-center justify-between'>
-                <Label className='text-sm font-semibold'>Previous Places Lived</Label>
-                <span className='text-[10px] text-muted-foreground'>Optional — add as many as needed</span>
+                <Label className='text-sm font-semibold'>{t('consent.previousPlacesLived', 'Previous Places Lived')}</Label>
+                <span className='text-[10px] text-muted-foreground'>{t('consent.optionalAddMany', 'Optional — add as many as needed')}</span>
               </div>
 
               {locationEntries.length > 0 && (
@@ -1270,7 +1359,7 @@ export function ConsentPage() {
                       <div className='flex-1 min-w-0'>
                         <p className='text-sm font-medium truncate'>{entry.place}</p>
                         <p className='text-[10px] text-muted-foreground'>
-                          {entry.fromYear} — {entry.toYear === null ? 'Present' : entry.toYear}
+                          {entry.fromYear} — {entry.toYear === null ? t('consent.present', 'Present') : entry.toYear}
                         </p>
                       </div>
                       <button onClick={() => handleRemoveLocation(i)} className='text-muted-foreground hover:text-destructive transition-colors'>
@@ -1284,7 +1373,7 @@ export function ConsentPage() {
               <div className='space-y-2'>
                 <div className='relative'>
                   <Input
-                    placeholder='Add a previous city or area you lived in'
+                    placeholder={t('consent.addPreviousCity', 'Add a previous city or area you lived in')}
                     value={locAddingType === 'previous' ? locSearchQuery : ''}
                     onFocus={() => { setLocAddingType('previous'); setLocSearchQuery(''); setLocSearchResults([]); setLocSelectedPlace(null) }}
                     onChange={(e) => { setLocAddingType('previous'); handlePhotonSearch(e.target.value) }}
@@ -1310,7 +1399,7 @@ export function ConsentPage() {
                     </div>
                     <div className='grid grid-cols-2 gap-3'>
                       <div className='space-y-1'>
-                        <Label className='text-xs'>From Year</Label>
+                        <Label className='text-xs'>{t('consent.fromYear', 'From Year')}</Label>
                         <Input
                           type='number' min={1970} max={new Date().getFullYear()}
                           value={locFromYear}
@@ -1319,7 +1408,7 @@ export function ConsentPage() {
                         />
                       </div>
                       <div className='space-y-1'>
-                        <Label className='text-xs'>To Year</Label>
+                        <Label className='text-xs'>{t('consent.toYear', 'To Year')}</Label>
                         <Input
                           type='number' min={locFromYear} max={new Date().getFullYear()}
                           value={locToYear || new Date().getFullYear()}
@@ -1334,7 +1423,7 @@ export function ConsentPage() {
                       className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
                     >
                       <Plus className='h-4 w-4' />
-                      Add This Place
+                      {t('consent.addLocation', 'Add Location')}
                     </Button>
                   </div>
                 )}
@@ -1347,7 +1436,7 @@ export function ConsentPage() {
               className='text-xs text-brand-blue hover:underline flex items-center gap-1'
             >
               <Map className='h-3.5 w-3.5' />
-              {showMap ? 'Hide map' : 'Or tap on a map instead'}
+              {showMap ? t('consent.hideMap', 'Hide map') : t('consent.tapMapInstead', 'Or tap on a map instead')}
             </button>
 
             {showMap && (
@@ -1367,7 +1456,7 @@ export function ConsentPage() {
               disabled={!currentAddress || (!permanentAddress && !permanentSameAsCurrent)}
               className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium flex items-center justify-center gap-2'
             >
-              Continue to Questionnaire
+              {t('consent.proceedPsychometric', 'Proceed to Psychometric Survey')}
               <ArrowRight className='h-4 w-4' />
             </Button>
             {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: Photon (OpenStreetMap) geocoding API + Leaflet map</p>}
@@ -1375,17 +1464,33 @@ export function ConsentPage() {
         </Card>
       )}
 
-      {step === 8 && (
+      {step === 8 && (() => {
+        const currentQ = activeQuestions[currentQuestionIdx]
+        const answeredCount = Object.keys(answers).length
+
+        return (
         <Card className='shadow-subtle max-w-2xl mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center justify-between gap-2'>
               <div className='flex items-center gap-2'>
                 <Brain className='h-5 w-5 text-brand-blue' />
-                Step 8: Psychometric Assessment
+                {t('consent.psychTitle', 'Step 8: Psychometric Assessment')}
               </div>
+              <Badge variant='outline' className='border-brand-blue/30 bg-brand-blue/5 text-brand-blue text-[10px] font-mono'>
+                {answeredCount}/{activeQuestions.length}
+              </Badge>
             </CardTitle>
-            <CardDescription className='text-sm text-muted-foreground'>
-              Answer these {activeQuestions.length} questions on the screen, or request an automated AI voice call to your phone.
+
+            {/* Progress bar */}
+            <div className='mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden'>
+              <div
+                className='h-full rounded-full bg-brand-blue transition-all duration-500 ease-out'
+                style={{ width: `${((currentQuestionIdx + (answers[currentQuestionIdx] !== undefined ? 1 : 0)) / activeQuestions.length) * 100}%` }}
+              />
+            </div>
+
+            <CardDescription className='text-sm text-muted-foreground mt-2'>
+              {t('consent.psychDesc', 'Question {{current}} of {{total}} — answer on screen or request an AI voice call.', { current: currentQuestionIdx + 1, total: activeQuestions.length })}
             </CardDescription>
 
             {/* AI Phone Callback Request Banner */}
@@ -1395,84 +1500,135 @@ export function ConsentPage() {
                   <PhoneCall className='h-4 w-4' />
                 </div>
                 <div>
-                  <p className='font-semibold text-foreground'>Prefer an AI Voice Call on your phone?</p>
-                  <p className='text-muted-foreground text-[11px]'>The AltGrade AI Voice Officer will call your phone and conduct this survey verbally.</p>
+                  <p className='font-semibold text-foreground'>{t('consent.preferVoiceCall', 'Prefer an AI Voice Call?')}</p>
+                  <p className='text-muted-foreground text-[11px]'>{t('consent.voiceOfficerInfo', 'AI Voice Officer calls you and asks each question one-by-one verbally.')}</p>
                 </div>
               </div>
               <Button
                 type='button'
                 size='sm'
                 onClick={async () => {
-                  const res = await requestOutboundCall(userId, phone || '9876543215', 'en', profession || 'farmer')
-                  alert(res.message || 'AI Voice Call requested!')
+                  try {
+                    const res = await requestOutboundCall(userId, phone || '9876543215', i18n.language || 'en', profession || 'farmer')
+                    toast.success(res.message || 'AI Voice Call requested!', { duration: 5000 })
+                  } catch {
+                    toast.error('Failed to request AI callback. Please try again.')
+                  }
                 }}
                 className='bg-foreground text-background hover:bg-foreground/90 font-medium h-8 text-xs gap-1.5 rounded-full'
               >
                 <PhoneCall className='h-3.5 w-3.5' />
-                Request AI Callback
+                {t('consent.requestCallback', 'Request AI Callback')}
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-6'>
-            <div className='space-y-6 max-h-[450px] overflow-y-auto pr-2'>
-              {activeQuestions.map((item, idx) => (
-                <div key={idx} className='space-y-3 border-b border-dove/10 pb-4'>
-                  <p className='text-sm font-semibold text-foreground'>
-                    {idx + 1}. {item.q}
-                  </p>
-                  <VoiceQuestionnaire
-                    questionText={item.q}
-                    options={item.options}
-                    onSelectOption={(oIdx) => handleSelectAnswer(idx, oIdx)}
-                  />
-                  <div className='grid gap-2 grid-cols-1 sm:grid-cols-2'>
-                    {item.options.map((opt, oIdx) => {
-                      const isSelected = answers[idx] === oIdx
-                      return (
-                        <button
-                          key={oIdx}
-                          onClick={() => handleSelectAnswer(idx, oIdx)}
-                          className={`text-left text-xs p-3 rounded-[12px] border transition-all duration-200 ${
-                            isSelected
-                              ? 'border-brand-blue bg-brand-blue/5 text-brand-blue font-medium'
-                              : 'border-dove/50 hover:bg-muted text-muted-foreground'
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
+          <CardContent className='space-y-5'>
+            {/* Current Question */}
+            <div className='space-y-4 animate-fade-up' key={currentQuestionIdx}>
+              <p className='text-base font-semibold text-foreground leading-snug'>
+                {currentQuestionIdx + 1}. {currentQ.q}
+              </p>
+
+              <VoiceQuestionnaire
+                questionText={currentQ.q}
+                options={currentQ.options}
+                onSelectOption={(oIdx) => handleSelectAnswer(currentQuestionIdx, oIdx)}
+              />
+
+              <div className='grid gap-2.5 grid-cols-1'>
+                {currentQ.options.map((opt, oIdx) => {
+                  const isSelected = answers[currentQuestionIdx] === oIdx
+                  return (
+                    <button
+                      key={oIdx}
+                      onClick={() => handleSelectAnswer(currentQuestionIdx, oIdx)}
+                      className={`text-left text-sm p-4 rounded-[12px] border transition-all duration-200 flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'border-brand-blue bg-brand-blue/5 text-brand-blue font-medium ring-1 ring-brand-blue/20'
+                          : 'border-dove/50 hover:bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      <span className='flex items-center gap-2.5'>
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                          isSelected ? 'bg-brand-blue text-white' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {oIdx + 1}
+                        </span>
+                        {opt}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            <Button
-              onClick={() => setStep(9)}
-              disabled={!isQuestionnaireComplete}
-              className='w-full rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
-            >
-              Submit Questionnaire
-            </Button>
-            {isMockProfile && <p className='text-[10px] text-muted-foreground/40 mt-4 block font-mono text-center tracking-tight'>Tech: CFPB Behavioral Psychometric Scoring Model</p>}
+            {/* Navigation */}
+            <div className='flex items-center gap-3'>
+              {currentQuestionIdx > 0 && (
+                <Button
+                  onClick={() => setCurrentQuestionIdx(currentQuestionIdx - 1)}
+                  variant='outline'
+                  className='flex-1 rounded-full font-medium'
+                >
+                  {t('consent.previous', 'Previous')}
+                </Button>
+              )}
+
+              {currentQuestionIdx < activeQuestions.length - 1 ? (
+                <Button
+                  onClick={() => setCurrentQuestionIdx(currentQuestionIdx + 1)}
+                  disabled={answers[currentQuestionIdx] === undefined}
+                  className='flex-1 rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                >
+                  {t('consent.nextQuestion', 'Next Question')}
+                  <ArrowRight className='ml-1 h-4 w-4' />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setStep(9)}
+                  disabled={!isQuestionnaireComplete}
+                  className='flex-1 rounded-full bg-foreground text-background hover:bg-foreground/90 font-medium'
+                >
+                  {t('consent.submitQuestionnaire', 'Submit Questionnaire')}
+                </Button>
+              )}
+            </div>
+
+            {/* Answered summary dots */}
+            <div className='flex items-center justify-center gap-1.5 pt-1'>
+              {activeQuestions.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentQuestionIdx(idx)}
+                  className={`h-2 w-2 rounded-full transition-all duration-200 ${
+                    idx === currentQuestionIdx
+                      ? 'bg-brand-blue scale-125'
+                      : answers[idx] !== undefined
+                        ? 'bg-brand-blue/40'
+                        : 'bg-dove/40'
+                  }`}
+                />
+              ))}
+            </div>
           </CardContent>
         </Card>
-      )}
+        )
+      })()}
 
       {step === 9 && (
         <Card className='shadow-subtle max-w-md mx-auto'>
           <CardHeader>
             <CardTitle className='font-signifier text-2xl font-normal leading-[1.2] text-foreground flex items-center gap-2'>
               <Store className='h-5 w-5 text-brand-blue' />
-              Step 9: GST Connection (Optional)
+              {t('consent.gstTitle', 'GST Registration Verification (Optional)')}
             </CardTitle>
             <CardDescription className='text-sm text-muted-foreground'>
-              Link your business GST number to include merchant turnover records in the assessment.
+              {t('consent.gstDesc', 'Provide GSTIN for MSME merchant credit boost.')}
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='gst'>GSTIN Number</Label>
+              <Label htmlFor='gst'>{t('consent.gstLabel', 'GSTIN Number')}</Label>
               <Input
                 id='gst'
                 placeholder='22AAAAA0000A1Z5'
@@ -1496,7 +1652,7 @@ export function ConsentPage() {
                       Verifying GSTIN...
                     </>
                   ) : (
-                    'Verify & Link GST'
+                    t('consent.verifyGstGenerate', 'Verify GST & Generate Score')
                   )}
                 </Button>
                 <Button
@@ -1504,7 +1660,7 @@ export function ConsentPage() {
                   variant='ghost'
                   className='w-full rounded-full text-graphite font-medium'
                 >
-                  Skip Step
+                  {t('consent.skipGenerateScore', 'Skip & Generate Score')}
                 </Button>
               </div>
             ) : (
