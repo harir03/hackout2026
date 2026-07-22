@@ -48,6 +48,26 @@ export async function requestOutboundCall(
   return data
 }
 
+export async function getCallResults(
+  userId: string
+): Promise<{
+  status: string
+  completed?: boolean
+  failed?: boolean
+  ended_reason?: string
+  error_message?: string
+  current_question_index?: number
+  questions_completed?: number
+  answers?: Record<number, number>
+  summary?: string
+  transcript?: string
+  retry_count?: number
+  in_call?: boolean
+}> {
+  const { data } = await api.get(`/vapi/call-results/${encodeURIComponent(userId)}`)
+  return data
+}
+
 export async function submitConsent(
   userId: string,
   consentedSources: string[]

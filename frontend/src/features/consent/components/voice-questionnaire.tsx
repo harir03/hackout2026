@@ -86,31 +86,52 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
     if (!('speechSynthesis' in window)) return
     window.speechSynthesis.cancel()
 
-    let textToSpeak = `${questionText}.`
-    if (options && options.length > 0) {
-      if (baseLang === 'hi') {
-        textToSpeak += ` विकल्प: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
-      } else if (baseLang === 'te') {
-        textToSpeak += ` ఎంపికలు: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
-      } else {
-        textToSpeak += ` Options: ${options.map((opt, idx) => `${idx + 1}: ${opt}`).join('. ')}`
-      }
-    }
-
-    const utterance = new SpeechSynthesisUtterance(textToSpeak)
     const targetLang = LANG_MAP[baseLang] || 'en-IN'
-    utterance.lang = targetLang
-    utterance.rate = 0.9
-
     const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices()
+    
     const matchingVoice =
       voices.find((v) => v.lang.replace('_', '-').toLowerCase() === targetLang.toLowerCase()) ||
-      voices.find((v) => v.lang.replace('_', '-').toLowerCase().startsWith(baseLang.toLowerCase()))
-    if (matchingVoice) {
-      utterance.voice = matchingVoice
+      voices.find((v) => v.lang.replace('_', '-').toLowerCase().startsWith(baseLang.toLowerCase())) ||
+      voices.find((v) => {
+        const name = v.name.toLowerCase()
+        if (baseLang === 'hi') return name.includes('hindi') || name.includes('हिन्दी')
+        if (baseLang === 'te') return name.includes('telugu') || name.includes('తెలుగు')
+        return name.includes('india') || name.includes('english')
+      })
+
+    const createUtterance = (text: string) => {
+      const u = new SpeechSynthesisUtterance(text)
+      u.lang = targetLang
+      u.rate = 0.88
+      if (matchingVoice) {
+        u.voice = matchingVoice
+      }
+      return u
     }
 
-    window.speechSynthesis.speak(utterance)
+    // 1. Speak Full Question First
+    window.speechSynthesis.speak(createUtterance(questionText))
+
+    // 2. Speak Options Intro & Each Option Sequentially
+    if (options && options.length > 0) {
+      let optionsHeader = 'Options:'
+      if (baseLang === 'hi') {
+        optionsHeader = 'विकल्प:'
+      } else if (baseLang === 'te') {
+        optionsHeader = 'ఎంపికలు:'
+      }
+      window.speechSynthesis.speak(createUtterance(optionsHeader))
+
+      options.forEach((opt, idx) => {
+        let optPrefix = `Option ${idx + 1}:`
+        if (baseLang === 'hi') {
+          optPrefix = `विकल्प ${idx + 1}:`
+        } else if (baseLang === 'te') {
+          optPrefix = `ఎంపిక ${idx + 1}:`
+        }
+        window.speechSynthesis.speak(createUtterance(`${optPrefix} ${opt}`))
+      })
+    }
   }
 
   const toggleListening = () => {

@@ -40,7 +40,7 @@ import { TermsAndConditions } from './components/terms-and-conditions'
 import { LanguageSelectionStep } from './components/language-selection-step'
 import { VoiceQuestionnaire } from './components/voice-questionnaire'
 import { LanguageSelector } from '@/components/language-selector'
-import { requestOutboundCall } from '@/lib/api'
+import { requestOutboundCall, getCallResults } from '@/lib/api'
 import { PhoneCall } from 'lucide-react'
 
 const DEMO_PROFILES: Record<string, string> = {
@@ -342,10 +342,93 @@ export function ConsentPage() {
     }
   }, [step, questionnaireStartTime])
 
+  const [callActive, setCallActive] = useState(false)
+  const [callFailed, setCallFailed] = useState(false)
+  const [callStatusMsg, setCallStatusMsg] = useState('')
+  const [callErrorMsg, setCallErrorMsg] = useState('')
+  const [callPolling, setCallPolling] = useState(false)
+  const [callProgressPct, setCallProgressPct] = useState(0)
+  const [callQuestionsCompleted, setCallQuestionsCompleted] = useState(0)
+  const [callRetryCount, setCallRetryCount] = useState(0)
+  const [callIncomplete, setCallIncomplete] = useState(false)
+  const MAX_CALL_RETRIES = 3
+
   // Step 8: GST Connection
   const [gstNumber, setGstNumber] = useState('')
   const [verifyingGst, setVerifyingGst] = useState(false)
   const [gstVerified, setGstVerified] = useState(false)
+
+  useEffect(() => {
+    if (!callPolling) return
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await getCallResults(userId)
+
+        if (res.status === 'not_found') return
+
+        if (res.failed || res.status === 'declined' || res.status === 'failed') {
+          clearInterval(interval)
+          setCallPolling(false)
+          setCallActive(false)
+          setCallFailed(true)
+          setCallErrorMsg(res.error_message || 'Call was declined or unanswered.')
+          setCallRetryCount(res.retry_count || 0)
+          toast.error('AI Voice call failed or was not answered.')
+          return
+        }
+
+        if (res.status === 'incomplete') {
+          clearInterval(interval)
+          setCallPolling(false)
+          setCallActive(false)
+          setCallIncomplete(true)
+          setCallErrorMsg(res.error_message || 'Call ended early.')
+          if (res.answers) {
+            setAnswers((prev) => ({ ...prev, ...res.answers }))
+          }
+          if (res.current_question_index !== undefined) {
+            setCurrentQuestionIdx(res.current_question_index)
+          }
+          toast.warning('Call ended early. Please complete remaining questions on screen.')
+          return
+        }
+
+        if (res.status === 'ringing') {
+          setCallStatusMsg('Ringing... Waiting for the call to be answered.')
+          setCallProgressPct(5)
+          return
+        }
+
+        if (res.current_question_index !== undefined) {
+          setCurrentQuestionIdx(res.current_question_index)
+          const qDone = res.questions_completed || res.current_question_index + 1
+          setCallQuestionsCompleted(qDone)
+          setCallProgressPct(Math.min(Math.round((qDone / 10) * 100), 100))
+          setCallStatusMsg(`AI Voice Officer asking question ${qDone} of 10...`)
+        }
+
+        if (res.completed && res.answers) {
+          clearInterval(interval)
+          setCallPolling(false)
+          setCallProgressPct(100)
+          setCallQuestionsCompleted(10)
+          setAnswers(res.answers)
+          setCallStatusMsg('Voice assessment complete! Generating credit score...')
+
+          setTimeout(() => {
+            setCallActive(false)
+            toast.success('Voice assessment complete! Opening Credit Score Dashboard...', { duration: 4000 })
+            handleSubmit()
+          }, 1500)
+        }
+      } catch (err) {
+        console.error('Call status polling error:', err)
+      }
+    }, 1500)
+
+    return () => clearInterval(interval)
+  }, [callPolling, userId])
 
 
 
@@ -1494,9 +1577,9 @@ export function ConsentPage() {
             </CardDescription>
 
             {/* AI Phone Callback Request Banner */}
-            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dove/40 bg-muted/30 p-3.5 text-xs text-foreground'>
+            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-blue/30 bg-brand-blue/5 p-3.5 text-xs text-foreground'>
               <div className='flex items-center gap-2.5'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue border border-brand-blue/20'>
                   <PhoneCall className='h-4 w-4' />
                 </div>
                 <div>
@@ -1507,20 +1590,167 @@ export function ConsentPage() {
               <Button
                 type='button'
                 size='sm'
+                disabled={callActive || callRetryCount >= MAX_CALL_RETRIES}
                 onClick={async () => {
                   try {
+                    setCallFailed(false)
+                    setCallIncomplete(false)
+                    setCallActive(true)
+                    setCallProgressPct(0)
+                    setCallQuestionsCompleted(0)
+                    setCallStatusMsg('Initiating AI Voice Call...')
                     const res = await requestOutboundCall(userId, phone || '9876543215', i18n.language || 'en', profession || 'farmer')
+                    if (res.status === 'error') {
+                      setCallActive(false)
+                      setCallFailed(true)
+                      setCallErrorMsg(res.message || 'Failed to initiate call.')
+                      return
+                    }
                     toast.success(res.message || 'AI Voice Call requested!', { duration: 5000 })
+                    setCallStatusMsg('Ringing... Waiting for the call to be answered.')
+                    setCallProgressPct(5)
+                    setCallPolling(true)
                   } catch {
+                    setCallActive(false)
+                    setCallFailed(true)
+                    setCallErrorMsg('Failed to dispatch AI callback.')
                     toast.error('Failed to request AI callback. Please try again.')
                   }
                 }}
-                className='bg-foreground text-background hover:bg-foreground/90 font-medium h-8 text-xs gap-1.5 rounded-full'
+                className='bg-brand-blue text-white hover:bg-brand-blue/90 font-medium h-8 text-xs gap-1.5 rounded-full disabled:opacity-50 shadow-sm'
               >
-                <PhoneCall className='h-3.5 w-3.5' />
-                {t('consent.requestCallback', 'Request AI Callback')}
+                {callActive ? (
+                  <>
+                    <Loader2 className='h-3.5 w-3.5 animate-spin' />
+                    Call Active...
+                  </>
+                ) : (
+                  <>
+                    <PhoneCall className='h-3.5 w-3.5' />
+                    {t('consent.requestCallback', 'Request AI Callback')}
+                  </>
+                )}
               </Button>
             </div>
+
+            {/* Brand-Themed Active Call Progress Banner */}
+            {callActive && (
+              <div className='mt-4 rounded-2xl border border-brand-blue/30 bg-brand-blue/5 p-4 text-foreground animate-fade-up space-y-3 shadow-subtle'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2.5'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20'>
+                      <PhoneCall className='h-4 w-4 animate-pulse' />
+                    </div>
+                    <div>
+                      <h4 className='font-semibold text-xs text-foreground flex items-center gap-2'>
+                        AI Voice Officer Call Active
+                        <span className='flex h-2 w-2 relative'>
+                          <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75'></span>
+                          <span className='relative inline-flex rounded-full h-2 w-2 bg-brand-blue'></span>
+                        </span>
+                      </h4>
+                      <p className='text-[11px] text-muted-foreground'>{callStatusMsg}</p>
+                    </div>
+                  </div>
+                  <Badge variant='outline' className='border-brand-blue/40 bg-brand-blue/10 text-brand-blue text-[10px] font-mono'>
+                    Question {callQuestionsCompleted} / 10
+                  </Badge>
+                </div>
+                <div className='space-y-1'>
+                  <div className='flex justify-between text-[10px] text-muted-foreground font-mono'>
+                    <span>Assessment Progress</span>
+                    <span>{callProgressPct}%</span>
+                  </div>
+                  <div className='h-2 w-full rounded-full bg-muted overflow-hidden border border-dove/20'>
+                    <div
+                      className='h-full bg-brand-blue rounded-full transition-all duration-500 ease-out'
+                      style={{ width: `${callProgressPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Call Failed / Declined Banner */}
+            {callFailed && (
+              <div className='mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-4 text-foreground animate-fade-up space-y-3 shadow-subtle'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20'>
+                    <AlertCircle className='h-4 w-4' />
+                  </div>
+                  <div>
+                    <h4 className='font-semibold text-xs text-rose-500'>Call Failed</h4>
+                    <p className='text-[11px] text-muted-foreground mt-0.5'>{callErrorMsg || 'The AI call was unanswered or ended early.'}</p>
+                    {callRetryCount > 0 && (
+                      <p className='text-[10px] text-rose-400 mt-1 font-mono'>Attempt {callRetryCount} of {MAX_CALL_RETRIES}</p>
+                    )}
+                  </div>
+                </div>
+                <div className='flex gap-2 pt-1'>
+                  <Button
+                    type='button'
+                    size='sm'
+                    variant='outline'
+                    onClick={() => {
+                      setCallFailed(false)
+                    }}
+                    className='h-7 text-xs rounded-full border-dove/40'
+                  >
+                    Continue On-Screen
+                  </Button>
+                  {callRetryCount < MAX_CALL_RETRIES ? (
+                    <Button
+                      type='button'
+                      size='sm'
+                      onClick={async () => {
+                        setCallFailed(false)
+                        setCallIncomplete(false)
+                        setCallActive(true)
+                        setCallProgressPct(0)
+                        setCallQuestionsCompleted(0)
+                        setCallRetryCount((prev) => prev + 1)
+                        setCallStatusMsg('Re-initiating AI Voice Call...')
+                        try {
+                          const res = await requestOutboundCall(userId, phone || '9876543215', i18n.language || 'en', profession || 'farmer')
+                          if (res.status === 'error') {
+                            setCallActive(false)
+                            setCallFailed(true)
+                            setCallErrorMsg(res.message || 'Retry failed.')
+                            return
+                          }
+                          toast.success(res.message || 'AI Voice Call requested!', { duration: 5000 })
+                          setCallStatusMsg('Ringing... Waiting for the call to be answered.')
+                          setCallProgressPct(5)
+                          setCallPolling(true)
+                        } catch {
+                          setCallActive(false)
+                          setCallFailed(true)
+                        }
+                      }}
+                      className='h-7 text-xs rounded-full bg-brand-blue text-white hover:bg-brand-blue/90'
+                    >
+                      Retry AI Call ({MAX_CALL_RETRIES - callRetryCount} left)
+                    </Button>
+                  ) : (
+                    <p className='text-[11px] text-rose-400 font-medium self-center'>Maximum retries reached. Please answer on screen.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {callIncomplete && !callFailed && (
+              <div className='mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-foreground animate-fade-up space-y-2 shadow-subtle'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20'>
+                    <AlertCircle className='h-4 w-4' />
+                  </div>
+                  <div>
+                    <h4 className='font-semibold text-xs text-amber-600'>Call Ended Early</h4>
+                    <p className='text-[11px] text-muted-foreground mt-0.5'>{callErrorMsg || 'The call ended before all questions were answered. Please complete the remaining questions below.'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent className='space-y-5'>
             {/* Current Question */}

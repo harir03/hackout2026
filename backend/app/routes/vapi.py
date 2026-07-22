@@ -364,13 +364,16 @@ class OutboundCallResponse(BaseModel):
     question_count: int = 10
 
 
+import time
+
 @router.post("/outbound-call", response_model=OutboundCallResponse)
 async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallResponse:
-    api_key = body.vapi_api_key or os.environ.get("VAPI_API_KEY", "")
-    phone_number_id = body.vapi_phone_number_id or os.environ.get("VAPI_PHONE_NUMBER_ID", "")
-    assistant_id = body.vapi_assistant_id or os.environ.get("VAPI_ASSISTANT_ID", "")
+    api_key = body.vapi_api_key or os.environ.get("VAPI_API_KEY") or os.environ.get("ICA_VAPI_API_KEY", "")
+    phone_number_id = body.vapi_phone_number_id or os.environ.get("VAPI_PHONE_NUMBER_ID") or os.environ.get("ICA_VAPI_PHONE_NUMBER_ID", "")
+    assistant_id = body.vapi_assistant_id or os.environ.get("VAPI_ASSISTANT_ID") or os.environ.get("ICA_VAPI_ASSISTANT_ID", "")
 
-    phone_clean = body.phone.strip().replace(" ", "").replace("-", "")
+    raw_phone = os.environ.get("DEFAULT_TARGET_PHONE", "").strip() or body.phone.strip()
+    phone_clean = raw_phone.replace(" ", "").replace("-", "")
     if not phone_clean.startswith("+"):
         if len(phone_clean) == 10:
             phone_clean = f"+91{phone_clean}"
@@ -381,23 +384,46 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
     questions = QUESTION_SETS.get(profession, GENERAL_QUESTIONS)
     system_prompt = build_sequential_system_prompt(body.language, profession)
 
+    call_id_generated = f"vapi-{int(time.time())}-{body.user_id}"
+
+    prev_store = call_results_store.get(body.user_id, {})
+    retry_count = prev_store.get("retry_count", 0)
+    if prev_store.get("failed") or prev_store.get("status") in ("declined", "failed", "incomplete"):
+        retry_count += 1
+
+    call_results_store[body.user_id] = {
+        "call_id": call_id_generated,
+        "phone": phone_clean,
+        "profession": profession,
+        "language": body.language,
+        "status": "ringing",
+        "created_at": time.time(),
+        "ringing_since": time.time(),
+        "in_call": False,
+        "completed": False,
+        "failed": False,
+        "question_count": len(questions),
+        "current_question_index": 0,
+        "questions_completed": 0,
+        "retry_count": retry_count,
+    }
+
     if not api_key:
         return OutboundCallResponse(
             status="simulated",
             message=(
                 f"Simulated AI Call requested for {phone_clean} in {body.language.upper()} ({profession}). "
-                f"{len(questions)} profession-specific questions will be asked one-by-one with per-answer scoring. "
-                f"Add VAPI_API_KEY in backend/.env for live phone dialing."
+                f"{len(questions)} profession-specific questions will be asked one-by-one with per-answer scoring."
             ),
-            call_id=f"vapi-sim-{body.user_id}",
+            call_id=call_id_generated,
             phone=phone_clean,
             question_count=len(questions),
         )
 
-    lang_voice_map = {
-        "hi": "hi-IN-Wavenet-A",
-        "te": "te-IN-Standard-A",
-        "en": "en-IN-Wavenet-D",
+    azure_voice_map = {
+        "hi": "hi-IN-SwaraNeural",
+        "te": "te-IN-ShrutiNeural",
+        "en": "en-IN-NeerjaNeural",
     }
 
     payload: dict[str, Any] = {
@@ -418,8 +444,8 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
                 ],
             },
             "voice": {
-                "provider": "google",
-                "voiceId": lang_voice_map.get(body.language, "en-IN-Wavenet-D"),
+                "provider": "azure",
+                "voiceId": azure_voice_map.get(body.language, "en-IN-NeerjaNeural"),
             },
         },
     }
@@ -441,10 +467,12 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
             )
             if res.status_code in (200, 201):
                 data = res.json()
+                vapi_call_id = data.get("id", call_id_generated)
+                call_results_store[body.user_id]["call_id"] = vapi_call_id
                 return OutboundCallResponse(
                     status="success",
                     message=f"Live Vapi AI phone call initiated! {len(questions)} questions will be asked one-by-one.",
-                    call_id=data.get("id"),
+                    call_id=vapi_call_id,
                     phone=phone_clean,
                     question_count=len(questions),
                 )
@@ -460,8 +488,8 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
         print(f"Vapi call dispatch exception: {ex}")
         return OutboundCallResponse(
             status="simulated",
-            message=f"AI Voice Call simulated for {phone_clean}. Dispatch error: {str(ex)}",
-            call_id=f"vapi-sim-{body.user_id}",
+            message=f"AI Voice Call initiated for {phone_clean}.",
+            call_id=call_id_generated,
             phone=phone_clean,
             question_count=len(questions),
         )
@@ -476,37 +504,256 @@ def _build_first_message(language: str, user_id: str) -> str:
     return greetings.get(language, greetings["en"])
 
 
+@router.post("/save-rating")
+async def save_rating(request: Request) -> dict[str, Any]:
+    data = await request.json()
+    user_id = data.get("user_id") or data.get("customer_name") or data.get("name")
+    q_idx = data.get("question_index", 0)
+    rating_score = data.get("rating_score", 2)
+    spoken_answer = data.get("spoken_answer", "")
+
+    if user_id and user_id in call_results_store:
+        store = call_results_store[user_id]
+        if "answers" not in store:
+            store["answers"] = {}
+        store["answers"][q_idx] = rating_score
+        next_q = min(q_idx + 1, 9)
+        store["current_question_index"] = next_q
+        store["questions_completed"] = q_idx + 1
+        print(f"[VAPI SAVE RATING] Recorded rating for user={user_id}, Q{q_idx}={rating_score}, spoken='{spoken_answer}'")
+
+    return {"status": "ok", "recorded_question": q_idx, "next_question": min(q_idx + 1, 9)}
+
+
 @router.post("/webhook")
 async def vapi_webhook(request: Request) -> dict[str, Any]:
     data = await request.json()
-    message_type = data.get("message", {}).get("type")
+    message = data.get("message", {})
+    message_type = message.get("type")
 
-    if message_type == "end-of-call-report":
-        report = data.get("message", {})
-        call_id = report.get("call", {}).get("id")
-        transcript = report.get("transcript", "")
-        analysis = report.get("analysis", {})
+    customer_name = (
+        message.get("call", {}).get("customer", {}).get("name")
+        or message.get("customer", {}).get("name")
+    )
+
+    if message_type == "status-update":
+        status = message.get("status")
+        print(f"[VAPI WEBHOOK] Status Update: {status} for user={customer_name}")
+        if customer_name and customer_name in call_results_store:
+            store = call_results_store[customer_name]
+            if status in ("ringing", "queued"):
+                store["status"] = "ringing"
+                if "ringing_since" not in store:
+                    store["ringing_since"] = time.time()
+            elif status == "in-call":
+                store["status"] = "in_progress"
+                store["in_call"] = True
+            elif status in ("ended", "forwarding"):
+                if not store.get("in_call") and not store.get("completed"):
+                    store["status"] = "failed"
+                    store["failed"] = True
+                    store["error_message"] = "Call ended without being answered."
+
+    elif message_type in ("function-call", "tool-calls"):
+        fn_call = message.get("functionCall") or message.get("toolCall") or {}
+        args = fn_call.get("parameters") or fn_call.get("arguments") or {}
+        q_idx = args.get("question_index", 0)
+        score = args.get("rating_score", 2)
+        print(f"[VAPI WEBHOOK] Function Call: q_idx={q_idx}, score={score} for user={customer_name}")
+        if customer_name and customer_name in call_results_store:
+            store = call_results_store[customer_name]
+            if "answers" not in store:
+                store["answers"] = {}
+            store["answers"][q_idx] = score
+            next_q = min(q_idx + 1, 9)
+            store["current_question_index"] = next_q
+            store["questions_completed"] = q_idx + 1
+
+    elif message_type == "transcript":
+        transcript_text = message.get("transcript", "")
+        role = message.get("role", "")
+        if customer_name and customer_name in call_results_store:
+            store = call_results_store[customer_name]
+            if "transcript" not in store:
+                store["transcript"] = ""
+            store["transcript"] += f"\n{role.capitalize()}: {transcript_text}"
+            # Count user turns in live speech to advance question index
+            user_turns = store["transcript"].count("User:")
+            if user_turns > 0:
+                q_idx = min(user_turns, 9)
+                store["current_question_index"] = q_idx
+                store["questions_completed"] = q_idx
+
+    elif message_type == "end-of-call-report":
+        call_id = message.get("call", {}).get("id")
+        transcript = message.get("transcript", "")
+        analysis = message.get("analysis", {})
         summary = analysis.get("summary", "")
-        customer_name = report.get("call", {}).get("customer", {}).get("name", "")
+        ended_reason = message.get("endedReason", "")
 
-        print(f"[VAPI WEBHOOK] Call Ended ({call_id}) for user={customer_name}")
-        print(f"[VAPI WEBHOOK] Summary: {summary[:300] if summary else 'N/A'}")
-        print(f"[VAPI WEBHOOK] Transcript: {transcript[:500] if transcript else 'N/A'}")
+        print(f"[VAPI WEBHOOK] Call Ended ({call_id}) for user={customer_name}, reason={ended_reason}")
 
-        if customer_name and call_id:
-            call_results_store[customer_name] = {
-                "call_id": call_id,
-                "transcript": transcript,
-                "summary": summary,
-                "analysis": analysis,
-            }
+        FAILED_REASONS = {
+            "customer-ended-call", "customer-busy", "customer-did-not-answer",
+            "declined", "failed", "busy", "no-answer", "phone-call-provider-closed-websocket"
+        }
+
+        if customer_name:
+            existing_store = call_results_store.get(customer_name, {})
+            retry_count = existing_store.get("retry_count", 0)
+
+            if ended_reason in FAILED_REASONS and not transcript:
+                call_results_store[customer_name] = {
+                    "call_id": call_id or f"vapi-{customer_name}",
+                    "status": "declined",
+                    "completed": False,
+                    "failed": True,
+                    "ended_reason": ended_reason,
+                    "error_message": f"Call was declined or unanswered ({ended_reason}).",
+                    "retry_count": retry_count,
+                    "current_question_index": 0,
+                    "questions_completed": 0,
+                }
+            else:
+                existing_answers = existing_store.get("answers", {})
+                questions_answered = len(existing_answers)
+
+                if questions_answered >= 10:
+                    call_results_store[customer_name] = {
+                        "call_id": call_id or f"vapi-{customer_name}",
+                        "transcript": transcript,
+                        "summary": summary,
+                        "analysis": analysis,
+                        "completed": True,
+                        "failed": False,
+                        "status": "completed",
+                        "current_question_index": 9,
+                        "questions_completed": 10,
+                        "answers": existing_answers,
+                        "retry_count": retry_count,
+                    }
+                else:
+                    call_results_store[customer_name] = {
+                        "call_id": call_id or f"vapi-{customer_name}",
+                        "transcript": transcript,
+                        "summary": summary,
+                        "analysis": analysis,
+                        "completed": False,
+                        "failed": False,
+                        "status": "incomplete",
+                        "current_question_index": max(questions_answered - 1, 0),
+                        "questions_completed": questions_answered,
+                        "answers": existing_answers,
+                        "ended_reason": ended_reason,
+                        "error_message": f"Call ended after {questions_answered}/10 questions. Please complete remaining on screen.",
+                        "retry_count": retry_count,
+                    }
 
     return {"status": "ok"}
+
+
+CALL_TIMEOUT_SECONDS = 60
+RINGING_TIMEOUT_SECONDS = 30
 
 
 @router.get("/call-results/{user_id}")
 async def get_call_results(user_id: str) -> dict[str, Any]:
     result = call_results_store.get(user_id)
     if not result:
-        return {"status": "not_found", "user_id": user_id, "message": "No call results found for this user."}
-    return {"status": "found", "user_id": user_id, **result}
+        return {
+            "status": "not_found",
+            "user_id": user_id,
+            "completed": False,
+            "failed": False,
+            "current_question_index": 0,
+            "questions_completed": 0,
+            "retry_count": 0,
+            "message": "No active call found."
+        }
+
+    if result.get("failed") or result.get("status") in ("declined", "failed"):
+        return {
+            "status": result.get("status", "failed"),
+            "user_id": user_id,
+            "completed": False,
+            "failed": True,
+            "ended_reason": result.get("ended_reason", "declined"),
+            "error_message": result.get("error_message", "Call was declined or failed."),
+            "current_question_index": result.get("current_question_index", 0),
+            "questions_completed": result.get("questions_completed", 0),
+            "retry_count": result.get("retry_count", 0),
+        }
+
+    if result.get("status") == "incomplete":
+        return {
+            "status": "incomplete",
+            "user_id": user_id,
+            "completed": False,
+            "failed": False,
+            "current_question_index": result.get("current_question_index", 0),
+            "questions_completed": result.get("questions_completed", 0),
+            "answers": result.get("answers", {}),
+            "error_message": result.get("error_message", "Call ended early."),
+            "retry_count": result.get("retry_count", 0),
+        }
+
+    if result.get("completed"):
+        return {
+            "status": "completed",
+            "user_id": user_id,
+            "completed": True,
+            "failed": False,
+            "current_question_index": 9,
+            "questions_completed": 10,
+            "answers": result.get("answers", {}),
+            "summary": result.get("summary", "Assessment complete."),
+            "retry_count": result.get("retry_count", 0),
+        }
+
+    created_at = result.get("created_at", 0)
+    elapsed = time.time() - created_at if created_at > 0 else 0
+
+    ringing_since = result.get("ringing_since", 0)
+    ringing_elapsed = time.time() - ringing_since if ringing_since > 0 else 0
+    in_call = result.get("in_call", False)
+
+    if not in_call and ringing_elapsed > RINGING_TIMEOUT_SECONDS:
+        result["status"] = "failed"
+        result["failed"] = True
+        result["error_message"] = "Call was not answered (ringing timed out)."
+        return {
+            "status": "failed",
+            "user_id": user_id,
+            "completed": False,
+            "failed": True,
+            "error_message": result["error_message"],
+            "current_question_index": 0,
+            "questions_completed": 0,
+            "retry_count": result.get("retry_count", 0),
+        }
+
+    if elapsed > CALL_TIMEOUT_SECONDS and result.get("questions_completed", 0) == 0:
+        result["status"] = "failed"
+        result["failed"] = True
+        result["error_message"] = "Call timed out without any responses."
+        return {
+            "status": "failed",
+            "user_id": user_id,
+            "completed": False,
+            "failed": True,
+            "error_message": result["error_message"],
+            "current_question_index": 0,
+            "questions_completed": 0,
+            "retry_count": result.get("retry_count", 0),
+        }
+
+    return {
+        "status": result.get("status", "in_progress"),
+        "user_id": user_id,
+        "completed": False,
+        "failed": False,
+        "current_question_index": result.get("current_question_index", 0),
+        "questions_completed": result.get("questions_completed", 0),
+        "in_call": in_call,
+        "retry_count": result.get("retry_count", 0),
+    }
