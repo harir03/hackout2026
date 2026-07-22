@@ -45,3 +45,4 @@ DESIGN.md
 .tanstack
 ecc/
 .ecc/
+backend/data/validation/
