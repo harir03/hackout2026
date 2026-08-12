@@ -260,6 +260,7 @@ AltGrade implements bank-grade identity verification prior to scoring:
 | **Explainable AI Mandate** | **SHAP Framework**: Feature-level point attribution per decision |
 | **Fair Lending Enforcement** | **3-Layer Bias Audit**: Disparate Impact Ratio (DIR) 80% rule enforcement |
 | **Privacy Compliance** | **DPDP Act 2023**: Granular consent gates, no unconsented data processing |
+if we win this then  i might throw a party 
 
 ---
 
