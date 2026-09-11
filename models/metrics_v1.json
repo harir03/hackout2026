@@ -1,0 +1,10 @@
+{
+  "Tier1_raw_auc": 0.9161,
+  "Tier1_cal_auc": 0.9156,
+  "Tier1_raw_brier": 0.097,
+  "Tier1_cal_brier": 0.0948,
+  "Tier2_raw_auc": 0.9384,
+  "Tier2_cal_auc": 0.9383,
+  "Tier2_raw_brier": 0.0698,
+  "Tier2_cal_brier": 0.065
+}

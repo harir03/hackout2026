@@ -1,0 +1,264 @@
+{
+  "applicant_id": "ea003383-2008-491c-97eb-be9069273dd1",
+  "risk_profile": "high",
+  "score": 359,
+  "baseline_score": 600,
+  "key_features": {
+    "bank_payment_regularity": 1.0,
+    "bank_avg_monthly_inflow": 94198.87,
+    "ecom_return_rate": 1.0
+  },
+  "conflict_summary": {
+    "genuinely_conflicted_workers": [
+      "Bank/UPI"
+    ],
+    "uniformly_positive_workers": [],
+    "uniformly_negative_workers": [
+      "E-commerce",
+      "Location",
+      "Merchant/GST",
+      "Questionnaire",
+      "Telecom"
+    ]
+  },
+  "shap_breakdown": [
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_gst_returns_filed",
+      "points": -36.7,
+      "direction": "negative",
+      "feature_value": 3.0
+    },
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_months_operating",
+      "points": -34.6,
+      "direction": "negative",
+      "feature_value": 4.0
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_avg_monthly_spend",
+      "points": -32.6,
+      "direction": "negative",
+      "feature_value": 930.805
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_min_balance_ratio",
+      "points": -19.5,
+      "direction": "negative",
+      "feature_value": 0.1229
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_return_rate",
+      "points": -18.2,
+      "direction": "negative",
+      "feature_value": 1.0
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_inflow_trend",
+      "points": -16.4,
+      "direction": "negative",
+      "feature_value": -0.019
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_balance_volatility",
+      "points": 15.2,
+      "direction": "positive",
+      "feature_value": 0.1364
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_active_months",
+      "points": -14.8,
+      "direction": "negative",
+      "feature_value": 7.0
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_data_usage_gb",
+      "points": -13.7,
+      "direction": "negative",
+      "feature_value": -1.9206
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_mean_answer",
+      "points": -12.5,
+      "direction": "negative",
+      "feature_value": 2.115
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_plan_value",
+      "points": -12.5,
+      "direction": "negative",
+      "feature_value": -762.5811
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_upi_txn_count",
+      "points": -11.6,
+      "direction": "negative",
+      "feature_value": 15.0
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_payment_regularity",
+      "points": 10.0,
+      "direction": "positive",
+      "feature_value": 1.0
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_missed_payments",
+      "points": -9.7,
+      "direction": "negative",
+      "feature_value": 8.0
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_category_diversity",
+      "points": -8.6,
+      "direction": "negative",
+      "feature_value": 3.0
+    },
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_filing_regularity",
+      "points": -8.3,
+      "direction": "negative",
+      "feature_value": 0.4202
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_ontime_rate",
+      "points": -6.7,
+      "direction": "negative",
+      "feature_value": 0.4576
+    },
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_annual_turnover",
+      "points": -4.5,
+      "direction": "negative",
+      "feature_value": 213774.2548
+    },
+    {
+      "worker": "Location",
+      "label": "loc_owns_home",
+      "points": -2.5,
+      "direction": "negative",
+      "feature_value": 0.0
+    },
+    {
+      "worker": "Location",
+      "label": "loc_address_changes_24m",
+      "points": -2.4,
+      "direction": "negative",
+      "feature_value": 2.0
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_completion_time_sec",
+      "points": 1.5,
+      "direction": "positive",
+      "feature_value": 310.0
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_account_age_months",
+      "points": 1.3,
+      "direction": "positive",
+      "feature_value": 85.0
+    },
+    {
+      "worker": "Location",
+      "label": "loc_years_at_current",
+      "points": -1.1,
+      "direction": "negative",
+      "feature_value": 1.0
+    },
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_rating",
+      "points": -0.8,
+      "direction": "negative",
+      "feature_value": 3.6709
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_straight_line_ratio",
+      "points": -0.6,
+      "direction": "negative",
+      "feature_value": 0.1914
+    },
+    {
+      "worker": "Bank/UPI",
+      "label": "bank_avg_monthly_inflow",
+      "points": -0.3,
+      "direction": "negative",
+      "feature_value": 94198.8671
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_consistency",
+      "points": -0.2,
+      "direction": "negative",
+      "feature_value": 0.4566
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_purchase_frequency",
+      "points": -0.2,
+      "direction": "negative",
+      "feature_value": 7.0
+    },
+    {
+      "worker": "Telecom",
+      "label": "telecom_ontime_trend",
+      "points": -0.1,
+      "direction": "negative",
+      "feature_value": -0.0045
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_engagement_score",
+      "points": -0.1,
+      "direction": "negative",
+      "feature_value": 0.4554
+    },
+    {
+      "worker": "Merchant/GST",
+      "label": "merchant_has_gst",
+      "points": 0.1,
+      "direction": "positive",
+      "feature_value": 2.0
+    },
+    {
+      "worker": "Questionnaire",
+      "label": "psych_std_answer",
+      "points": -0.1,
+      "direction": "negative",
+      "feature_value": 0.9141
+    },
+    {
+      "worker": "Location",
+      "label": "loc_is_metro",
+      "points": 0.0,
+      "direction": "negative",
+      "feature_value": 0.0
+    },
+    {
+      "worker": "E-commerce",
+      "label": "ecom_spend_trend",
+      "points": 0.0,
+      "direction": "negative",
+      "feature_value": -0.0032
+    }
+  ]
+}
