@@ -1,0 +1,18 @@
+{
+  "psych_mean_answer": 0.385135,
+  "telecom_missed_payments": 0.280728,
+  "telecom_plan_value": 0.271095,
+  "loc_address_changes_24m": 0.258898,
+  "telecom_data_usage_gb": 0.241698,
+  "telecom_active_months": 0.197583,
+  "telecom_ontime_rate": 0.136684,
+  "loc_owns_home": 0.105467,
+  "psych_completion_time_sec": 0.099065,
+  "loc_years_at_current": 0.090239,
+  "psych_std_answer": 0.071326,
+  "psych_engagement_score": 0.026092,
+  "psych_consistency": 0.01718,
+  "loc_is_metro": 0.014271,
+  "psych_straight_line_ratio": 0.009725,
+  "telecom_ontime_trend": 0.009716
+}
