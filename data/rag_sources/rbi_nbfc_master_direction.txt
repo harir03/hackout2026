@@ -1,0 +1,93 @@
+RBI MASTER DIRECTION — NON-BANKING FINANCIAL COMPANY — SCALE BASED REGULATION
+(RBI/DoR/2023-24/105, Updated: October 2023)
+
+CHAPTER I: CLASSIFICATION AND APPLICABILITY
+
+1.1 NBFCs are classified into four layers under the Scale Based Regulation (SBR) framework:
+(a) NBFC-Base Layer (NBFC-BL): NBFCs with asset size below Rs. 1,000 crore
+(b) NBFC-Middle Layer (NBFC-ML): NBFCs with asset size between Rs. 1,000 crore and Rs. 5,000 crore, deposit-taking NBFCs, and specific categories
+(c) NBFC-Upper Layer (NBFC-UL): Top 10 NBFCs by asset size and others identified by RBI based on systemic risk parameters
+(d) NBFC-Top Layer (NBFC-TL): NBFCs identified as posing extreme systemic risk
+
+1.2 NBFC-INVESTMENT AND CREDIT COMPANIES (NBFC-ICC): This is the most common category of NBFC engaged in lending and investment activities. Most fintech lenders and alternate credit scoring platforms are associated with or operate as NBFC-ICCs.
+
+CHAPTER II: CAPITAL ADEQUACY
+
+2.1 MINIMUM NET OWNED FUND (NOF):
+(a) NBFC-ICC: Rs. 10 crore (for new registrations after April 2022)
+(b) NBFC-MFI: Rs. 7 crore (Rs. 10 crore for those in North-Eastern region)
+(c) NBFC-P2P: Rs. 2 crore
+
+2.2 CAPITAL TO RISK-WEIGHTED ASSETS RATIO (CRAR):
+(a) NBFC-BL: Minimum 15%
+(b) NBFC-ML: Minimum 15%
+(c) NBFC-UL: Minimum 15% with common equity Tier 1 of at least 9%
+
+CHAPTER III: INCOME RECOGNITION, ASSET CLASSIFICATION, AND PROVISIONING (IRACP)
+
+3.1 INCOME RECOGNITION: Income on non-performing assets (NPAs) shall not be recognized on accrual basis. Interest income on NPAs can be recognized only when actually received.
+
+3.2 NPA CLASSIFICATION: An asset is classified as NPA if:
+(a) Interest or instalment of principal remains overdue for more than 90 days in respect of term loans
+(b) The account remains out of order for more than 90 days in respect of overdraft/cash credit accounts
+
+3.3 ASSET CLASSIFICATION CATEGORIES:
+(a) Standard Assets: Assets not classified as NPA
+(b) Sub-standard Assets: Assets that have been NPA for not more than 12 months
+(c) Doubtful Assets: Assets that have been NPA for more than 12 months
+(d) Loss Assets: Assets where loss has been identified but not fully written off
+
+3.4 PROVISIONING NORMS:
+(a) Standard Assets: 0.40% (general)
+(b) Sub-standard Assets: 10%
+(c) Doubtful Assets: 20% to 100% depending on period
+(d) Loss Assets: 100%
+
+CHAPTER IV: FAIR PRACTICES CODE FOR NBFCs
+
+4.1 NBFCs must adopt a Fair Practices Code (FPC) as approved by their Board. The FPC must cover:
+(a) Applications for loans and their processing
+(b) Loan appraisal and terms/conditions
+(c) Disbursement of loans
+(d) General provisions regarding rights of borrowers
+
+4.2 LOAN REJECTION: When a loan application is rejected, the NBFC must communicate to the borrower in writing the reasons for rejection. For alternate scoring-based rejections:
+(a) The specific score and threshold must be communicated
+(b) The primary negative factors must be explained
+(c) The applicant must be informed of their right to dispute data inaccuracies
+
+4.3 INTEREST RATE POLICY: NBFCs must have a Board-approved interest rate policy. The rate of interest and the approach for gradations of risk must be disclosed to the borrower at the time of sanction.
+
+4.4 RECOVERY PRACTICES: NBFCs shall not resort to undue harassment for recovery. Recovery agents must follow the Indian Banks' Association guidelines. Night-time calls (7 PM to 7 AM) are prohibited.
+
+CHAPTER V: DIGITAL LENDING SPECIFIC PROVISIONS FOR NBFCs
+
+5.1 NBFCs engaged in digital lending must comply with the RBI Guidelines on Digital Lending (September 2022) in addition to the SBR framework.
+
+5.2 FLDG arrangements with LSPs are subject to the 5% cap as per digital lending guidelines.
+
+5.3 Alternate credit scoring models used by NBFCs must:
+(a) Be disclosed to the regulator
+(b) Not discriminate on protected characteristics
+(c) Be subject to periodic bias audits
+(d) Provide explainability to applicants
+
+5.4 OUTSOURCING: NBFCs outsourcing credit assessment to third-party alternate scoring platforms must:
+(a) Retain ultimate responsibility for lending decisions
+(b) Ensure the scoring platform complies with data privacy regulations
+(c) Maintain records of scoring methodology and audit trails
+(d) Report outsourced credit assessment arrangements to RBI
+
+CHAPTER VI: MICROFINANCE INSTITUTIONS (NBFC-MFI)
+
+6.1 NBFC-MFIs lend to borrowers with household annual income up to Rs. 3,00,000. For urban borrowers, the threshold is Rs. 3,00,000, and for rural borrowers, Rs. 3,00,000.
+
+6.2 PRICING CAP: The maximum interest rate for microfinance loans shall not exceed the all-inclusive interest rate cap set by the Board of the NBFC-MFI. The margin cap has been removed but the rate must be disclosed upfront.
+
+6.3 HOUSEHOLD INCOME ASSESSMENT: For microfinance lending, income assessment may use alternate methods including:
+(a) Self-declaration by the borrower
+(b) Assessment by the field officer
+(c) Digital income proxies (UPI inflows, mobile recharge patterns)
+(d) Community-level income estimation
+
+6.4 OVER-INDEBTEDNESS: Total loan obligations of a microfinance borrower (excluding education and medical loans) shall not exceed 50% of the household income.

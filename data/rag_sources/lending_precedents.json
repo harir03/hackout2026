@@ -1,0 +1,202 @@
+[
+  {
+    "ticket_id": "LP-2024-001",
+    "category": "score_dispute",
+    "applicant_profile": "First-time borrower, 26-year-old freelancer with no traditional credit history",
+    "issue": "Applicant scored 380 (Not Eligible) despite consistent UPI income of Rs 45,000/month for 18 months. Disputed the score citing stable earnings.",
+    "investigation": "SHAP analysis revealed telecom_missed_payments contributed -85 pts and ecom_return_rate contributed -62 pts. Bank/UPI worker was strongly positive (+110 pts) confirming stable income. Cross-worker conflict flagged between Bank/UPI and Telecom.",
+    "resolution": "Score was accurate per model. Advised applicant to clear outstanding telecom dues (3 missed payments in last 6 months) and reduce e-commerce returns. Projected score improvement of 80-120 points within 6 months if telecom payments become regular.",
+    "rbi_reference": "Section 6.3 — Right to Explanation: applicant was provided written breakdown of all contributing factors per Fair Practices Code.",
+    "outcome": "Applicant accepted explanation and committed to improving telecom payment regularity. Follow-up assessment scheduled for 6 months."
+  },
+  {
+    "ticket_id": "LP-2024-002",
+    "category": "data_consent_withdrawal",
+    "applicant_profile": "32-year-old small business owner applying for working capital loan",
+    "issue": "Applicant withdrew consent for e-commerce data source after initial scoring. Requested rescoring with remaining 5 data sources only.",
+    "investigation": "Original Tier 2 score was 620 using all 6 sources. E-commerce worker contributed +45 pts net. Removing e-commerce data would move applicant to a modified Tier 2 assessment with 5 sources.",
+    "resolution": "Applicant was informed per DPDP Act Section 6(4) that consequences of consent withdrawal would be borne by them. Score was recalculated without e-commerce data, resulting in a score of 575 (moved from Fair to Below Average band). Applicant was given the choice to reinstate e-commerce consent.",
+    "rbi_reference": "DPDP Act Section 6(3) — right to withdraw consent; Section 6(4) — consequences borne by Data Principal. RBI Section 6.5(c) — withdrawal may affect scoring outcome.",
+    "outcome": "Applicant chose to reinstate e-commerce consent and retained the original 620 score."
+  },
+  {
+    "ticket_id": "LP-2024-003",
+    "category": "wilful_defaulter_dispute",
+    "applicant_profile": "45-year-old business owner previously classified as wilful defaulter by another bank",
+    "issue": "Applicant scored 200 (hard cap applied) despite strong alternate data signals. Bank/UPI showed Rs 2,50,000/month inflow, all telecom payments current, strong merchant GST filings.",
+    "investigation": "RBI wilful defaulter classification verified against central database. Hard cap at 200 is non-negotiable per regulatory requirement. Model would have scored applicant at 710 without the cap.",
+    "resolution": "Applicant informed that wilful defaulter classification must be resolved with the original classifying bank first. Provided RBI's wilful defaulter dispute process reference. Score cannot be overridden regardless of alternate data strength.",
+    "rbi_reference": "RBI Section 6.2 — Wilful defaulter classification follows due process including show cause notice. Classification must be resolved through proper channels before credit eligibility can be restored.",
+    "outcome": "Applicant directed to the original classifying bank's grievance mechanism. Case kept open pending resolution of wilful defaulter status."
+  },
+  {
+    "ticket_id": "LP-2024-004",
+    "category": "conflicting_signals",
+    "applicant_profile": "28-year-old salaried employee with side business",
+    "issue": "Applicant scored 520 (Below Average) with multiple signal conflicts flagged. Strong Bank/UPI data (+95 pts) from salary but weak Merchant/GST data (-88 pts) from side business with irregular GST filings.",
+    "investigation": "Consolidator detected Bank/UPI vs Merchant/GST conflict (combined magnitude 183 pts). The salary income was stable but the side business had only 3 GST returns filed in 12 months and low merchant rating (2.8/5).",
+    "resolution": "Applicant advised that the score reflects combined assessment of all consented data sources. Improvement path: file GST returns regularly for the side business (projected +40 pts if 6 consecutive returns filed) and improve merchant platform rating. Alternatively, if the side business is dormant, applicant can withdraw merchant/GST consent and be scored without it.",
+    "rbi_reference": "RBI Section 3.2(d) — conflicting signals between data sources must have documented resolution methodology. Section 6.5(e) — conflict resolution must favor applicant unless negative signal comes from verified authoritative source.",
+    "outcome": "Applicant chose to keep all data sources and work on improving GST filing regularity. Score improvement target: 600+ within 4 months."
+  },
+  {
+    "ticket_id": "LP-2024-005",
+    "category": "data_correction",
+    "applicant_profile": "35-year-old professional with incorrect telecom records",
+    "issue": "Applicant scored 490 and identified that telecom data showed 6 missed payments when actual missed payments were 2 (carrier billing system error).",
+    "investigation": "Telecom worker contributed -72 pts to the score. Verified with telecom provider that billing records contained errors for 4 payments that were actually made on time but recorded late due to a system migration.",
+    "resolution": "Telecom data corrected per DPDP Act Section 12 (right to correction). Score recalculated with corrected data: new score 580. Applicant moved from Not Eligible to Below Average band.",
+    "rbi_reference": "DPDP Act Section 12 — right to correction of inaccurate personal data and reassessment. RBI Section 6.3(c) — opportunity to dispute inaccuracies in scoring data.",
+    "outcome": "Score updated to 580. Applicant informed of remaining improvement areas (e-commerce category diversity and location stability)."
+  },
+  {
+    "ticket_id": "LP-2024-006",
+    "category": "emi_burden_cap",
+    "applicant_profile": "40-year-old with existing home loan and car loan seeking personal loan",
+    "issue": "Applicant scored 350 (EMI burden cap applied). Model score would have been 680 but existing loan EMI commitments exceeded 50% of documented income.",
+    "investigation": "Existing EMI burden: home loan Rs 28,000 + car loan Rs 12,000 = Rs 40,000/month against documented income of Rs 72,000/month (55.5% EMI-to-income ratio). Additional personal loan EMI would push ratio further.",
+    "resolution": "Applicant informed that EMI burden cap per RBI guidelines limits score when projected EMI exceeds 50% threshold. Two improvement paths: (1) increase documented income or (2) close one existing loan to bring EMI ratio below 50%.",
+    "rbi_reference": "RBI Section 3.4 — DSCR and EMI-to-income ratio must be evaluated. Loans shall not be sanctioned where projected EMI burden exceeds 50% of documented monthly income unless exceptional circumstances apply.",
+    "outcome": "Applicant planned to prepay car loan (6 EMIs remaining) and reapply. Expected score without EMI cap: 680."
+  },
+  {
+    "ticket_id": "LP-2024-007",
+    "category": "score_improvement",
+    "applicant_profile": "23-year-old recent graduate with thin credit file",
+    "issue": "Applicant scored 440 (Not Eligible) on Tier 1 assessment (zero traditional history). Asked what specific actions would improve their score.",
+    "investigation": "Tier 1 scoring used D2 (telecom), D4 (location), D5 (questionnaire) features only. Key negative drivers: telecom_active_months=4 (-35 pts, account too new), loc_years_at_current=0.5 (-28 pts, recent move), psych_mean_answer=2.8 (-18 pts, below-average financial literacy responses).",
+    "resolution": "Provided specific improvement roadmap: (1) maintain telecom account for 12+ months without missed payments (projected +50 pts), (2) maintain current address for 12+ months (projected +25 pts), (3) retake psychometric questionnaire after improving financial literacy (projected +15 pts). Total projected improvement: 90 pts over 12 months, bringing score to ~530 (Below Average, potentially eligible for small credit lines).",
+    "rbi_reference": "RBI Section 6.3 — right to explanation of primary factors. Section 3.2(b) — applicant has right to know which data categories contributed positively or negatively.",
+    "outcome": "Applicant received personalized improvement plan with timeline. Opt-in reminder set for 6-month reassessment."
+  },
+  {
+    "ticket_id": "LP-2024-008",
+    "category": "bias_audit_inquiry",
+    "applicant_profile": "Regulatory inquiry from RBI examiner during periodic audit",
+    "issue": "Examiner requested evidence that the alternate credit scoring model does not discriminate based on gender, religion, or caste as required by Fair Practices Code Section 3.1.",
+    "investigation": "Provided fairness audit report showing demographic parity ratio of 0.9654 across gender groups (well above the 0.8 four-fifths rule threshold). Confirmed that gender, religion, caste, and ethnicity are excluded from all model feature sets (Tier 1: 16 features, Tier 2: 34 features — none are protected characteristics). Provided SHAP-based feature importance showing no proxy discrimination.",
+    "resolution": "Audit passed. Examiner confirmed model complies with Section 3.1 non-discrimination requirements and Section 6.5(d) periodic bias audit obligations.",
+    "rbi_reference": "RBI Section 3.1 — no discrimination on basis of sex, caste, religion. Section 6.5(d) — scoring model must be periodically audited for bias, results available to regulator.",
+    "outcome": "Clean audit. Next scheduled review in 12 months."
+  },
+  {
+    "ticket_id": "LP-2024-009",
+    "category": "aa_data_dispute",
+    "applicant_profile": "29-year-old startup founder applying for business loan via Account Aggregator",
+    "issue": "Applicant linked bank accounts via Finvu AA but the fetched data only included 3 months of history instead of the requested 6 months. Score was 480 due to insufficient transaction depth.",
+    "investigation": "AA consent artefact correctly specified 6-month date range. However, the FIP (applicant's bank) returned only 3 months of data due to a technical limitation in their AA integration. The truncated history reduced bank_avg_monthly_inflow reliability and increased bank_balance_volatility score.",
+    "resolution": "Applicant was offered two options: (1) wait for the FIP to resolve the data completeness issue and re-fetch via AA, or (2) upload a 6-month bank statement PDF as a fallback. The applicant chose PDF upload. Score recalculated with complete 6-month data: new score 590.",
+    "rbi_reference": "AA Framework Section 4.1 — FIPs must provide complete data as per consent artefact. RBI Section 6.3 — applicant has right to dispute data inaccuracies including incomplete data.",
+    "outcome": "Score updated to 590 via PDF fallback. AA data completeness issue reported to Finvu for FIP resolution."
+  },
+  {
+    "ticket_id": "LP-2024-010",
+    "category": "digital_lending_complaint",
+    "applicant_profile": "31-year-old gig worker who received a loan offer through a digital lending app",
+    "issue": "Applicant received a pre-approved loan offer of Rs 50,000 via an LSP's DLA at 36% APR. After accepting, discovered additional processing fees of Rs 3,000 not disclosed in the original offer. Filed complaint about non-transparent charges.",
+    "investigation": "Reviewed the KFS provided to the applicant. The processing fee was mentioned in fine print but was not included in the APR calculation shown in the loan offer. The DLA displayed 36% APR but the actual all-inclusive cost including processing fee was 42% APR.",
+    "resolution": "The lending RE was found in violation of RBI Digital Lending Guidelines Section 2.2 (fee transparency) and Section 2.3 (KFS requirements). The processing fee was waived, and the loan APR was recalculated to accurately reflect all costs. Applicant was given the option to exit the loan under the cooling-off period.",
+    "rbi_reference": "RBI Digital Lending Guidelines Section 2.2 — all charges must be disclosed. Section 2.3 — KFS must include APR calculation with all costs. Section 2.4 — cooling-off period exit right.",
+    "outcome": "Processing fee waived. Applicant retained the loan at the originally quoted 36% APR. RE instructed to update DLA disclosures."
+  },
+  {
+    "ticket_id": "LP-2024-011",
+    "category": "msme_scoring_edge_case",
+    "applicant_profile": "38-year-old street food vendor seeking Mudra Shishu loan (up to Rs 50,000)",
+    "issue": "Applicant scored 410 (Not Eligible) on Tier 1 assessment. Has no bank account, no formal employment, and operates entirely in cash. Only available digital data: telecom recharge history (3 years) and location data (same location for 5 years).",
+    "investigation": "Tier 1 scoring with only 2 data sources (D2 telecom, D4 location). Telecom showed consistent Rs 199 monthly recharges, never missed. Location showed 5 years at same pincode. However, absence of bank/UPI data meant zero bank features, and absence of e-commerce/GST data further limited the model.",
+    "resolution": "Applicant was advised to (1) open a basic savings bank account (small account with self-certification), (2) start accepting UPI payments via QR code (even partial), (3) reapply after 3 months of UPI transaction history. For immediate needs, referred to the local bank branch for Mudra Shishu under simplified assessment where the branch manager can conduct in-person evaluation.",
+    "rbi_reference": "RBI PSL Section 3.1 — credit-invisible PSL borrowers. Mudra Shishu scheme allows up to Rs 50,000 with simplified assessment. RBI KYC Section 3.1 — simplified due diligence for small accounts.",
+    "outcome": "Applicant opened Jan Dhan account and QR code. Mudra Shishu loan of Rs 30,000 sanctioned via branch assessment. Digital reassessment scheduled for 3 months."
+  },
+  {
+    "ticket_id": "LP-2024-012",
+    "category": "interest_rate_objection",
+    "applicant_profile": "34-year-old teacher with alternate credit score of 560 (Below Average)",
+    "issue": "Applicant was offered a personal loan at 22% APR based on alternate credit score of 560. Objected to the rate, stating that a colleague with similar income but traditional CIBIL score of 720 received the same loan at 14% APR.",
+    "resolution": "Explained that interest rates are determined by risk assessment per RBI guidelines. The alternate score of 560 translates to a higher risk band than a CIBIL score of 720. The rate difference reflects the different risk assessments, not discrimination. However, the applicant was informed of specific actions to improve their alternate score (maintain telecom payments, build UPI history, reduce e-commerce returns) which would qualify them for a lower rate at the next reset period.",
+    "investigation": "Board-approved interest rate policy reviewed. The rate grid maps alternate scores to interest rates: 300-450 = Not Eligible, 450-550 = 24% APR, 550-620 = 22% APR, 620-700 = 18% APR, 700+ = 14% APR. The rate offered was consistent with the policy.",
+    "rbi_reference": "RBI Interest Rate Directions Section 1.4 — rates must be transparent. Section 3.3 — alternate scores may be used for rate determination with Board-approved methodology. RBI Fair Practices Section 3.3 — rates must be justified and not excessive.",
+    "outcome": "Applicant accepted the 22% rate and committed to score improvement actions. Rate review scheduled for next quarterly reset."
+  },
+  {
+    "ticket_id": "LP-2024-013",
+    "category": "consent_granularity",
+    "applicant_profile": "27-year-old e-commerce seller who consented to all 6 data sources but wants partial withdrawal",
+    "issue": "Applicant consented to all data sources for credit assessment but later discovered that e-commerce data included their seller return rate (which was high due to a defective batch). Wants to withdraw only the return rate portion of e-commerce data while keeping order volume data.",
+    "investigation": "Current consent architecture provides source-level granularity (consent/withdraw entire D3 e-commerce source) but does not support field-level granularity (keeping order_count while removing return_rate from the same source).",
+    "resolution": "Informed applicant that per DPDP Act Section 6, consent is managed at the data source level, not the individual field level. Options: (1) withdraw entire e-commerce consent and be rescored without it, or (2) keep e-commerce consent and provide context about the defective batch. The applicant chose option 2 and provided documentation of the defective batch. A manual note was added to the assessment file but the automated score was not adjusted.",
+    "rbi_reference": "DPDP Act Section 6(2) — consent shall be limited to personal data necessary for the specified purpose. Section 6(3) — withdrawal at source level. RBI Section 6.5(a) — explicit informed consent for each data source separately.",
+    "outcome": "Score retained at 545. Manual note added for human review. Feature request logged for sub-source consent granularity in future model version."
+  },
+  {
+    "ticket_id": "LP-2024-014",
+    "category": "location_scoring_dispute",
+    "applicant_profile": "30-year-old IT professional who recently relocated from Mumbai to Tier-2 city (Jaipur)",
+    "issue": "Applicant scored 530 with location worker contributing -42 pts. The negative contribution was due to loc_years_at_current=0.3 (recently moved) and loc_is_metro=0.0 (non-metro location). Applicant argued that the move was for a higher-paying job and should not be penalized.",
+    "investigation": "Location features are designed to assess stability. Recent address changes increase risk in traditional credit models. However, the applicant's bank data showed a 40% salary increase post-move. The location penalty was algorithmically correct but did not account for the positive context of the relocation.",
+    "resolution": "Explained that the location features measure residential stability, which is a validated risk indicator. The penalty will naturally reduce as months at the new address accumulate. Within 12 months of stable residence, the loc_years_at_current feature will contribute positively. Meanwhile, the strong bank data (+85 pts) partially offset the location penalty. Advised applicant to reapply after 6 months at the new address for projected improvement of ~25 pts.",
+    "rbi_reference": "RBI Section 3.2(b) — applicant has right to know which categories contributed positively or negatively. Section 6.5(e) — conflicting signals (strong income but unstable location) resolved: location penalty reflects legitimate risk factor, not discrimination.",
+    "outcome": "Applicant understood the reasoning. Score improvement projected to 555-570 after 6 months of stable residency."
+  },
+  {
+    "ticket_id": "LP-2024-015",
+    "category": "psychometric_retest",
+    "applicant_profile": "24-year-old first-generation college graduate seeking education loan refinancing",
+    "issue": "Applicant scored 470 with psychometric worker contributing -55 pts. The questionnaire responses indicated low financial literacy (psych_engagement_score=38, psych_consistency=0.55). Applicant claims they were nervous during the assessment and answered hastily.",
+    "investigation": "Psychometric analysis showed straight_line_ratio=0.35 (35% of answers were the same option, indicating possible straight-lining behavior) and completion_time=45 seconds (average is 120 seconds, indicating rushed responses). The low consistency and engagement scores were driven by the response pattern rather than genuine financial illiteracy.",
+    "resolution": "Offered a one-time retest opportunity per the psychometric assessment policy. Applicant was given guidance materials on basic financial concepts before retesting. Retest results: psych_engagement_score=72, psych_consistency=0.92, completion_time=150 seconds. Score improved from 470 to 535.",
+    "rbi_reference": "RBI Section 6.3(d) — right to reassessment after correction of disputed data. Psychometric retest is analogous to data correction where the original data was unreliable due to testing conditions.",
+    "outcome": "Score updated to 535 after retest. Applicant moved from Not Eligible to Below Average band with eligibility for small credit lines."
+  },
+  {
+    "ticket_id": "LP-2024-016",
+    "category": "aa_multi_bank_aggregation",
+    "applicant_profile": "36-year-old freelance consultant with accounts at 3 different banks",
+    "issue": "Applicant linked only their primary salary account via Finvu AA. Score was 560. Applicant believed score would be higher if income from all 3 bank accounts was considered.",
+    "investigation": "Applicant's primary account showed inflow of Rs 60,000/month. However, freelance payments were split across 3 banks: Rs 60,000 (primary), Rs 35,000 (second), Rs 25,000 (third) = total Rs 1,20,000/month. The score only reflected the primary account data.",
+    "resolution": "Advised applicant to link all 3 bank accounts via the AA consent flow. The AA framework supports multi-FIP consent in a single artefact. After linking all accounts, total inflow was correctly calculated at Rs 1,20,000/month. Score recalculated: new score 680 (moved from Below Average to Good band).",
+    "rbi_reference": "AA Framework Section 4.1 — multi-bank data aggregation via AA. Section 2.1 — customer can select which FIPs to share data from. RBI Section 3.2(a) — data sources used for scoring must be transparent.",
+    "outcome": "Score updated to 680 after multi-bank linking. Applicant now eligible for competitive interest rates."
+  },
+  {
+    "ticket_id": "LP-2024-017",
+    "category": "data_retention_dispute",
+    "applicant_profile": "42-year-old borrower who repaid loan in full 2 years ago",
+    "issue": "Applicant discovered that their alternate credit data from a previous loan assessment (2 years ago) was still being retained by the scoring platform. The original consent specified a data life of 6 months after assessment.",
+    "investigation": "Checked data retention records. The original AA consent artefact specified data_life=180 days. However, the scoring platform retained the data beyond this period citing internal risk management needs. This was a violation of the consent terms.",
+    "resolution": "Data was immediately deleted per DPDP Act Section 8(5) erasure obligations. The scoring platform updated its data lifecycle management system to automatically purge data when consent data_life expires. Applicant was provided written confirmation of deletion.",
+    "rbi_reference": "DPDP Act Section 8(5) — erasure obligations when Data Principal ceases to be customer or consent is withdrawn. AA Framework Section 2.1 — data life specified in consent artefact must be honored. RBI Section 6.4 — data shall not be used beyond collected purpose without fresh consent.",
+    "outcome": "Data deleted. Platform implemented automated data lifecycle enforcement. No adverse impact on applicant as loan was already repaid."
+  },
+  {
+    "ticket_id": "LP-2024-018",
+    "category": "cooling_off_period",
+    "applicant_profile": "25-year-old app-based delivery driver who took a digital loan",
+    "issue": "Applicant took a Rs 20,000 digital loan through a DLA at 28% APR. Within 2 days, realized the effective cost was higher than expected due to processing fees. Wanted to exit the loan under the cooling-off period.",
+    "investigation": "The RE's Board-approved cooling-off policy allowed a 3-day look-up period for digital loans under Rs 50,000. The applicant was within the window. However, the DLA did not prominently display the cooling-off option.",
+    "resolution": "Loan was closed under the cooling-off provision. Applicant paid back the principal of Rs 20,000 plus 2 days of proportionate APR (Rs 30.68). No penalty was charged. The RE was advised to make the cooling-off option more prominent in the DLA interface.",
+    "rbi_reference": "RBI Digital Lending Guidelines Section 2.4 — cooling-off/look-up period allows borrower to exit digital loan by paying principal and proportionate APR without penalty.",
+    "outcome": "Loan closed. Applicant refunded excess charges. DLA updated to display cooling-off option prominently."
+  },
+  {
+    "ticket_id": "LP-2024-019",
+    "category": "gst_verification_failure",
+    "applicant_profile": "33-year-old small restaurant owner seeking MSME working capital loan",
+    "issue": "Applicant's GST data showed inconsistent filing: 8 returns filed in 12 months with 2 nil returns. The merchant_filing_regularity score was 0.67, contributing -45 pts. Applicant claimed the nil returns were correct as the restaurant was closed for renovation during those months.",
+    "investigation": "Verified with GST portal that the nil returns were validly filed during the renovation period (June-July 2024). The restaurant had renovation-related expenses claimed in the subsequent return. The merchant_months_operating was also penalized as the nil returns suggested intermittent operations.",
+    "resolution": "While the nil returns were legitimate, the model correctly identifies inconsistent filing as a risk signal. The applicant was advised to (1) maintain consistent non-nil filings going forward, (2) provide renovation documentation for human review if applying for a manual assessment, (3) reapply after 6 consecutive non-nil monthly filings for projected improvement of +30 pts.",
+    "rbi_reference": "RBI PSL Section 3.2 — GST filing data should be incorporated for MSME assessment. RBI Section 3.2(a) — data sources must be transparent. The model correctly uses publicly available GST filing regularity as a creditworthiness signal.",
+    "outcome": "Score retained at current level. Applicant committed to regular filings. Reassessment scheduled for 6 months."
+  },
+  {
+    "ticket_id": "LP-2024-020",
+    "category": "ombudsman_escalation",
+    "applicant_profile": "39-year-old who filed complaint with RBI Ombudsman after scoring dispute was not resolved within 30 days",
+    "issue": "Applicant raised a data correction dispute regarding incorrect UPI transaction count (shown as 5/month when actual was 45/month due to data fetch error). The scoring platform acknowledged the error but did not recalculate the score within 30 days.",
+    "investigation": "The dispute was valid — UPI transaction data was incorrectly aggregated due to a pagination bug in the bank statement parser. The platform fixed the bug for new applicants but failed to proactively recalculate existing affected scores. The applicant's complaint to the platform was acknowledged on Day 1 but not resolved by Day 30, triggering Ombudsman escalation.",
+    "resolution": "Upon Ombudsman intervention, the score was immediately recalculated with correct UPI data: score improved from 430 to 590. Compensation of Rs 5,000 was awarded for delay in resolution. The platform was directed to identify and proactively recalculate all scores affected by the same bug.",
+    "rbi_reference": "RB-IOS 2021 Section 3.1 — complaint can be escalated if not resolved within 30 days. Section 4.2 — Ombudsman may direct compensation. RBI Credit Information Section 5.1(c) — disputes must be resolved within 30 days.",
+    "outcome": "Score corrected to 590. Rs 5,000 compensation paid. Platform conducted batch recalculation for 47 affected applicants."
+  }
+]

@@ -1,0 +1,102 @@
+RESERVE BANK — INTEGRATED OMBUDSMAN SCHEME, 2021 (RB-IOS 2021)
+AND
+RBI DIRECTIONS ON GRIEVANCE REDRESSAL FOR LENDING INSTITUTIONS
+(Effective November 12, 2021, Updated: April 2024)
+
+CHAPTER I: SCOPE AND APPLICABILITY
+
+1.1 The Reserve Bank Integrated Ombudsman Scheme (RB-IOS) 2021 consolidates the previously separate ombudsman schemes for banks, NBFCs, and digital transactions into a single unified framework.
+
+1.2 The scheme covers complaints against all entities regulated by RBI including:
+(a) Scheduled commercial banks (public, private, foreign)
+(b) Regional rural banks and local area banks
+(c) Small finance banks and payment banks
+(d) Co-operative banks
+(e) NBFCs (including HFCs and NBFC-MFIs)
+(f) System participants in payment systems (NPCI, card networks, etc.)
+(g) Credit Information Companies
+
+CHAPTER II: GROUNDS FOR COMPLAINT
+
+2.1 A complainant may file a complaint on any of the following grounds:
+(a) Non-observance of RBI directions on lending practices
+(b) Non-adherence to Fair Practices Code
+(c) Delay or refusal to provide agreed services
+(d) Levying of charges without adequate prior notice
+(e) Non-adherence to directions on digital lending
+(f) Deficiency in services relating to loans and advances including:
+    - Non-return of documents/securities after loan closure
+    - Incorrect application of interest rates
+    - Harassment by recovery agents
+    - Non-issuance of NOC after loan settlement
+
+2.2 CREDIT SCORING COMPLAINTS: The following are valid grounds for complaint related to credit scoring:
+(a) Failure to provide explanation of score factors upon request
+(b) Use of protected characteristics in scoring
+(c) Refusal to accept or process data disputes
+(d) Delayed reassessment after data correction
+(e) Non-disclosure of data sources used in scoring
+(f) Retaining scoring data beyond the consented period
+
+CHAPTER III: COMPLAINT FILING PROCESS
+
+3.1 PREREQUISITE: Before approaching the Ombudsman, the complainant must:
+(a) First file a complaint with the regulated entity
+(b) Wait for 30 days for resolution (or receive a final rejection)
+(c) If unsatisfied with the resolution or no response within 30 days, the complainant can file with the Ombudsman
+
+3.2 FILING CHANNELS:
+(a) Online portal: https://cms.rbi.org.in
+(b) Physical complaint: by mail to the Centralised Receipt and Processing Centre (CRPC) at RBI, Chandigarh
+(c) Email to: CRPC@rbi.org.in
+(d) Toll-free helpline: 14448
+
+3.3 TIME LIMIT: A complaint must be filed within 1 year from the date of:
+(a) The final rejection of the complaint by the regulated entity, or
+(b) The expiry of 30 days from the date of filing the complaint with the regulated entity (if no response received)
+
+CHAPTER IV: INVESTIGATION AND RESOLUTION
+
+4.1 The Ombudsman shall attempt to promote settlement of the complaint by conciliation within 30 days of receipt.
+
+4.2 If conciliation fails, the Ombudsman may pass an Award directing the regulated entity to:
+(a) Perform specific actions to redress the complaint
+(b) Pay compensation up to Rs. 20 lakh (or actual loss, whichever is lower)
+(c) For complaints involving systemic issues, the Ombudsman may recommend regulatory action
+
+4.3 APPEALS: Either party may appeal the Ombudsman's decision to the Appellate Authority (Executive Director, RBI) within 30 days.
+
+CHAPTER V: INTERNAL GRIEVANCE REDRESSAL MECHANISM
+
+5.1 Every RE must have a Board-approved grievance redressal policy.
+
+5.2 GRIEVANCE REDRESSAL OFFICER (GRO): Every RE must designate a senior official as the Grievance Redressal Officer. The GRO's details must be:
+(a) Displayed prominently at all branches
+(b) Published on the RE's website
+(c) Included in all loan sanction letters
+(d) Available in the mobile app/DLA
+
+5.3 INTERNAL ESCALATION: The RE must have a multi-tier escalation mechanism:
+(a) Level 1: Branch/Customer service team (resolution within 7 days)
+(b) Level 2: Grievance Redressal Officer (resolution within 15 days)
+(c) Level 3: Principal Nodal Officer (resolution within 30 days)
+(d) Level 4: Board-level committee (for systemic or policy issues)
+
+5.4 TRACKING: Every complaint must be assigned a unique tracking number and the complainant must be kept informed of progress.
+
+CHAPTER VI: COMPENSATION FRAMEWORK
+
+6.1 RBI's Integrated Ombudsman Scheme provides for compensation in case of:
+(a) Failure to provide contracted services
+(b) Loss due to deficiency in services
+(c) Mental agony and harassment (up to Rs. 1 lakh)
+
+6.2 For alternate credit scoring complaints, compensation may be awarded for:
+(a) Loss of opportunity due to incorrect scoring (documented cases only)
+(b) Delayed reassessment causing financial loss
+(c) Privacy violations in data handling
+
+6.3 SYSTEMIC CORRECTIONS: Where the Ombudsman identifies systemic deficiencies, the RE must:
+(a) Implement corrective measures within 90 days
+(b) Report compliance to the Ombudsman
+(c) The corrective measures may include changes to scoring methodology, data handling processes, or consent management procedures

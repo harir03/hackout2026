@@ -1,0 +1,82 @@
+CREDIT INFORMATION COMPANIES (REGULATION) ACT, 2005
+(Act No. 25 of 2005, as amended)
+
+AND
+
+RBI DIRECTIONS ON CREDIT INFORMATION COMPANIES
+(RBI/DNBS/2016-17/49, Updated: January 2024)
+
+CHAPTER I: PRELIMINARY
+
+1.1 A Credit Information Company (CIC) is a company that has been granted a certificate of registration by RBI under Section 5 of the Credit Information Companies (Regulation) Act, 2005.
+
+1.2 The four CICs licensed by RBI in India are: TransUnion CIBIL, Equifax, Experian, and CRIF High Mark.
+
+1.3 Credit institutions (banks, NBFCs, HFCs) are required to become members of all CICs and submit credit data on a monthly basis.
+
+CHAPTER II: COLLECTION AND MAINTENANCE OF CREDIT INFORMATION
+
+2.1 DATA SUBMISSION: Credit institutions shall submit credit information of all borrowers to all CICs on a monthly basis. The data must include:
+(a) Identification details of the borrower
+(b) Details of credit facilities sanctioned
+(c) Current balance and repayment history
+(d) Classification status (Standard, Sub-standard, Doubtful, Loss)
+(e) Date of last payment
+
+2.2 DATA ACCURACY: Credit institutions are responsible for the accuracy and completeness of credit information submitted to CICs. Any errors in data submitted must be corrected within 21 days of identification.
+
+2.3 ALTERNATE DATA SOURCES: When credit scoring systems use alternate data sources (telecom, utility payments, UPI transactions), such data is not currently part of the CIC framework. However, RBI has indicated that expansion of CIC data to include alternate data is under consideration.
+
+2.4 THIN-FILE BORROWERS: Borrowers with no or limited traditional credit history are classified as "thin-file" or "credit-invisible." For such borrowers:
+(a) CIC records may show no tradelines
+(b) Traditional credit scores may be unavailable or unreliable
+(c) Alternate credit assessment models become the primary method of creditworthiness evaluation
+(d) The rights of thin-file borrowers to explanation and dispute are identical to those of borrowers with full credit history
+
+CHAPTER III: CREDIT REPORTS AND SCORES
+
+3.1 CREDIT REPORT: A credit report is a summary of a borrower's credit history compiled from data submitted by credit institutions. It includes:
+(a) Personal information (name, address, date of birth, PAN)
+(b) Account information (all credit facilities, current status)
+(c) Enquiry information (all credit enquiries made)
+(d) Public records (defaults, wilful defaulter status, suit filed)
+
+3.2 CREDIT SCORE: A credit score is a numerical representation of creditworthiness derived from the credit report. Scores typically range from 300 to 900.
+
+3.3 ALTERNATE CREDIT SCORE: An alternate credit score is a numerical assessment derived from non-traditional data sources. Unlike CIC scores:
+(a) The data sources may include digital transaction patterns, telecom usage, e-commerce behaviour, and psychometric assessments
+(b) The scoring methodology must be transparent to the regulator
+(c) The applicant has the same rights to explanation and dispute as with traditional credit scores
+(d) The alternate score must be clearly distinguished from CIC scores in lending decisions
+
+CHAPTER IV: RIGHTS OF BORROWERS
+
+4.1 FREE CREDIT REPORT: Every individual is entitled to one free credit report from each CIC per calendar year.
+
+4.2 RIGHT TO DISPUTE: If a borrower finds any inaccuracy in the credit report, they have the right to:
+(a) Raise a dispute with the CIC
+(b) The CIC must forward the dispute to the credit institution within 30 days
+(c) The credit institution must respond within 30 days
+(d) If the dispute is found valid, the credit report must be corrected and the borrower notified
+(e) If the dispute is rejected, the borrower must be informed with reasons
+
+4.3 CONSENT FOR ACCESS: No entity shall access the credit report of a borrower without the borrower's written consent. The consent must specify the purpose for which the credit report is being accessed.
+
+4.4 DATA RETENTION: Credit information shall be maintained by CICs for a period of 7 years from the date of the last entry. After 7 years, the records shall be archived and not accessible for credit decisions.
+
+CHAPTER V: DISPUTE RESOLUTION FOR ALTERNATE SCORING
+
+5.1 For alternate credit scoring systems not connected to CICs, the following dispute resolution framework applies:
+(a) The scoring entity must maintain a dedicated dispute resolution mechanism
+(b) Disputes must be acknowledged within 7 days
+(c) Investigation and resolution must be completed within 30 days
+(d) If the dispute involves data from a third-party source (telecom provider, e-commerce platform), the scoring entity must coordinate with the data source
+(e) The applicant has the right to a reassessment after disputed data is corrected
+
+5.2 RECORD OF DISPUTES: The scoring entity must maintain a record of all disputes raised, their investigation, and resolution for a period of 5 years.
+
+5.3 REGULATORY REPORTING: Aggregate dispute statistics must be reported to RBI periodically, including:
+(a) Number of disputes raised
+(b) Average resolution time
+(c) Percentage of disputes resulting in score changes
+(d) Common categories of disputed data

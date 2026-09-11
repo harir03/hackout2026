@@ -1,0 +1,81 @@
+RBI MASTER DIRECTION ON KNOW YOUR CUSTOMER (KYC)
+(RBI/DBR/2015-16/18, Updated: May 2024)
+
+CHAPTER I: PRELIMINARY
+
+1.1 These directions are issued under Section 35A of the Banking Regulation Act, 1949 read with Rule 9(14) of the Prevention of Money-Laundering (Maintenance of Records) Rules, 2005.
+
+1.2 These directions apply to all regulated entities (REs) including scheduled commercial banks, regional rural banks, local area banks, small finance banks, payment banks, co-operative banks, NBFCs, and all-India financial institutions.
+
+CHAPTER II: CUSTOMER DUE DILIGENCE (CDD)
+
+2.1 CUSTOMER IDENTIFICATION: REs shall identify the customer and verify identity using reliable, independent source documents, data, or information (Officially Valid Documents — OVDs).
+
+2.2 OFFICIALLY VALID DOCUMENTS (OVDs): The following are considered OVDs:
+(a) Passport
+(b) Driving Licence
+(c) Voter's Identity Card issued by the Election Commission of India
+(d) Aadhaar card/letter issued by UIDAI
+(e) NREGA Job Card
+(f) PAN card (for address proof only in conjunction with another OVD)
+
+2.3 PAN VERIFICATION: Permanent Account Number (PAN) or Form 60 shall be obtained from all customers for all accounts. PAN verification through IT Department databases is mandatory.
+
+2.4 AADHAAR E-KYC: Aadhaar authentication/offline verification may be used for KYC purposes. The RE must obtain consent of the customer before collecting Aadhaar for KYC.
+
+CHAPTER III: SIMPLIFIED DUE DILIGENCE FOR LOW-RISK CUSTOMERS
+
+3.1 For low-risk customers with balances not exceeding Rs. 50,000 and total credits not exceeding Rs. 1,00,000 in a year, simplified CDD measures may be applied.
+
+3.2 Small accounts can be opened with self-certification and one OVD. These accounts have limitations:
+(a) Balance shall not exceed Rs. 50,000 at any point in time
+(b) Total credits in a year shall not exceed Rs. 1,00,000
+(c) Total withdrawals and transfers in a month shall not exceed Rs. 10,000
+(d) The account shall be valid for a period of 12 months initially and can be extended for another 12 months if the customer provides documents for full KYC.
+
+CHAPTER IV: VIDEO-BASED CUSTOMER IDENTIFICATION PROCESS (V-CIP)
+
+4.1 V-CIP is an alternate method of CDD with face-to-face interaction using video. The RE must ensure:
+(a) The video interaction is live and not pre-recorded
+(b) The customer's live photograph is captured and matched with the OVD
+(c) The Aadhaar XML/OTP-based e-KYC is captured simultaneously
+(d) The entire V-CIP process is recorded and stored
+
+4.2 V-CIP can be undertaken by RE's own staff trained for this purpose. Third-party verification through V-CIP is not permitted.
+
+4.3 The V-CIP process must include a randomized question to confirm the customer is live and not using a pre-recorded video.
+
+4.4 For alternate credit scoring purposes, V-CIP-based KYC satisfies the identity verification requirement and allows the applicant to proceed to the credit assessment stage.
+
+CHAPTER V: ENHANCED DUE DILIGENCE
+
+5.1 POLITICALLY EXPOSED PERSONS (PEPs): Enhanced due diligence must be performed for PEPs, including senior management approval for establishing business relationships.
+
+5.2 HIGH-RISK CUSTOMERS: REs shall apply enhanced CDD for customers assessed as high risk based on:
+(a) Nature and type of transactions
+(b) Countries/jurisdictions involved
+(c) Customer's occupation
+(d) Sources of funds
+
+CHAPTER VI: ONGOING MONITORING
+
+6.1 REs must conduct ongoing due diligence with respect to the business relationship. This includes scrutiny of transactions to ensure they are consistent with the RE's knowledge of the customer, the customer's business and risk profile.
+
+6.2 KYC documentation must be periodically updated:
+(a) High-risk customers: every 2 years
+(b) Medium-risk customers: every 8 years
+(c) Low-risk customers: every 10 years
+
+CHAPTER VII: RECORD RETENTION
+
+7.1 All KYC records including customer identification documents, account files, and business correspondence must be maintained for a period of 5 years after the business relationship has ended or account has been closed.
+
+7.2 Records of transactions must be maintained for 5 years from the date of the transaction.
+
+CHAPTER VIII: CENTRAL KYC RECORDS REGISTRY (CKYCR)
+
+8.1 All REs are required to upload KYC data to the Central KYC Records Registry (CKYCR) maintained by CERSAI.
+
+8.2 Before undertaking KYC of a new customer, the RE shall check whether the KYC records are already available with the CKYCR.
+
+8.3 For alternate credit scoring, the KYC verification status from CKYCR can be used to streamline the onboarding process.
