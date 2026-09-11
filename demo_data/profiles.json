@@ -1,0 +1,296 @@
+{
+  "hari": {
+    "mobile": "9876543210",
+    "risk_profile": "low",
+    "bank_data": {
+      "average_monthly_balance": 45000.0,
+      "inflow_outflow_ratio": 1.25,
+      "bounce_events": 0,
+      "regular_deposits_count": 12
+    },
+    "telecom_data": {
+      "monthly_average_spend": 799.0,
+      "ontime_payment_rate": 0.98,
+      "recharge_frequency_days": 28
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 32000.0,
+      "order_count_6m": 24,
+      "return_rate": 0.04,
+      "oldest_order_days": 730
+    },
+    "location_data": {
+      "pincode": "560001",
+      "city": "Bengaluru",
+      "tier": "Tier-1",
+      "cost_of_living_index": 1.4
+    },
+    "questionnaire_data": {
+      "cfpb_score": 78,
+      "straight_line_detected": false,
+      "hesitation_flags": 0
+    },
+    "gst_data": {
+      "gstin_valid": true,
+      "filing_promptness_rate": 0.95,
+      "operating_months": 36
+    },
+    "score_details": {
+      "final_score": 795,
+      "tier": "Tier 2",
+      "band": "Excellent"
+    }
+  },
+  "rahul": {
+    "mobile": "9876543211",
+    "risk_profile": "medium",
+    "bank_data": {
+      "average_monthly_balance": 18000.0,
+      "inflow_outflow_ratio": 1.05,
+      "bounce_events": 1,
+      "regular_deposits_count": 8
+    },
+    "telecom_data": {
+      "monthly_average_spend": 399.0,
+      "ontime_payment_rate": 0.85,
+      "recharge_frequency_days": 30
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 12000.0,
+      "order_count_6m": 10,
+      "return_rate": 0.1,
+      "oldest_order_days": 365
+    },
+    "location_data": {
+      "pincode": "400001",
+      "city": "Mumbai",
+      "tier": "Tier-1",
+      "cost_of_living_index": 1.6
+    },
+    "questionnaire_data": {
+      "cfpb_score": 62,
+      "straight_line_detected": false,
+      "hesitation_flags": 1
+    },
+    "gst_data": {
+      "gstin_valid": true,
+      "filing_promptness_rate": 0.8,
+      "operating_months": 18
+    },
+    "score_details": {
+      "final_score": 645,
+      "tier": "Tier 2",
+      "band": "Good"
+    }
+  },
+  "nikhil": {
+    "mobile": "9876543212",
+    "risk_profile": "low",
+    "bank_data": {
+      "average_monthly_balance": 35000.0,
+      "inflow_outflow_ratio": 1.15,
+      "bounce_events": 0,
+      "regular_deposits_count": 10
+    },
+    "telecom_data": {
+      "monthly_average_spend": 599.0,
+      "ontime_payment_rate": 0.95,
+      "recharge_frequency_days": 28
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 22000.0,
+      "order_count_6m": 18,
+      "return_rate": 0.05,
+      "oldest_order_days": 540
+    },
+    "location_data": {
+      "pincode": "110001",
+      "city": "Delhi",
+      "tier": "Tier-1",
+      "cost_of_living_index": 1.5
+    },
+    "questionnaire_data": {
+      "cfpb_score": 70,
+      "straight_line_detected": false,
+      "hesitation_flags": 0
+    },
+    "gst_data": {
+      "gstin_valid": true,
+      "filing_promptness_rate": 0.9,
+      "operating_months": 24
+    },
+    "score_details": {
+      "final_score": 710,
+      "tier": "Tier 2",
+      "band": "Excellent"
+    }
+  },
+  "akash": {
+    "mobile": "9876543213",
+    "risk_profile": "high",
+    "bank_data": {
+      "average_monthly_balance": 2000.0,
+      "inflow_outflow_ratio": 0.85,
+      "bounce_events": 4,
+      "regular_deposits_count": 2
+    },
+    "telecom_data": {
+      "monthly_average_spend": 199.0,
+      "ontime_payment_rate": 0.55,
+      "recharge_frequency_days": 45
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 2000.0,
+      "order_count_6m": 3,
+      "return_rate": 0.35,
+      "oldest_order_days": 90
+    },
+    "location_data": {
+      "pincode": "700001",
+      "city": "Kolkata",
+      "tier": "Tier-1",
+      "cost_of_living_index": 1.1
+    },
+    "questionnaire_data": {
+      "cfpb_score": 45,
+      "straight_line_detected": true,
+      "hesitation_flags": 3
+    },
+    "gst_data": {
+      "gstin_valid": false,
+      "filing_promptness_rate": 0.3,
+      "operating_months": 6
+    },
+    "score_details": {
+      "final_score": 415,
+      "tier": "Tier 1",
+      "band": "Poor"
+    }
+  },
+  "tejas": {
+    "mobile": "9876543214",
+    "risk_profile": "medium",
+    "bank_data": {
+      "average_monthly_balance": 12000.0,
+      "inflow_outflow_ratio": 1.01,
+      "bounce_events": 2,
+      "regular_deposits_count": 6
+    },
+    "telecom_data": {
+      "monthly_average_spend": 299.0,
+      "ontime_payment_rate": 0.78,
+      "recharge_frequency_days": 30
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 6000.0,
+      "order_count_6m": 6,
+      "return_rate": 0.15,
+      "oldest_order_days": 180
+    },
+    "location_data": {
+      "pincode": "600001",
+      "city": "Chennai",
+      "tier": "Tier-1",
+      "cost_of_living_index": 1.2
+    },
+    "questionnaire_data": {
+      "cfpb_score": 58,
+      "straight_line_detected": false,
+      "hesitation_flags": 2
+    },
+    "gst_data": {
+      "gstin_valid": true,
+      "filing_promptness_rate": 0.7,
+      "operating_months": 12
+    },
+    "score_details": {
+      "final_score": 530,
+      "tier": "Tier 2",
+      "band": "Fair"
+    }
+  },
+  "farmer": {
+    "mobile": "9876543215",
+    "risk_profile": "low",
+    "bank_data": {
+      "average_monthly_balance": 18000.0,
+      "inflow_outflow_ratio": 1.35,
+      "bounce_events": 0,
+      "regular_deposits_count": 12
+    },
+    "telecom_data": {
+      "monthly_average_spend": 149.0,
+      "ontime_payment_rate": 1.0,
+      "recharge_frequency_days": 28
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 0.0,
+      "order_count_6m": 0,
+      "return_rate": 0.0,
+      "oldest_order_days": 0
+    },
+    "location_data": {
+      "pincode": "524305",
+      "city": "Kovvur Village",
+      "tier": "Tier-3",
+      "cost_of_living_index": 0.7
+    },
+    "questionnaire_data": {
+      "cfpb_score": 85,
+      "straight_line_detected": false,
+      "hesitation_flags": 0
+    },
+    "gst_data": {
+      "gstin_valid": false,
+      "filing_promptness_rate": 0.0,
+      "operating_months": 0
+    },
+    "score_details": {
+      "final_score": 710,
+      "tier": "Tier 1",
+      "band": "Excellent"
+    }
+  },
+  "msme": {
+    "mobile": "9876543216",
+    "risk_profile": "medium",
+    "bank_data": {
+      "average_monthly_balance": 15000.0,
+      "inflow_outflow_ratio": 1.08,
+      "bounce_events": 1,
+      "regular_deposits_count": 25
+    },
+    "telecom_data": {
+      "monthly_average_spend": 399.0,
+      "ontime_payment_rate": 0.90,
+      "recharge_frequency_days": 28
+    },
+    "ecommerce_data": {
+      "total_spend_6m": 8000.0,
+      "order_count_6m": 8,
+      "return_rate": 0.08,
+      "oldest_order_days": 270
+    },
+    "location_data": {
+      "pincode": "625001",
+      "city": "Madurai",
+      "tier": "Tier-2",
+      "cost_of_living_index": 0.95
+    },
+    "questionnaire_data": {
+      "cfpb_score": 65,
+      "straight_line_detected": false,
+      "hesitation_flags": 2
+    },
+    "gst_data": {
+      "gstin_valid": true,
+      "filing_promptness_rate": 0.78,
+      "operating_months": 24
+    },
+    "score_details": {
+      "final_score": 610,
+      "tier": "Tier 2",
+      "band": "Fair"
+    }
+  }
+}

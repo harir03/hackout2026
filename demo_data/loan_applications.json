@@ -1,0 +1,16 @@
+[
+  {
+    "application_id": "ALT-77265EA7",
+    "user_id": "testhari@altgrade.in",
+    "score": 640,
+    "risk_band": "Fair",
+    "loan_amount": 200000,
+    "tenure_months": 24,
+    "monthly_emi": 9888.45,
+    "interest_rate": 17.0,
+    "phone": "9876543210",
+    "name": "Hari R",
+    "status": "callback_requested",
+    "created_at": "2026-07-18T20:29:38.813896+00:00"
+  }
+]

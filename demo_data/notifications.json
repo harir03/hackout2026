@@ -1,0 +1,46 @@
+{
+  "testhari@altgrade.in": {
+    "user_id": "testhari@altgrade.in",
+    "decision": "approved",
+    "interest_rate": 10.5,
+    "terms": "60 months",
+    "notes": "ik hinm ",
+    "loan_amount": 1000000,
+    "timestamp": "2026-07-19T09:37:03.219385+00:00"
+  },
+  "USR-8931A": {
+    "user_id": "USR-8931A",
+    "decision": "approved",
+    "interest_rate": 10.5,
+    "terms": "36 months",
+    "notes": "bteggg",
+    "timestamp": "2026-07-02T21:30:39.082596+00:00"
+  },
+  "test-applicant-999": {
+    "user_id": "test-applicant-999",
+    "decision": "approved",
+    "interest_rate": 11.25,
+    "terms": "36 months",
+    "notes": "",
+    "loan_amount": null,
+    "timestamp": "2026-07-19T01:23:54.475085+00:00"
+  },
+  "test-user-decision": {
+    "user_id": "test-user-decision",
+    "decision": "approved",
+    "interest_rate": 10.5,
+    "terms": "36 months",
+    "notes": "",
+    "loan_amount": null,
+    "timestamp": "2026-07-22T05:00:59.429669+00:00"
+  },
+  "test-farmer-001": {
+    "user_id": "test-farmer-001",
+    "decision": "approved",
+    "interest_rate": 8.5,
+    "terms": "12 months",
+    "notes": "Verified farmer harvest cycle and KCC record.",
+    "loan_amount": 150000,
+    "timestamp": "2026-07-22T05:01:20.400740+00:00"
+  }
+}
