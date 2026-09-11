@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: psb-iidkk
+    runtime: python
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ICA_GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://frontend-one-tawny-43.vercel.app,http://localhost:5173
+      - key: PYTHON_VERSION
+        value: "3.11.0"
