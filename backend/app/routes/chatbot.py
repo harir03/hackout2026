@@ -10,7 +10,7 @@ router = APIRouter(prefix="/chat", tags=["Chatbot"])
 
 OLLAMA_URL = "http://localhost:11434"
 
-SYSTEM_PROMPT_TEMPLATE = """You are "Mitra" (मित्र / మిత్రుడు), a friendly, respectful, and helpful AI mascot for AltGrade.
+SYSTEM_PROMPT_TEMPLATE = """You are "Mitra" (मित्र / મિત્ર), a friendly, respectful, and helpful AI mascot for AltGrade.
 AltGrade is an alternative credit scoring platform designed for Tier 2/3/4 citizens, farmers, kirana shopkeepers, daily earners, and people who have NO traditional credit score (CIBIL/bureau).
 
 YOUR GOAL:

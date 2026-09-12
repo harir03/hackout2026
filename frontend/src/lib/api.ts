@@ -365,3 +365,66 @@ export async function fetchOfficerAlerts(): Promise<any> {
   return data
 }
 
+export async function fetchStressTriggers(userId: string): Promise<{
+  user_id: string
+  score: number
+  risk_band: string
+  segment: string
+  triggers: Array<{
+    trigger_type: string
+    severity_score: number
+    confidence_score: number
+    ai_summary: string
+    recommended_action: string
+    empathetic_message: string
+    user_id: string
+    detected_at: string
+    user_score: number
+  }>
+  total_triggers: number
+  max_severity: number
+}> {
+  const { data } = await api.get(`/personalize/stress-triggers/${encodeURIComponent(userId)}`)
+  return data
+}
+
+export async function sendOfficerMessage(params: {
+  userId: string
+  message: string
+  category: string
+  channel: string
+  officerName?: string
+}): Promise<{
+  status: string
+  user_id: string
+  channel: string
+  message_stored: boolean
+  trigger_ai_call: boolean
+  message_preview: string
+}> {
+  const { data } = await api.post('/personalize/officer-message', {
+    user_id: params.userId,
+    message: params.message,
+    category: params.category,
+    channel: params.channel,
+    officer_name: params.officerName || 'Loan Officer',
+  })
+  return data
+}
+
+export async function fetchOfficerMessages(userId: string): Promise<{
+  user_id: string
+  messages: Array<{
+    message: string
+    category: string
+    channel: string
+    officer_name: string
+    timestamp: string
+    status: string
+  }>
+  total: number
+}> {
+  const { data } = await api.get(`/personalize/officer-messages/${encodeURIComponent(userId)}`)
+  return data
+}
+

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: psb-iidkk
+    name: altgrade-api
     runtime: python
     region: oregon
     rootDir: backend

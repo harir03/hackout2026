@@ -172,7 +172,7 @@ export function PitchDeckPage() {
           <div className='flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
             <span>Diet Code</span>
             <span className='h-3 w-px bg-white/10' />
-            <span>HACK-1D598347</span>
+            <span>ALT-1D598347</span>
             <div className='flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2'>
               <a
                 href="https://www.canva.com/design/DAHOFJi2fbo/gQAI6SX4laigaYkKSK2eqA/edit?utm_content=DAHOFJi2fbo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"
@@ -183,7 +183,7 @@ export function PitchDeckPage() {
                 Canva PPT
               </a>
               <a
-                href="https://github.com/harir03/psbiitkgp"
+                href="https://github.com/harir03/altgrade"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
@@ -228,7 +228,7 @@ export function PitchDeckPage() {
           <div className='lg:col-span-9 space-y-6 text-left'>
             <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-white font-mono hero-fade-in'>
               <Sparkles className='h-3.5 w-3.5' />
-              PSB HACKATHON 2026 • Diet Code
+              ALTGRADE ZERO-BUREAU PLATFORM • Diet Code
             </div>
             
             <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase flex flex-col items-start'>

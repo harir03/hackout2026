@@ -13,7 +13,7 @@ def test_mascot():
         data = json.loads(resp.read().decode())
         print("   /chat/status:", data["status"], "ollama_online:", data["ollama_online"])
 
-    payload = json.dumps({"message": "రుణం ఎలా పొందాలి?", "language": "te"}).encode()
+    payload = json.dumps({"message": "લોન કેવી રીતે મેળવવી?", "language": "gu"}).encode()
     req = urllib.request.Request(
         f"{BASE_URL}/chat/mascot",
         data=payload,
@@ -21,7 +21,7 @@ def test_mascot():
     )
     with urllib.request.urlopen(req) as resp:
         data = json.loads(resp.read().decode())
-        print("   /chat/mascot (te) reply:", data["reply"][:60], "...")
+        print("   /chat/mascot (gu) reply:", data["reply"][:60], "...")
 
 def test_personalization():
     print("\n2. Testing Personalization & Persona Segmentation for Farmer...")

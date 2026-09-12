@@ -33,7 +33,7 @@ export function LanguageSelector() {
             key={lang.code}
             onClick={() => i18n.changeLanguage(lang.code)}
             className={`cursor-pointer text-xs hover:bg-zinc-800 ${
-              i18n.language === lang.code ? 'font-semibold text-emerald-400' : 'text-zinc-300'
+              i18n.language === lang.code ? 'font-semibold text-white bg-zinc-800' : 'text-zinc-300'
             }`}
           >
             <span className="mr-2">{lang.flag}</span>

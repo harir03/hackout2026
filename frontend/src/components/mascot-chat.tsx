@@ -36,6 +36,156 @@ const CYCLING_BUBBLES = [
   { lang: 'ta', label: 'தமிழ்', text: 'ஃபோன் கால் மூலம் வங்கி சேவை தேவையா? உடனே பேச அல்லது கால் பேக் பெற தட்டவும் 👋' },
 ]
 
+interface MascotTranslations {
+  cardTitle: string
+  cardDesc: string
+  cardBtn: string
+  zeroBureau: string
+  vernacularSubtitle: string
+  requestCallHeaderBtn: string
+  drawerTitle: string
+  drawerDesc: string
+  voiceOption: string
+  officerOption: string
+  phonePlaceholder: string
+  callBtn: string
+  scheduleBtn: string
+  listenBtn: string
+  stopBtn: string
+  inputPlaceholder: string
+  footerTagline: string
+  clickToChat: string
+  assistantArrow: string
+  thinking: string
+  welcomeGreeting: string
+  callbackVoiceConfirm: (phone: string) => string
+  callbackOfficerConfirm: (phone: string) => string
+  errorConnect: string
+}
+
+const MASCOT_I18N: Record<'en' | 'hi' | 'gu' | 'ta', MascotTranslations> = {
+  en: {
+    cardTitle: 'Prefer an on-call banking service?',
+    cardDesc: 'Speak directly with our AI Voice Officer in your language or request a field visit.',
+    cardBtn: 'Request Call Back',
+    zeroBureau: 'Zero Bureau Required',
+    vernacularSubtitle: 'Vernacular Credit Intelligence',
+    requestCallHeaderBtn: 'Request Call',
+    drawerTitle: 'Request Spoken Assistance',
+    drawerDesc: 'Direct phone connection in your language',
+    voiceOption: 'AI Voice Officer (Immediate)',
+    officerOption: 'Field Officer Visit',
+    phonePlaceholder: 'Enter 10-digit mobile number',
+    callBtn: 'Call Me Now',
+    scheduleBtn: 'Schedule Visit',
+    listenBtn: 'Listen',
+    stopBtn: 'Stop',
+    inputPlaceholder: 'Ask anything about alternative credit, loans or score...',
+    footerTagline: 'Mitra Vernacular AI • Verified by AltGrade Engine',
+    clickToChat: 'Click to chat',
+    assistantArrow: 'Assistant →',
+    thinking: 'Thinking in English...',
+    welcomeGreeting:
+      'Hello! I am Mitra, your credit & financial guide. AltGrade brings online banking for all—evaluating your everyday utility bills and UPI history to approve fair loans without a CIBIL score.\n\nPrefer an on-call banking service? You can request an immediate callback from our AI Voice Officer or ask any question right here!',
+    callbackVoiceConfirm: (phone: string) =>
+      `📞 On-Call Banking Callback requested for ${phone}. Arun (Personal Account Manager) is dialing your number to discuss loan options.`,
+    callbackOfficerConfirm: (phone: string) =>
+      `📋 Local Field Loan Officer visit requested for ${phone}. An assigned representative will contact you within 24–48 hours to assist with paperwork.`,
+    errorConnect:
+      'I am taking a moment to connect. AltGrade verifies your utility and UPI history to grant fair loans without traditional bureau requirements.',
+  },
+  gu: {
+    cardTitle: 'શું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો?',
+    cardDesc: 'તમારી ભાષામાં અમારા એઆઈ વૉઇસ ઑફિસર સાથે સીધી વાત કરો અથવા ફિલ્ડ વિઝિટની વિનંતી કરો.',
+    cardBtn: 'કૉલ બૅકની વિનંતી કરો',
+    zeroBureau: 'કોઈ સિબિલ સ્કોર જરૂરી નથી',
+    vernacularSubtitle: 'પ્રાદેશિક ક્રેડિટ બુદ્ધિમત્તા',
+    requestCallHeaderBtn: 'કૉલ વિનંતી',
+    drawerTitle: 'બોલીને સહાય મેળવો',
+    drawerDesc: 'તમારી ભાષામાં સીધો ફોન સંપર્ક',
+    voiceOption: 'એઆઈ વૉઇસ ઑફિસર (તરત)',
+    officerOption: 'ફિલ્ડ ઑફિસર મુલાકાત',
+    phonePlaceholder: '૧૦ અંકનો મોબાઈલ નંબર દાખલ કરો',
+    callBtn: 'મને અત્યારે કૉલ કરો',
+    scheduleBtn: 'મુલાકાત શેડ્યૂલ કરો',
+    listenBtn: 'સાંભળો',
+    stopBtn: 'બંધ કરો',
+    inputPlaceholder: 'લોન અથવા વ્યાજ દર વિશે કંઈપણ પૂછો...',
+    footerTagline: 'મિત્રા વેરનેક્યુલર AI • ઓલ્ટગ્રેડ એન્જિન દ્વારા ચકાસાયેલ',
+    clickToChat: 'ચેટ કરવા માટે ટૅપ કરો',
+    assistantArrow: 'સહાયક →',
+    thinking: 'ગુજરાતીમાં વિચારી રહ્યા છીએ...',
+    welcomeGreeting:
+      'નમસ્તે! હું મિત્રા છું, તમારો ક્રેડિટ માર્ગદર્શક. ઑલ્ટગ્રેડ તમારા લાઈટ બિલ અને યુપીઆઈથી વગર સિબિલ સ્કોરે સરળ લોન અપાવે છે.\n\nશું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો? તમે અમારા એઆઈ વૉઇસ ઑફિસર પાસેથી તરત કૉલ બૅકની વિનંતી કરી શકો છો!',
+    callbackVoiceConfirm: (phone: string) =>
+      `📞 ${phone} માટે ઓન-કૉલ બેંકિંગ કૉલબૅકની વિનંતી થઈ છે. અરુણ (પર્સનલ એકાઉન્ટ મેનેજર) ગુજરાતીમાં લોન વિકલ્પોની ચર્ચા કરવા માટે તમારા નંબર પર કૉલ કરી રહ્યા છે.`,
+    callbackOfficerConfirm: (phone: string) =>
+      `📋 ${phone} માટે સ્થાનિક ફિલ્ડ લોન ઓફિસર મુલાકાતની વિનંતી નોંધાઈ છે. અમારા પ્રતિનિધિ દસ્તાવેજો માટે 24–48 કલાકમાં તમારો સંપર્ક કરશે.`,
+    errorConnect:
+      'માફ કરશો, કનેક્શનમાં થોડો સમય લાગી રહ્યો છે. તમે તમારા નજીકના લોન અધિકારીનો સંપર્ક કરી શકો છો.',
+  },
+  hi: {
+    cardTitle: 'क्या आप फोन पर बैंकिंग सेवा पसंद करते हैं?',
+    cardDesc: 'अपनी भाषा में हमारे एआई वॉइस ऑफिसर से सीधे बात करें या फील्ड विजिट का अनुरोध करें।',
+    cardBtn: 'कॉल बैक का अनुरोध करें',
+    zeroBureau: 'बिना सिबिल स्कोर आवश्यक',
+    vernacularSubtitle: 'क्षेत्रीय क्रेडिट इंटेलिजेंस',
+    requestCallHeaderBtn: 'कॉल अनुरोध',
+    drawerTitle: 'बोलकर सहायता का अनुरोध करें',
+    drawerDesc: 'आपकी भाषा में सीधा फोन कनेक्शन',
+    voiceOption: 'एआई वॉइस ऑफिसर (तत्काल)',
+    officerOption: 'फील्ड ऑफिसर विजिट',
+    phonePlaceholder: '10 अंकों का मोबाइल नंबर दर्ज करें',
+    callBtn: 'मुझे अभी कॉल करें',
+    scheduleBtn: 'विजिट शेड्यूल करें',
+    listenBtn: 'सुनें',
+    stopBtn: 'रोकें',
+    inputPlaceholder: 'ऋण या ब्याज दर के बारे में कुछ भी पूछें...',
+    footerTagline: 'मित्रा वर्नाक्युलर AI • ऑल्टग्रेड इंजन द्वारा सत्यापित',
+    clickToChat: 'चैट करने के लिए टैप करें',
+    assistantArrow: 'सहायक →',
+    thinking: 'हिंदी में सोच रहे हैं...',
+    welcomeGreeting:
+      'नमस्ते! मैं मित्रा हूँ। ऑल्टग्रेड आपके बिजली बिल और यूपीआई से बिना सिबिल स्कोर के आसान लोन दिलाता है।\n\nक्या आप फोन पर बैंकिंग सेवा पसंद करते हैं? आप हमारे एआई वॉइस ऑफिसर से तुरंत कॉल बैक का अनुरोध कर सकते हैं!',
+    callbackVoiceConfirm: (phone: string) =>
+      `📞 ${phone} के लिए ऑन-कॉल बैंकिंग कॉलबैक का अनुरोध किया गया है। अरुण (पर्सनल अकाउंट मैनेजर) लोन विकल्पों पर चर्चा करने के लिए कॉल कर रहे हैं।`,
+    callbackOfficerConfirm: (phone: string) =>
+      `📋 ${phone} के लिए फील्ड लोन ऑफिसर विजिट का अनुरोध दर्ज किया गया है। 24–48 घंटों में संपर्क किया जाएगा।`,
+    errorConnect:
+      'क्षमा करें, कनेक्शन में कुछ समय लग रहा है। आप अपने नजदीकी लोन अधिकारी से संपर्क कर सकते हैं।',
+  },
+  ta: {
+    cardTitle: 'ஃபோன் மூலம் வங்கி சேவையை விரும்புகிறீர்களா?',
+    cardDesc: 'உங்கள் மொழியில் எங்கள் AI வாய்ஸ் ஆபிசருடன் நேரடியாகப் பேசுங்கள் அல்லது கள வருகையைக் கோருங்கள்.',
+    cardBtn: 'கால் பேக் கோருங்கள்',
+    zeroBureau: 'CIBIL தேவையில்லை',
+    vernacularSubtitle: 'பிராந்திய கடன் நுண்ணறிவு',
+    requestCallHeaderBtn: 'அழைப்பு கோரிக்கை',
+    drawerTitle: 'பேசி உதவி பெற விண்ணப்பிக்கவும்',
+    drawerDesc: 'உங்கள் மொழியில் நேரடி தொலைபேசி இணைப்பு',
+    voiceOption: 'AI வாய்ஸ் ஆபிசர் (உடனடி)',
+    officerOption: 'கள அதிகாரி வருகை',
+    phonePlaceholder: '10 இலக்க மொபைல் எண்',
+    callBtn: 'எனக்கு இப்போது அழைக்கவும்',
+    scheduleBtn: 'வருகையைத் திட்டமிடுங்கள்',
+    listenBtn: 'கேளுங்கள்',
+    stopBtn: 'நிறுத்து',
+    inputPlaceholder: 'கடன் அல்லது வட்டி பற்றி ஏதேனும் கேளுங்கள்...',
+    footerTagline: 'மித்ரா வெர்னாகுலர் AI • ஆல்ட்கிரேட் என்ஜினால் சரிபார்க்கப்பட்டது',
+    clickToChat: 'அரட்டை செய்ய தட்டவும்',
+    assistantArrow: 'உதவியாளர் →',
+    thinking: 'தமிழில் சிந்திக்கிறது...',
+    welcomeGreeting:
+      'வணக்கம்! நான் மித்ரா. மின் கட்டணம் மற்றும் UPI மூலம் CIBIL ஸ்கோர் இல்லாமலேயே நியாயமான கடன் பெறலாம்.\n\nஃபோன் கால் மூலம் வங்கி சேவையை விரும்புகிறீர்களா? எங்கள் AI வாய்ஸ் ஆபிசரிடமிருந்து உடனே கால் பேக் கோரலாம்!',
+    callbackVoiceConfirm: (phone: string) =>
+      `📞 ${phone} க்கான ஆன்-கால் பேங்கிங் கோரப்பட்டது. அருண் உங்கள் எண்ணை அழைக்கிறார்.`,
+    callbackOfficerConfirm: (phone: string) =>
+      `📋 ${phone} க்கான கள அதிகாரி வருகை பதிவு செய்யப்பட்டது.`,
+    errorConnect:
+      'மன்னிக்கவும், இணைப்பில் தாமதம் ஏற்படுகிறது. உங்கள் உள்ளூர் கடன் அதிகாரியைத் தொடர்பு கொள்ளலாம்.',
+  },
+}
+
 export function MascotChat() {
   const { i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -45,25 +195,30 @@ export function MascotChat() {
     const curr = i18n.language
     return (curr === 'hi' || curr === 'gu' || curr === 'ta' || curr === 'en') ? curr : 'en'
   })
+  const t = MASCOT_I18N[selectedLang] || MASCOT_I18N.en
   const [showCallbackForm, setShowCallbackForm] = useState(false)
   const [callbackPhone, setCallbackPhone] = useState(() => getDefaultPhone())
   const [isPhoneMasked, setIsPhoneMasked] = useState(true)
   const [callbackType, setCallbackType] = useState<'voice' | 'officer'>('voice')
   const [isRequestingCall, setIsRequestingCall] = useState(false)
-  const [activeCallId, setActiveCallId] = useState<string | null>(null)
+  const [, setActiveCallId] = useState<string | null>(null)
   const [callStageMsg, setCallStageMsg] = useState<string | null>(null)
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content:
-        'Hello! I am Mitra, your credit & financial guide. AltGrade brings online banking for all—evaluating your everyday utility bills and UPI history to approve fair loans without a CIBIL score.\n\nPrefer an on-call banking service? You can request an immediate callback from our AI Voice Officer or ask any question right here!',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      modelUsed: 'local-model',
-    },
-  ])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const curr = i18n.language
+    const initialLang = (curr === 'hi' || curr === 'gu' || curr === 'ta' || curr === 'en') ? curr : 'en'
+    const dict = MASCOT_I18N[initialLang as 'en' | 'hi' | 'gu' | 'ta'] || MASCOT_I18N.en
+    return [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: dict.welcomeGreeting,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        modelUsed: 'local-model',
+      },
+    ]
+  })
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
@@ -130,18 +285,13 @@ export function MascotChat() {
     setSelectedLang(lang)
     i18n.changeLanguage(lang) // Updates the entire application globally!
 
-    const greetings = {
-      hi: 'नमस्ते! मैं मित्रा हूँ। ऑल्टग्रेड आपके बिजली बिल और यूपीआई से बिना सिबिल स्कोर के आसान लोन दिलाता है।\n\nक्या आप फोन पर बैंकिंग सेवा पसंद करते हैं? आप हमारे एआई वॉइस ऑफिसर से तुरंत कॉल बैक का अनुरोध कर सकते हैं!',
-      gu: 'નમસ્તે! હું મિત્રા છું. ઑલ્ટગ્રેડ તમારા લાઈટ બિલ અને યુપીઆઈથી વગર સિબિલ સ્કોરે સરળ લોન અપાવે છે.\n\nશું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો? તમે અમારા એઆઈ વૉઇસ ઑફિસર પાસેથી તરત કૉલ બૅકની વિનંતી કરી શકો છો!',
-      ta: 'வணக்கம்! நான் மித்ரா. மின் கட்டணம் மற்றும் UPI மூலம் CIBIL ஸ்கோர் இல்லாமலேயே நியாயமான கடன் பெறலாம்.\n\nஃபோன் கால் மூலம் வங்கி சேவையை விரும்புகிறீர்களா? எங்கள் AI வாய்ஸ் ஆபிசரிடமிருந்து உடனே கால் பேக் கோரலாம்!',
-      en: 'Hello! I am Mitra, your credit guide. AltGrade enables fair loans using utility bills and UPI history—even with zero CIBIL score.\n\nPrefer an on-call banking service? You can request an instant callback from our AI Voice Officer!',
-    }
+    const dict = MASCOT_I18N[lang] || MASCOT_I18N.en
     setMessages((prev) => [
       ...prev,
       {
         id: `lang-switch-${Date.now()}`,
         role: 'assistant',
-        content: greetings[lang],
+        content: dict.welcomeGreeting,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         modelUsed: 'local-model',
       },
@@ -396,7 +546,7 @@ export function MascotChat() {
 
           {/* Minimal status pip */}
           <span className='absolute top-0 right-0 flex h-3 w-3'>
-            <span className='relative inline-flex h-2.5 w-2.5 rounded-full border border-black bg-emerald-400' />
+            <span className='relative inline-flex h-2.5 w-2.5 rounded-full border border-black bg-white' />
           </span>
         </button>
       )}
@@ -417,7 +567,7 @@ export function MascotChat() {
               <div className='flex items-center gap-3'>
                 <div className='relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-white/15 to-white/5 border border-white/15 text-white shadow-sm'>
                   <Bot className='h-4 w-4' />
-                  <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0a0a0c] bg-emerald-400' />
+                  <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0a0a0c] bg-white' />
                 </div>
                 <div>
                   <div className='flex items-center gap-2'>
@@ -503,7 +653,7 @@ export function MascotChat() {
               </div>
 
               <div className='hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-white/40'>
-                <span className='h-1.5 w-1.5 rounded-full bg-emerald-400/80 animate-pulse' />
+                <span className='h-1.5 w-1.5 rounded-full bg-white/80 animate-pulse' />
                 <span>Zero Bureau Required</span>
               </div>
             </div>
@@ -511,7 +661,7 @@ export function MascotChat() {
 
           {/* Slide-Down Callback Request Drawer */}
           {showCallbackForm && (
-            <div className='border-b border-white/15 bg-zinc-950/95 p-4 sm:p-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200'>
+            <div className='border-b border-white/15 bg-black/95 p-4 sm:p-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2'>
                   <div className='flex h-7 w-7 items-center justify-center rounded-md bg-white text-black'>
@@ -602,10 +752,10 @@ export function MascotChat() {
 
           {/* Active Call In-Progress Banner */}
           {callStageMsg && (
-            <div className='mx-4 mt-3 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3.5 py-2.5 text-xs font-mono text-emerald-300 animate-pulse'>
-              <PhoneCall className='h-4 w-4 shrink-0 text-emerald-400 animate-bounce' />
+            <div className='mx-4 mt-3 flex items-center gap-2.5 rounded-xl border border-white/20 bg-black px-3.5 py-2.5 text-xs font-mono text-white animate-pulse'>
+              <PhoneCall className='h-4 w-4 shrink-0 text-white animate-bounce' />
               <div className='flex-1 truncate'>
-                <span className='font-semibold text-emerald-200'>Account Manager Call:</span> {callStageMsg}
+                <span className='font-semibold text-white'>Account Manager Call:</span> {callStageMsg}
               </div>
             </div>
           )}
@@ -644,7 +794,7 @@ export function MascotChat() {
                             <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5'>
                               <div className='space-y-0.5'>
                                 <div className='flex items-center gap-1.5 text-xs font-semibold text-white'>
-                                  <PhoneCall className='h-3.5 w-3.5 text-emerald-400' />
+                                  <PhoneCall className='h-3.5 w-3.5 text-white' />
                                   <span>Prefer an on-call banking service?</span>
                                 </div>
                                 <p className='text-[11px] text-white/60 font-mono leading-relaxed'>
@@ -688,8 +838,8 @@ export function MascotChat() {
                           >
                             {speakingId === msg.id ? (
                               <>
-                                <VolumeX className='h-3 w-3 text-red-400 animate-pulse' />
-                                <span className='text-red-400'>Stop</span>
+                                <VolumeX className='h-3 w-3 text-white animate-pulse' />
+                                <span className='text-white'>Stop</span>
                               </>
                             ) : (
                               <>
@@ -741,8 +891,8 @@ export function MascotChat() {
                   placeholder={
                     selectedLang === 'hi'
                       ? 'ऋण या ब्याज दर के बारे में कुछ भी पूछें...'
-                      : selectedLang === 'te'
-                      ? 'లోన్ లేదా వడ్డీ గురించి ఏదైనా అడగండి...'
+                      : selectedLang === 'gu'
+                      ? 'લોન અથવા વ્યાજ દર વિશે કંઈપણ પૂછો...'
                       : selectedLang === 'ta'
                       ? 'கடன் அல்லது வட்டி பற்றி ஏதேனும் கேளுங்கள்...'
                       : 'Ask anything about alternative credit, loans or score...'

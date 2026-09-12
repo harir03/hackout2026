@@ -1,0 +1,78 @@
+{
+  "test_applicant_stress@altgrade.in": [
+    {
+      "message": "We noticed financial stress in your recent statement. Can we offer a 30-day EMI grace?",
+      "category": "restructuring_offer",
+      "channel": "sms",
+      "officer_name": "Field Officer Ramesh",
+      "timestamp": "2026-09-12T10:07:27.815730+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "Urgent check-in regarding seasonal crop cycle support.",
+      "category": "check_in",
+      "channel": "call",
+      "officer_name": "Senior Loan Officer Anita",
+      "timestamp": "2026-09-12T10:07:27.849445+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "We noticed financial stress in your recent statement. Can we offer a 30-day EMI grace?",
+      "category": "restructuring_offer",
+      "channel": "sms",
+      "officer_name": "Field Officer Ramesh",
+      "timestamp": "2026-09-12T10:26:41.822963+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "Urgent check-in regarding seasonal crop cycle support.",
+      "category": "check_in",
+      "channel": "call",
+      "officer_name": "Senior Loan Officer Anita",
+      "timestamp": "2026-09-12T10:26:41.842776+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "We noticed financial stress in your recent statement. Can we offer a 30-day EMI grace?",
+      "category": "restructuring_offer",
+      "channel": "sms",
+      "officer_name": "Field Officer Ramesh",
+      "timestamp": "2026-09-12T10:38:49.971768+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "Urgent check-in regarding seasonal crop cycle support.",
+      "category": "check_in",
+      "channel": "call",
+      "officer_name": "Senior Loan Officer Anita",
+      "timestamp": "2026-09-12T10:38:49.998384+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "We noticed financial stress in your recent statement. Can we offer a 30-day EMI grace?",
+      "category": "restructuring_offer",
+      "channel": "sms",
+      "officer_name": "Field Officer Ramesh",
+      "timestamp": "2026-09-12T10:49:57.909453+00:00",
+      "status": "queued"
+    },
+    {
+      "message": "Urgent check-in regarding seasonal crop cycle support.",
+      "category": "check_in",
+      "channel": "call",
+      "officer_name": "Senior Loan Officer Anita",
+      "timestamp": "2026-09-12T10:49:57.920018+00:00",
+      "status": "queued"
+    }
+  ],
+  "farmer@altgrade.in": [
+    {
+      "message": "Hello Ramesh, we noticed the pre-sowing period has reduced your liquidity. We can attach PMFBY crop insurance and activate a 60-day harvest grace period on your repayments.",
+      "category": "restructuring_offer",
+      "channel": "in_app",
+      "officer_name": "Officer Anand Varma",
+      "timestamp": "2026-09-12T10:09:52.947047+00:00",
+      "status": "delivered"
+    }
+  ]
+}
