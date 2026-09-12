@@ -1179,5 +1179,37 @@
       "d5_questionnaire"
     ],
     "consented_at": "2026-07-22T05:01:02.483322+00:00"
+  },
+  "88224d23-eb37-47bb-82e9-fabb75181be0": {
+    "consent_id": "88224d23-eb37-47bb-82e9-fabb75181be0",
+    "user_id": "farmer@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-09-11T18:24:07.412799+00:00"
+  },
+  "7b4febdc-2eb2-4476-8a3a-31b5b964881e": {
+    "consent_id": "7b4febdc-2eb2-4476-8a3a-31b5b964881e",
+    "user_id": "farmer@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-09-11T18:25:55.350189+00:00"
   }
 }
