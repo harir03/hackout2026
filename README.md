@@ -217,68 +217,93 @@ Visit **`http://localhost:5173`** to access the live web application.
 
 ---
 
-## 🖥️ Run locally (clone + PowerShell / Docker)
+## 🚀 Setup & Execution Guide
 
-Extra steps to clone this repo on your PC and start it quickly. The Quickstart Guide above still applies.
+Clone the repo, then run with PowerShell (`dev.ps1`) or follow the manual steps below.
 
-### 1. Clone the repository
+### Clone
 
 ```powershell
 git clone https://github.com/harir03/hackout2026.git
 cd hackout2026
 ```
 
-### 2. Prerequisites
+### Option 1: Easiest Setup via PowerShell Script (`dev.ps1`)
 
-- **Git**
-- **Docker Desktop** for Windows (for Postgres, Redis, MLflow, Ollama)
-- **PowerShell**
-- For the app itself (not just Docker infra): **Python 3.11** and **Node.js 18+** (with `npm`)
-
-### 3. First-time setup (once per clone)
+The root directory contains a PowerShell orchestration script for simple one-command management:
 
 ```powershell
-# Backend virtualenv + dependencies
-cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-cd ..
+# Launch entire stack (PostgreSQL, Redis, Backend FastAPI, Frontend Vite)
+.\dev.ps1 dev
 
-# Frontend dependencies
-cd frontend
-npm install
-cd ..
+# Launch infrastructure services only (PostgreSQL + Redis via Docker)
+.\dev.ps1 infra
+
+# Execute database migrations
+.\dev.ps1 migrate
+
+# Launch backend only (FastAPI on port 8000)
+.\dev.ps1 backend
+
+# Launch frontend only (Vite on port 5173)
+.\dev.ps1 frontend
+
+# Stop all background docker services
+.\dev.ps1 stop
 ```
 
-### 4. One-command Docker infra
+> **First-time only:** create the backend venv and install deps (`cd backend` → `python -m venv .venv` → `.\.venv\Scripts\Activate.ps1` → `pip install -r requirements.txt`), then `cd frontend` → `npm install`, before running `.\dev.ps1 dev`.
 
-Starts **Postgres, Redis, MLflow, and Ollama** from the root `docker-compose.yml` (does **not** containerize the FastAPI / Vite app):
+---
 
-```powershell
+### Option 2: Manual Step-by-Step Setup
+
+#### 1. Infrastructure Services (PostgreSQL, Redis, MLflow, Ollama)
+
+Ensure Docker Desktop is running, then start the containers:
+
+```bash
 docker compose up -d
 ```
 
-Stop infra:
+Stop infrastructure:
 
-```powershell
+```bash
 docker compose down
 ```
 
-### 5. Full stack with PowerShell (`dev.ps1`)
+#### 2. Backend Setup (FastAPI Python 3.11)
 
-From the repo root (after first-time setup):
+```bash
+cd backend
 
-```powershell
-# Infra + backend (:8000) + frontend (:5173) in one go
-.\dev.ps1 dev
+# Create and activate virtual environment
+python -m venv .venv
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
 
-# Or piecemeal:
-.\dev.ps1 infra      # docker compose up -d
-.\dev.ps1 migrate    # alembic upgrade head
-.\dev.ps1 backend    # FastAPI on http://localhost:8000
-.\dev.ps1 frontend   # Vite on http://localhost:5173
-.\dev.ps1 stop       # docker compose down
+# Install dependencies
+pip install -r requirements.txt
+
+# Run Alembic migrations
+python -m alembic upgrade head
+
+# Start FastAPI dev server
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
-Open **http://localhost:5173** for the UI (API on **http://localhost:8000**).
+#### 3. Frontend Setup (React + TypeScript + Vite)
+
+```bash
+cd frontend
+
+# Install node dependencies
+npm install
+
+# Launch Vite development server
+npm run dev
+```
+
+The frontend will be live at `http://localhost:5173` (API on `http://localhost:8000`).
