@@ -228,7 +228,7 @@ export function PitchDeckPage() {
           <div className='lg:col-span-9 space-y-6 text-left'>
             <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3 py-1 rounded-full text-[10px] text-white font-mono hero-fade-in'>
               <Sparkles className='h-3.5 w-3.5' />
-              AltGrade Engine • Diet Code
+              PSB HACKATHON 2026 • Diet Code
             </div>
             
             <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase flex flex-col items-start'>

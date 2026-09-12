@@ -1,6 +1,6 @@
 # AltGrade — Build Guide for Antigravity
 
-Status: Engineering and architecture specification for AltGrade. Written for Antigravity (GEMINI.md + Skills + Workflows).
+Status: PS1 hackathon deck is locked and presentation-ready. This doc is the engineering spec to actually build it. Written for Antigravity (GEMINI.md + Skills + Workflows), one solo dev.
 
 ---
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   X,
   Send,
@@ -17,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { sendMascotMessage, fetchMascotStatus, requestOutboundCall } from '@/lib/api'
+import { sendMascotMessage, fetchMascotStatus, requestOutboundCall, getCallResults } from '@/lib/api'
 import { getDefaultPhone, maskPhoneNumber } from '@/lib/utils'
 
 interface ChatMessage {
@@ -31,20 +32,28 @@ interface ChatMessage {
 const CYCLING_BUBBLES = [
   { lang: 'en', label: 'English', text: 'Prefer an on-call banking service? Tap to chat or request an instant callback 👋' },
   { lang: 'hi', label: 'हिंदी', text: 'फोन पर बैंकिंग सेवा पसंद करते हैं? सीधे कॉल बैक या चैट के लिए टैप करें 👋' },
-  { lang: 'te', label: 'తెలుగు', text: 'ఆన్-కాల్ బ్యాంకింగ్ సేవ కావాలా? మాట్లాడటానికి లేదా కాల్ బ్యాక్ కోసం నొక్కండి 👋' },
+  { lang: 'gu', label: 'ગુજરાતી', text: 'ફોન પર બેંકિંગ સેવા જોઈએ છે? સીધા કૉલ બેક અથવા ચેટ માટે ટૅપ કરો 👋' },
   { lang: 'ta', label: 'தமிழ்', text: 'ஃபோன் கால் மூலம் வங்கி சேவை தேவையா? உடனே பேச அல்லது கால் பேக் பெற தட்டவும் 👋' },
 ]
 
 export function MascotChat() {
+  const { i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentBubbleIdx, setCurrentBubbleIdx] = useState(0)
-  const [selectedLang, setSelectedLang] = useState<'hi' | 'te' | 'ta' | 'en'>('en')
+  const [selectedLang, setSelectedLang] = useState<'hi' | 'gu' | 'ta' | 'en'>(() => {
+    const curr = i18n.language
+    return (curr === 'hi' || curr === 'gu' || curr === 'ta' || curr === 'en') ? curr : 'en'
+  })
   const [showCallbackForm, setShowCallbackForm] = useState(false)
   const [callbackPhone, setCallbackPhone] = useState(() => getDefaultPhone())
   const [isPhoneMasked, setIsPhoneMasked] = useState(true)
   const [callbackType, setCallbackType] = useState<'voice' | 'officer'>('voice')
   const [isRequestingCall, setIsRequestingCall] = useState(false)
+  const [activeCallId, setActiveCallId] = useState<string | null>(null)
+  const [callStageMsg, setCallStageMsg] = useState<string | null>(null)
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null)
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -63,6 +72,20 @@ export function MascotChat() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Sync with global i18n language changes from navbar or elsewhere
+  useEffect(() => {
+    if (i18n.language && ['en', 'hi', 'gu', 'ta'].includes(i18n.language)) {
+      setSelectedLang(i18n.language as any)
+    }
+  }, [i18n.language])
+
+  // Cleanup polling timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+    }
+  }, [])
 
   // Auto-cycle speech bubbles every 4 seconds when minimized
   useEffect(() => {
@@ -102,12 +125,14 @@ export function MascotChat() {
     }
   }, [isOpen])
 
-  // Handle language switch
-  const handleLanguageChange = (lang: 'hi' | 'te' | 'ta' | 'en') => {
+  // Handle language switch (syncs globally with i18n!)
+  const handleLanguageChange = (lang: 'hi' | 'gu' | 'ta' | 'en') => {
     setSelectedLang(lang)
+    i18n.changeLanguage(lang) // Updates the entire application globally!
+
     const greetings = {
       hi: 'नमस्ते! मैं मित्रा हूँ। ऑल्टग्रेड आपके बिजली बिल और यूपीआई से बिना सिबिल स्कोर के आसान लोन दिलाता है।\n\nक्या आप फोन पर बैंकिंग सेवा पसंद करते हैं? आप हमारे एआई वॉइस ऑफिसर से तुरंत कॉल बैक का अनुरोध कर सकते हैं!',
-      te: 'నమస్కారం! నేను మిత్రా. ఆల్ట్‌గ్రేడ్ మీ కరెంట్ బిల్లులు మరియు UPI హిస్టరీతో సిబిల్ లేకుండా ఫెయిర్ లోన్లు అందిస్తుంది.\n\nమీరు ఆన్-కాల్ బ్యాంకింగ్ సేవను కోరుకుంటున్నారా? మా AI వాయిస్ ఆఫీసర్ నుండి తక్షణమే కాల్ బ్యాక్ పొందవచ్చు!',
+      gu: 'નમસ્તે! હું મિત્રા છું. ઑલ્ટગ્રેડ તમારા લાઈટ બિલ અને યુપીઆઈથી વગર સિબિલ સ્કોરે સરળ લોન અપાવે છે.\n\nશું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો? તમે અમારા એઆઈ વૉઇસ ઑફિસર પાસેથી તરત કૉલ બૅકની વિનંતી કરી શકો છો!',
       ta: 'வணக்கம்! நான் மித்ரா. மின் கட்டணம் மற்றும் UPI மூலம் CIBIL ஸ்கோர் இல்லாமலேயே நியாயமான கடன் பெறலாம்.\n\nஃபோன் கால் மூலம் வங்கி சேவையை விரும்புகிறீர்களா? எங்கள் AI வாய்ஸ் ஆபிசரிடமிருந்து உடனே கால் பேக் கோரலாம்!',
       en: 'Hello! I am Mitra, your credit guide. AltGrade enables fair loans using utility bills and UPI history—even with zero CIBIL score.\n\nPrefer an on-call banking service? You can request an instant callback from our AI Voice Officer!',
     }
@@ -138,7 +163,7 @@ export function MascotChat() {
 
     const langCodes: Record<string, string> = {
       hi: 'hi-IN',
-      te: 'te-IN',
+      gu: 'gu-IN',
       ta: 'ta-IN',
       en: 'en-IN',
     }
@@ -199,8 +224,10 @@ export function MascotChat() {
         content:
           selectedLang === 'hi'
             ? 'क्षमा करें, कनेक्शन में कुछ समय लग रहा है। आप अपने नजदीकी लोन अधिकारी से संपर्क कर सकते हैं।'
-            : selectedLang === 'te'
-            ? 'క్షమించండి, కనెక్షన్‌లో ఆలస్యం అవుతోంది. మీరు మీ స్థానిక లోన్ ఆఫీసర్‌ని సంప్రదించవచ్చు.'
+            : selectedLang === 'gu'
+            ? 'માફ કરશો, કનેક્શનમાં થોડો સમય લાગી રહ્યો છે. તમે તમારા નજીકના લોન અધિકારીનો સંપર્ક કરી શકો છો.'
+            : selectedLang === 'ta'
+            ? 'மன்னிக்கவும், இணைப்பில் தாமதம் ஏற்படுகிறது. உங்கள் உள்ளூர் கடன் அதிகாரியைத் தொடர்பு கொள்ளலாம்.'
             : 'I am taking a moment to connect. AltGrade verifies your utility and UPI history to grant fair loans without traditional bureau requirements.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         modelUsed: 'offline-agent',
@@ -209,6 +236,65 @@ export function MascotChat() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Poll call progress and automatically handoff to Loan Dashboard upon completion
+  const startCallPolling = (userId: string) => {
+    if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+    let lastStage = ''
+
+    pollTimerRef.current = setInterval(async () => {
+      try {
+        const result = await getCallResults(userId)
+        if (result.stage && result.stage !== lastStage) {
+          lastStage = result.stage
+          setCallStageMsg(result.message || null)
+
+          if (result.stage === 'needs_discovery') {
+            toast.info('Arun (Account Manager) connected: Discussing your banking needs...')
+          } else if (result.stage === 'secure_verification') {
+            toast.info('Secure Verification: Last 4 digits of Aadhaar & phone verified.')
+          } else if (result.stage === 'credit_scoring') {
+            toast.info('Credit Scoring: Calculating zero-CIBIL pre-approved limits...')
+          }
+        }
+
+        if (result.completed) {
+          if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+          pollTimerRef.current = null
+          setActiveCallId(null)
+          setCallStageMsg(null)
+
+          const offer = result.loan_offer || result.ai_suggestion
+          const offerLine = offer
+            ? `\n\n🎉 Pre-Approved Offer: ₹${offer.credit_limit?.toLocaleString('en-IN')} at ${offer.annual_interest_rate}% interest (Monthly EMI: ₹${offer.emi?.toLocaleString('en-IN')}).\n\n🚀 Transferring you directly to your Loan Dashboard...`
+            : '\n\n🚀 Transferring you directly to your Loan Dashboard...'
+
+          const completionMsg: ChatMessage = {
+            id: `call-complete-${Date.now()}`,
+            role: 'assistant',
+            content: `✅ On-Call Banking & Credit Scoring Completed with Account Manager Arun!${offerLine}`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            modelUsed: 'account-manager-arun',
+          }
+          setMessages((prev) => [...prev, completionMsg])
+          toast.success('On-call credit scoring completed! Unlocking Loan Dashboard...')
+
+          // Automatically navigate to the Loan Dashboard after call completion
+          setTimeout(() => {
+            window.location.href = '/_applicant/score'
+          }, 2200)
+        } else if (result.failed) {
+          if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+          pollTimerRef.current = null
+          setActiveCallId(null)
+          setCallStageMsg(null)
+          toast.error(result.error_message || 'Call ended or could not be completed.')
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 2000)
   }
 
   // Handle request a call back
@@ -222,6 +308,8 @@ export function MascotChat() {
           toast.error(res.message || 'Call request could not be dispatched.')
         } else {
           toast.success(res.message || 'AI On-Call Banking callback initiated!')
+          setActiveCallId(res.call_id || 'guest-user')
+          startCallPolling('guest-user')
         }
       } else {
         toast.success('Field Loan Officer callback request confirmed!')
@@ -233,10 +321,10 @@ export function MascotChat() {
         role: 'assistant',
         content:
           callbackType === 'voice'
-            ? `📞 On-Call Banking Callback requested for ${maskedPhone}. Our AI Voice Officer is dialing your number to explain loan options verbally in ${selectedLang.toUpperCase()}.`
+            ? `📞 On-Call Banking Callback requested for ${maskedPhone}. Arun (Personal Account Manager) is dialing your number to discuss loan options in ${selectedLang.toUpperCase()}.`
             : `📋 Local Field Loan Officer visit requested for ${maskedPhone}. An assigned representative will contact you within 24–48 hours to assist with paperwork.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        modelUsed: 'on-call-banking-agent',
+        modelUsed: 'account-manager-arun',
       }
       setMessages((prev) => [...prev, confirmationMsg])
       setShowCallbackForm(false)
@@ -395,7 +483,7 @@ export function MascotChat() {
                   [
                     { code: 'en', label: 'English' },
                     { code: 'hi', label: 'हिंदी' },
-                    { code: 'te', label: 'తెలుగు' },
+                    { code: 'gu', label: 'ગુજરાતી' },
                     { code: 'ta', label: 'தமிழ்' },
                   ] as const
                 ).map((lang) => (
@@ -508,6 +596,16 @@ export function MascotChat() {
                     'Call Me Now'
                   )}
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Active Call In-Progress Banner */}
+          {callStageMsg && (
+            <div className='mx-4 mt-3 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3.5 py-2.5 text-xs font-mono text-emerald-300 animate-pulse'>
+              <PhoneCall className='h-4 w-4 shrink-0 text-emerald-400 animate-bounce' />
+              <div className='flex-1 truncate'>
+                <span className='font-semibold text-emerald-200'>Account Manager Call:</span> {callStageMsg}
               </div>
             </div>
           )}
