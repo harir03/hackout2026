@@ -25,3 +25,30 @@ export function getDisplayNameInitials(displayName: string): string {
   const last = parts[parts.length - 1]?.[0] ?? ''
   return (first + last).toUpperCase()
 }
+
+/**
+ * Get pre-filled callback phone number from environment variables
+ */
+export function getDefaultPhone(): string {
+  const envPhone = (import.meta as any).env?.VITE_CALLBACK_PHONE || (import.meta as any).env?.VITE_DEFAULT_PHONE
+  return (envPhone || '9876543215').trim()
+}
+
+/**
+ * Mask phone number for presenting to user: e.g. "9876543215" -> "+91 98••••••15"
+ */
+export function maskPhoneNumber(phone: string): string {
+  if (!phone) return ''
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length >= 10) {
+    const last10 = digits.slice(-10)
+    const first2 = last10.slice(0, 2)
+    const last2 = last10.slice(-2)
+    return `+91 ${first2}••••••${last2}`
+  }
+  if (digits.length > 4) {
+    return `${digits.slice(0, 2)}••••${digits.slice(-2)}`
+  }
+  return phone
+}
+
