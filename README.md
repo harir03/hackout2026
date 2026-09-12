@@ -214,3 +214,71 @@ Visit **`http://localhost:5173`** to access the live web application.
 - **DPDP Act 2023**: Granular consent architecture with per-source opt-in/opt-out toggles and complete revocability.
 - **RBI Fair Practices Code**: Local TreeSHAP explainability breakdowns detailing positive and negative point contributions for every decision.
 - **Data Privacy**: Local embedded vector database (ChromaDB) with offline RAG processing; no applicant PII shared with public third-party LLMs.
+
+---
+
+## 🖥️ Run locally (clone + PowerShell / Docker)
+
+Extra steps to clone this repo on your PC and start it quickly. The Quickstart Guide above still applies.
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/harir03/hackout2026.git
+cd hackout2026
+```
+
+### 2. Prerequisites
+
+- **Git**
+- **Docker Desktop** for Windows (for Postgres, Redis, MLflow, Ollama)
+- **PowerShell**
+- For the app itself (not just Docker infra): **Python 3.11** and **Node.js 18+** (with `npm`)
+
+### 3. First-time setup (once per clone)
+
+```powershell
+# Backend virtualenv + dependencies
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+cd ..
+
+# Frontend dependencies
+cd frontend
+npm install
+cd ..
+```
+
+### 4. One-command Docker infra
+
+Starts **Postgres, Redis, MLflow, and Ollama** from the root `docker-compose.yml` (does **not** containerize the FastAPI / Vite app):
+
+```powershell
+docker compose up -d
+```
+
+Stop infra:
+
+```powershell
+docker compose down
+```
+
+### 5. Full stack with PowerShell (`dev.ps1`)
+
+From the repo root (after first-time setup):
+
+```powershell
+# Infra + backend (:8000) + frontend (:5173) in one go
+.\dev.ps1 dev
+
+# Or piecemeal:
+.\dev.ps1 infra      # docker compose up -d
+.\dev.ps1 migrate    # alembic upgrade head
+.\dev.ps1 backend    # FastAPI on http://localhost:8000
+.\dev.ps1 frontend   # Vite on http://localhost:5173
+.\dev.ps1 stop       # docker compose down
+```
+
+Open **http://localhost:5173** for the UI (API on **http://localhost:8000**).
