@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English', flag: '🇬🇧', desc: 'Proceed with English language interface and voice options' },
   { code: 'hi', label: 'Hindi', native: 'हिंदी', flag: '🇮🇳', desc: 'हिंदी इंटरफेस और वॉयस असिस्टेंट के साथ आगे बढ़ें' },
-  { code: 'te', label: 'Telugu', native: 'తెలుగు', flag: '🇮🇳', desc: 'తెలుగు ఇంటర్‌ఫేస్ మరియు వాయిస్ అసిస్టెంట్‌తో కొనసాగండి' },
+  { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી', flag: '🇮🇳', desc: 'ગુજરાતી ઇન્ટરફેસ અને વૉઇસ આસિસ્ટન્ટ સાથે આગળ વધો' },
 ]
 
 interface LanguageSelectionStepProps {
@@ -60,7 +60,7 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
                   </div>
                 </div>
                 {isSelected && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-black">
                     <Check className="h-4 w-4 stroke-[3]" />
                   </div>
                 )}

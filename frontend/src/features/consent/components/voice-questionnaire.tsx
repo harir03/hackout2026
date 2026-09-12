@@ -28,7 +28,7 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
   const LANG_MAP: Record<string, string> = {
     en: 'en-IN',
     hi: 'hi-IN',
-    te: 'te-IN',
+    gu: 'gu-IN',
   }
 
   const baseLang = (i18n.language || 'en').split('-')[0]
@@ -95,7 +95,7 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
       voices.find((v) => {
         const name = v.name.toLowerCase()
         if (baseLang === 'hi') return name.includes('hindi') || name.includes('हिन्दी')
-        if (baseLang === 'te') return name.includes('telugu') || name.includes('తెలుగు')
+        if (baseLang === 'gu') return name.includes('gujarati') || name.includes('ગુજરાતી')
         return name.includes('india') || name.includes('english')
       })
 
@@ -117,8 +117,8 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
       let optionsHeader = 'Options:'
       if (baseLang === 'hi') {
         optionsHeader = 'विकल्प:'
-      } else if (baseLang === 'te') {
-        optionsHeader = 'ఎంపికలు:'
+      } else if (baseLang === 'gu') {
+        optionsHeader = 'વિકલ્પો:'
       }
       window.speechSynthesis.speak(createUtterance(optionsHeader))
 
@@ -126,8 +126,8 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
         let optPrefix = `Option ${idx + 1}:`
         if (baseLang === 'hi') {
           optPrefix = `विकल्प ${idx + 1}:`
-        } else if (baseLang === 'te') {
-          optPrefix = `ఎంపిక ${idx + 1}:`
+        } else if (baseLang === 'gu') {
+          optPrefix = `વિકલ્પ ${idx + 1}:`
         }
         window.speechSynthesis.speak(createUtterance(`${optPrefix} ${opt}`))
       })
@@ -150,19 +150,19 @@ export function VoiceQuestionnaire({ questionText, options, onSelectOption }: Vo
   const matchOptionFromTranscript = (spokenText: string) => {
     const lowerSpoken = spokenText.toLowerCase().trim()
 
-    if (lowerSpoken.includes('one') || lowerSpoken.includes('1') || lowerSpoken.includes('पहला') || lowerSpoken.includes('ఒకటి')) {
+    if (lowerSpoken.includes('one') || lowerSpoken.includes('1') || lowerSpoken.includes('पहला') || lowerSpoken.includes('એક') || lowerSpoken.includes('પ્રથમ') || lowerSpoken.includes('પહેલો')) {
       onSelectOption(0)
       return
     }
-    if (lowerSpoken.includes('two') || lowerSpoken.includes('2') || lowerSpoken.includes('दूसरा') || lowerSpoken.includes('రెండు')) {
+    if (lowerSpoken.includes('two') || lowerSpoken.includes('2') || lowerSpoken.includes('दूसरा') || lowerSpoken.includes('બે') || lowerSpoken.includes('બીજો')) {
       onSelectOption(1)
       return
     }
-    if (lowerSpoken.includes('three') || lowerSpoken.includes('3') || lowerSpoken.includes('तीसरा') || lowerSpoken.includes('మూడు')) {
+    if (lowerSpoken.includes('three') || lowerSpoken.includes('3') || lowerSpoken.includes('तीसरा') || lowerSpoken.includes('ત્રણ') || lowerSpoken.includes('ત્રીજો')) {
       onSelectOption(2)
       return
     }
-    if (lowerSpoken.includes('four') || lowerSpoken.includes('4') || lowerSpoken.includes('चौथा') || lowerSpoken.includes('నాలుగు')) {
+    if (lowerSpoken.includes('four') || lowerSpoken.includes('4') || lowerSpoken.includes('चौथा') || lowerSpoken.includes('ચાર') || lowerSpoken.includes('ચોથો')) {
       onSelectOption(3)
       return
     }
