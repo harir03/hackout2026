@@ -116,7 +116,7 @@ export function AppLoader({ onComplete }: { onComplete: () => void }) {
       <div className="relative z-10 w-full max-w-[900px] h-[250px] flex items-center justify-center px-6">
         {step === 'text1_entrance' && (
           <BlurText
-            text="CREDIT SCORE FOR ALL"
+            text="ONLINE BANKING FOR ALL"
             delay={140}
             animateBy="words"
             direction="bottom"
@@ -133,7 +133,7 @@ export function AppLoader({ onComplete }: { onComplete: () => void }) {
 
         {step === 'text1_dissolve' && (
           <VaporizeTextCycle
-            texts={["CREDIT SCORE FOR ALL"]}
+            texts={["ONLINE BANKING FOR ALL"]}
             font={{
               fontFamily: "'Chakra Petch', sans-serif",
               fontSize: "48px",
