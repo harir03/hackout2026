@@ -1,6 +1,6 @@
 # AltGrade — Architecture Reference Spec
 
-AltGrade is an AI-powered alternate credit scoring system for credit-invisible individuals and MSMEs in India, built for the PSB Hackathon 2026 (PS1). It scores applicants on a 0–850 scale using six consented alternate data sources instead of traditional credit histories.
+AltGrade is an AI-powered alternate credit scoring and financial inclusion system for credit-invisible individuals and MSMEs in India. It scores applicants on a 0–850 scale using six consented alternate data sources instead of traditional credit histories.
 
 ---
 

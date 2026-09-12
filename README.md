@@ -1,7 +1,6 @@
 # AltGrade — Alternate Credit Scoring & AI Financial Inclusion Engine
 
-> **PSB Hackathon 2026 — Problem Statement 1 (PS1)**  
-> AI-powered alternate credit scoring for credit-invisible individuals, farmers, and MSMEs in India — built with explainable ML, local RAG advisory, multi-signal conflict resolution, and multilingual voice interaction.
+> AI-powered alternate credit scoring and financial inclusion engine for credit-invisible individuals, farmers, and MSMEs in India — built with explainable ML, local RAG advisory, multi-signal conflict resolution, and multilingual voice interaction.
 
 ---
 
@@ -247,9 +246,9 @@ AltGrade implements bank-grade identity verification prior to scoring:
 
 ---
 
-## 📋 PS1 Compliance & Regulatory Audit
+## 📋 Regulatory Compliance & Alternate Scoring Audit
 
-| Hackathon Requirement | AltGrade Implementation Status |
+| Core Signal / Requirement | AltGrade Implementation Status |
 |:---|:---|
 | **Telecom & Utility Payment Signals** | **Worker D2**: 24-month payment promptness, plan value, data volume |
 | **E-Commerce Purchase Patterns** | **Worker D3**: Return rate, spend trend, category diversity index |
@@ -260,6 +259,3 @@ AltGrade implements bank-grade identity verification prior to scoring:
 | **Explainable AI Mandate** | **SHAP Framework**: Feature-level point attribution per decision |
 | **Fair Lending Enforcement** | **3-Layer Bias Audit**: Disparate Impact Ratio (DIR) 80% rule enforcement |
 | **Privacy Compliance** | **DPDP Act 2023**: Granular consent gates, no unconsented data processing |
-if we win this then  i might throw a party 
-
----
