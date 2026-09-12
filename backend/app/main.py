@@ -11,6 +11,8 @@ from app.routes.score import router as score_router
 from app.routes.identity import router as identity_router
 from app.routes.eligibility import router as eligibility_router
 from app.routes.vapi import router as vapi_router
+from app.routes.chatbot import router as chatbot_router
+from app.routes.personalize import router as personalize_router
 
 
 @asynccontextmanager
@@ -40,6 +42,8 @@ app.include_router(identity_router)
 app.include_router(dashboard_router)
 app.include_router(eligibility_router)
 app.include_router(vapi_router)
+app.include_router(chatbot_router)
+app.include_router(personalize_router)
 
 
 

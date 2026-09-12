@@ -346,11 +346,40 @@ CALL FLOW:
 IMPORTANT: Be patient, speak slowly and clearly, and repeat options if the caller asks. This is a credit assessment for people who may not be tech-savvy."""
 
 
+def build_on_call_banking_system_prompt(language: str) -> str:
+    lang_names = {"hi": "Hindi", "te": "Telugu", "ta": "Tamil", "en": "English"}
+    lang_name = lang_names.get(language, "English")
+
+    return f"""You are "Mitra", AltGrade's friendly, conversational, and respectful AI On-Call Banking Guide.
+The caller requested an on-call banking assistance callback from the AltGrade home page.
+
+LANGUAGE: Conduct this entire conversation warmly in {lang_name}. If the caller switches languages, follow them naturally.
+
+YOUR ROLE & KNOWLEDGE:
+1. Greet the caller warmly: "Namaste! This is Mitra, your AltGrade On-Call Banking Guide. You requested a callback from our website."
+2. Inquire what financial goal or loan they are exploring today (e.g. farm input financing, kirana shop working capital, micro-credit, or checking loan eligibility).
+3. Explain AltGrade's revolutionary zero-CIBIL model: AltGrade doesn't require prior bureau credit history. We evaluate regular electricity bill payments, mobile recharges, and UPI transaction frequency to approve loans from ₹10,000 up to ₹2,00,000 at transparent interest rates.
+4. Documents required: 100% digital—only Aadhaar, PAN, and their registered bank-linked mobile number. No physical paperwork needed.
+5. In-Person Assistance: If the user feels hesitant about online forms, offer to schedule a certified local Field Loan Officer visit to their doorstep.
+6. CONVERSATION STYLE: Keep responses short, empathetic, patient, and conversational (1 to 3 sentences per reply). This is a general helpful banking consultation, NOT a rigid test or survey."""
+
+
+def _build_banking_first_message(language: str, user_id: str) -> str:
+    if language == "hi":
+        return "नमस्ते! मैं ऑल्टग्रेड ऑन-कॉल बैंकिंग से मित्रा बात कर रहा हूँ। आपने हमारी वेबसाइट से कॉल बैक का अनुरोध किया था। मैं आज आपकी लोन सहायता में कैसे मदद कर सकता हूँ?"
+    elif language == "te":
+        return "నమస్కారం! నేను ఆల్ట్‌గ్రేడ్ ఆన్-కాల్ బ్యాంకింగ్ నుండి మిత్రాను. మీరు మా వెబ్‌సైట్ నుండి కాల్ బ్యాక్ అడిగారు. లోన్ మరియు క్రెడిట్ అర్హత గురించి నేను మీకు ఎలా సహాయపడగలను?"
+    elif language == "ta":
+        return "வணக்கம்! நான் ஆல்ட்கிரேட் ஆன்-கால் பேங்கிங்கில் இருந்து மித்ரா பேசுகிறேன். நீங்கள் கால் பேக் கோரியிருந்தீர்கள். கடன் அல்லது தகுதி பற்றி நான் உங்களுக்கு எவ்வாறு உதவலாம்?"
+    return "Hello! This is Mitra from AltGrade On-Call Banking. You requested a callback from our home page. How can I help you today with your loan and credit options?"
+
+
 class OutboundCallRequest(BaseModel):
     user_id: str
     phone: str
     language: str = "en"
     profession: str = "farmer"
+    call_type: str = "assessment"  # "assessment" (questionnaire) or "on_call_banking" (general inquiry)
     vapi_api_key: str | None = None
     vapi_phone_number_id: str | None = None
     vapi_assistant_id: str | None = None
@@ -380,9 +409,18 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
         else:
             phone_clean = f"+{phone_clean}"
 
+    call_type = getattr(body, "call_type", "assessment") or "assessment"
     profession = body.profession or "general"
     questions = QUESTION_SETS.get(profession, GENERAL_QUESTIONS)
-    system_prompt = build_sequential_system_prompt(body.language, profession)
+
+    if call_type == "on_call_banking":
+        system_prompt = build_on_call_banking_system_prompt(body.language)
+        first_msg = _build_banking_first_message(body.language, body.user_id)
+        call_desc = f"AI On-Call Banking Callback requested for {phone_clean} in {body.language.upper()}."
+    else:
+        system_prompt = build_sequential_system_prompt(body.language, profession)
+        first_msg = _build_first_message(body.language, body.user_id)
+        call_desc = f"Psychometric Credit Assessment Interview requested for {phone_clean} in {body.language.upper()} ({profession}). {len(questions)} questions will be asked."
 
     call_id_generated = f"vapi-{int(time.time())}-{body.user_id}"
 
@@ -396,13 +434,14 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
         "phone": phone_clean,
         "profession": profession,
         "language": body.language,
+        "call_type": call_type,
         "status": "ringing",
         "created_at": time.time(),
         "ringing_since": time.time(),
         "in_call": False,
         "completed": False,
         "failed": False,
-        "question_count": len(questions),
+        "question_count": len(questions) if call_type == "assessment" else 0,
         "current_question_index": 0,
         "questions_completed": 0,
         "retry_count": retry_count,
@@ -411,18 +450,16 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
     if not api_key:
         return OutboundCallResponse(
             status="simulated",
-            message=(
-                f"Simulated AI Call requested for {phone_clean} in {body.language.upper()} ({profession}). "
-                f"{len(questions)} profession-specific questions will be asked one-by-one with per-answer scoring."
-            ),
+            message=call_desc,
             call_id=call_id_generated,
             phone=phone_clean,
-            question_count=len(questions),
+            question_count=len(questions) if call_type == "assessment" else 0,
         )
 
     azure_voice_map = {
         "hi": "hi-IN-SwaraNeural",
         "te": "te-IN-ShrutiNeural",
+        "ta": "ta-IN-PallaviNeural",
         "en": "en-IN-NeerjaNeural",
     }
 
@@ -432,7 +469,7 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
             "name": body.user_id,
         },
         "assistantOverrides": {
-            "firstMessage": _build_first_message(body.language, body.user_id),
+            "firstMessage": first_msg,
             "model": {
                 "provider": "openai",
                 "model": "gpt-4o-mini",
