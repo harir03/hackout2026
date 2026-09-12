@@ -81,7 +81,7 @@ export function VapiIvrModal({ apiKey, assistantId }: VapiIvrProps) {
     setTimeout(() => {
       setCallState('connected')
       addLog('IVR Voice: Namaste! Welcome to AltGrade Farmers Credit Helpline.')
-      addLog('IVR Voice: Press 1 for Hindi, Press 2 for Telugu, Press 3 for English.')
+      addLog('IVR Voice: Press 1 for Hindi, Press 2 for Gujarati, Press 3 for English.')
     }, 1500)
   }
 
@@ -96,7 +96,7 @@ export function VapiIvrModal({ apiKey, assistantId }: VapiIvrProps) {
     if (digit === '1') {
       addLog('IVR Voice: Hindi selected. Question 1: Do you hold a Kisan Credit Card (KCC)? Press 1 for Yes, 2 for No.')
     } else if (digit === '2') {
-      addLog('IVR Voice: Telugu selected. Question 1: మీకు కిసాన్ క్రెడిట్ కార్డ్ ఉందా? Yes కి 1, No కి 2 నొక్కండి.')
+      addLog('IVR Voice: Gujarati selected. Question 1: શું તમારી પાસે કિસાન ક્રેડિટ કાર્ડ (KCC) છે? હા માટે 1, ના માટે 2 દબાવો.')
     } else if (digit === '3') {
       addLog('IVR Voice: English selected. Question 1: What is your estimated harvest income? Press 1 for <1L, 2 for >1L.')
     }

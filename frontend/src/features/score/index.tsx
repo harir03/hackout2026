@@ -203,12 +203,12 @@ export function ScorePage() {
 
   const [personalizeData, setPersonalizeData] = useState<any | null>(null)
   const [viewMode, setViewMode] = useState<'simple' | 'technical'>('simple')
-  const [audioLang, setAudioLang] = useState<'te' | 'hi' | 'ta' | 'en'>('te')
+  const [audioLang, setAudioLang] = useState<'gu' | 'hi' | 'ta' | 'en'>('gu')
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [officerModalOpen, setOfficerModalOpen] = useState(false)
   const [officerRequested, setOfficerRequested] = useState(false)
 
-  const handlePlayAudio = (langToPlay?: 'te' | 'hi' | 'ta' | 'en') => {
+  const handlePlayAudio = (langToPlay?: 'gu' | 'hi' | 'ta' | 'en') => {
     const targetLang = langToPlay || audioLang
     if (isPlayingAudio) {
       window.speechSynthesis?.cancel()
@@ -228,7 +228,7 @@ export function ScorePage() {
 
     const utterance = new SpeechSynthesisUtterance(script)
     const langCodes: Record<string, string> = {
-      te: 'te-IN',
+      gu: 'gu-IN',
       hi: 'hi-IN',
       ta: 'ta-IN',
       en: 'en-IN',
@@ -842,8 +842,8 @@ export function ScorePage() {
                     <>
                       <Volume2 className='h-4 w-4' />
                       <span>
-                        {audioLang === 'te'
-                          ? '🔊 నివేదికను వినండి (Telugu)'
+                        {audioLang === 'gu'
+                          ? '🔊 અહેવાલ સાંભળો (Gujarati)'
                           : audioLang === 'hi'
                           ? '🔊 रिपोर्ट सुनें (Hindi)'
                           : audioLang === 'ta'

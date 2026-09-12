@@ -19,7 +19,7 @@ Answer user questions about how loans, credit scoring, consent, and documents wo
 LANGUAGE RULE (MANDATORY):
 You MUST respond in the language specified: {lang_name} ({lang_code}).
 - If Hindi: Use natural, warm Hindi (e.g. "नमस्ते! मैं मित्रा हूँ...").
-- If Telugu: Use natural, warm Telugu (e.g. "నమస్కారం! నేను మిత్రా...").
+- If Gujarati: Use natural, warm Gujarati (e.g. "નમસ્તે! હું મિત્રા છું...").
 - If Tamil: Use natural, warm Tamil (e.g. "வணக்கம்! நான் மித்ரா...").
 - If English: Use simple, friendly English.
 
@@ -28,14 +28,15 @@ KNOWLEDGE BASE:
 2. How to apply?: Just 3 simple steps on this page: verify phone with Aadhaar/PAN, give digital consent for utility/UPI check, and get your score instantly!
 3. Is data safe?: 100% safe and regulated under RBI Account Aggregator guidelines. Data is encrypted and used only with your explicit permission.
 4. What loans are available?: Personal micro-credit, Kisan Credit Card (KCC) limit expansions, PM Fasal Bima Yojana (crop insurance), and MUDRA business loans up to ₹50,000 - ₹2,00,000.
-5. What if I can't read English?: AltGrade has vernacular voice assistance in Hindi, Telugu, and Tamil. A field loan officer can also visit your village.
+5. What if I can't read English?: AltGrade has vernacular voice assistance in Hindi, Gujarati, and Tamil. A field loan officer can also visit your village.
+6. On-Call Banking Service: Prefer an on-call banking service? Users can directly request an immediate callback from our AI Voice Officer in their native language or request a field visit by clicking the callback button.
 
 TONE:
 Warm, encouraging, patient, and concise (2-4 short sentences max). Avoid complex bullet points unless asked. Always end with an encouraging word."""
 
 LANG_NAMES = {
     "hi": "Hindi (हिंदी)",
-    "te": "Telugu (తెలుగు)",
+    "gu": "Gujarati (ગુજરાતી)",
     "ta": "Tamil (தமிழ்)",
     "en": "English",
 }
@@ -46,28 +47,32 @@ FALLBACK_RESPONSES = {
         "documents": "आपको केवल अपना आधार कार्ड, पैन कार्ड और वह मोबाइल नंबर चाहिए जो आपके बैंक से जुड़ा हो। कोई जटिल कागजी कार्रवाई नहीं है!",
         "safety": "आपका डेटा 100% सुरक्षित और एन्क्रिप्टेड है। यह भारतीय रिज़र्व बैंक (RBI) के नियमों के अनुसार केवल आपकी अनुमति से ही उपयोग किया जाता है।",
         "farmer": "हाँ! किसानों के लिए पीएम-किसान, पीएम फसल बीमा योजना और किसान क्रेडिट कार्ड (KCC) के तहत विशेष कृषि लोन उपलब्ध हैं।",
-        "default": "नमस्ते! मैं मित्रा हूँ, आपका वित्तीय साथी। आप मुझसे लोन प्रक्रिया, आवश्यक दस्तावेजों या अपनी पात्रता के बारे में कुछ भी पूछ सकते हैं!"
+        "callback": "क्या आप फोन पर बैंकिंग सेवा पसंद करते हैं? आप सीधे हमारे एआई वॉइस ऑफिसर से तुरंत कॉल बैक का अनुरोध कर सकते हैं। बस 'Request Call' बटन दबाएं!",
+        "default": "नमस्ते! मैं मित्रा हूँ, आपका वित्तीय साथी। ऑल्टग्रेड बिना सिबिल स्कोर के लोन दिलाता है। क्या आप फोन पर बैंकिंग सेवा पसंद करते हैं? आप सीधे कॉल बैक का अनुरोध भी कर सकते हैं!"
     },
-    "te": {
-        "score": "ఆల్ట్‌గ్రేడ్ (AltGrade) మీ కరెంట్ బిల్లులు, మొబైల్ రీఛార్జ్ మరియు UPI లావాదేవీల ఆధారంగా స్కోర్‌ను లెక్కిస్తుంది. మీకు సిబిల్ (CIBIL) స్కోర్ లేకపోయినా రుణం పొందవచ్చు!",
-        "documents": "మీకు ఆధార్ కార్డ్, పాన్ కార్డ్ మరియు మీ బ్యాంక్ ఖాతాకు లింక్ చేయబడిన మొబైల్ నంబర్ మాత్రమే అవసరం. ఎలాంటి క్లిష్టమైన పత్రాలు అక్కర్లేదు!",
-        "safety": "మీ సమాచారం 100% సురక్షితం. RBI నిబంధనల ప్రకారం మీ అనుమతితో మాత్రమే ఇది ఉపయోగించబడుతుంది.",
-        "farmer": "అవును! రైతులకు పీఎం-కిసాన్, పంట బీమా మరియు కిసాన్ క్రెడిట్ కార్డ్ (KCC) ద్వారా ప్రత్యేక రుణ సౌకర్యాలు ఉన్నాయి.",
-        "default": "నమస్కారం! నేను మిత్రా, మీ సహాయకుడిని. రుణాలు, అవసరమైన పత్రాలు లేదా అర్హత గురించి నన్ను ఏదైనా అడగవచ్చు!"
+    "gu": {
+        "score": "ઓલ્ટગ્રેડ (AltGrade) તમારા નિયમિત વીજળી બિલ, મોબાઇલ રિચાર્જ અને UPI વ્યવહારોના આધારે ક્રેડિટ સ્કોર બનાવે છે. જો તમારી પાસે સિબિલ (CIBIL) સ્કોર ન હોય, તો પણ સરળતાથી લોન મળી શકે છે!",
+        "documents": "તમારે ફક્ત તમારો આધાર કાર્ડ નંબર, પાન કાર્ડ અને તમારા બેંક ખાતા સાથે જોડાયેલો મોબાઇલ નંબર જોઈએ છે. કોઈ જટિલ કાગળિયાની જરૂર નથી!",
+        "safety": "તમારો ડેટા 100% સુરક્ષિત અને એન્ક્રિપ્ટેડ છે. આરબીઆઈ (RBI) એકાઉન્ટ એગ્રીગેટર નિયમો મુજબ માત્ર તમારી સંમતિથી જ તેનો ઉપયોગ થાય છે.",
+        "farmer": "હા! ખેડૂતો માટે પીએમ-કિસાન, પીએમ પાક વીમા યોજના અને કિસાન ક્રેડિટ કાર્ડ (KCC) હેઠળ વિશેષ કૃષિ લોન ઉપલબ્ધ છે.",
+        "callback": "શું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો? તમે સીધા અમારા એઆઈ વૉઇસ ઑફિસર પાસેથી ત્વરિત કૉલબેકની વિનંતી કરી શકો છો. ફક્ત 'Request Call' બટન પર ક્લિક કરો!",
+        "default": "નમસ્તે! હું મિત્રા છું, તમારો નાણાકીય માર્ગદર્શક. ઓલ્ટગ્રેડ સિબિલ સ્કોર વિના સરળ લોન અપાવે છે. શું તમે ફોન પર બેંકિંગ સેવા પસંદ કરો છો? તમે હમણાં જ કૉલબેકની વિનંતી કરી શકો છો!"
     },
     "ta": {
         "score": "ஆல்ட்கிரேட் (AltGrade) உங்கள் மின் கட்டணம், மொபைல் ரீசார்ஜ் மற்றும் UPI பரிவர்த்தனைகள் அடிப்படையில் கடன் மதிப்பீட்டை வழங்குகிறது. சிபில் (CIBIL) இல்லாவிட்டாலும் கடன் பெறலாம்!",
         "documents": "ஆதார் அட்டை, பான் அட்டை மற்றும் உங்கள் வங்கி கணக்குடன் இணைக்கப்பட்ட மொபைல் எண் மட்டுமே தேவை. சிக்கலான ஆவணங்கள் தேவையில்லை!",
         "safety": "உங்கள் தரவு 100% பாதுகாப்பானது. ரிசர்வ் வங்கி (RBI) வழிகாட்டுதல்களின்படி உங்கள் அனுமதியுடன் மட்டுமே பயன்படுத்தப்படும்.",
         "farmer": "ஆம்! விவசாயிகளுக்கு பிஎம்-கிசான், பயிர் காப்பீடு மற்றும் கிசான் கிரெடிட் கார்டு மூலம் சிறப்பு கடன்கள் கிடைக்கின்றன.",
-        "default": "வணக்கம்! நான் மித்ரா, உங்கள் நிதி உதவியாளர். கடன் பெறுவது, ஆவணங்கள் அல்லது தகுதி பற்றி என்னிடம் கேட்கலாம்!"
+        "callback": "நீங்கள் ஃபோன் கால் மூலம் வங்கி சேவையை விரும்புகிறீர்களா? எங்கள் AI வாய்ஸ் ஆபிசரிடமிருந்து உடனே வாய்ஸ் கால் பெறலாம் அல்லது உள்ளூர் அதிகாரியை தொடர்பு கொள்ளலாம். 'Request Call' பட்டனை கிளிக் செய்யுங்கள்!",
+        "default": "வணக்கம்! நான் மித்ரா, உங்கள் நிதி உதவியாளர். CIBIL இல்லாமல் கடன் பெறலாம். ஃபோன் கால் மூலம் வங்கி சேவையை விரும்புகிறீர்களா? உடனே கால் பேக் கோரலாம்!"
     },
     "en": {
         "score": "AltGrade builds your credit score from utility bills, telecom recharges, and UPI transactions. Even with zero prior credit history (no CIBIL), you can qualify for fair loans!",
         "documents": "You only need your Aadhaar number, PAN, and the mobile number linked to your bank account. No paper documents needed!",
         "safety": "Your data is 100% safe and encrypted. We operate strictly under RBI Account Aggregator guidelines with your explicit consent.",
         "farmer": "Yes! We support farmers with PM-KISAN verification, PM Fasal Bima Yojana crop insurance, and Kisan Credit Card (KCC) loan limits.",
-        "default": "Hello! I am Mitra, your friendly credit guide. Ask me anything about getting a loan, required documents, or how AltGrade works!"
+        "callback": "Prefer an on-call banking service? You can directly request an immediate callback from our AI Voice Officer or schedule a local loan officer visit. Simply click the 'Request Call' button!",
+        "default": "Hello! I am Mitra, your friendly credit guide. AltGrade provides alternative credit and online banking for all. Prefer an on-call banking service? You can request an instant callback anytime!"
     }
 }
 
@@ -190,7 +195,9 @@ async def chat_with_mascot(req: ChatRequest):
         q_lower = user_query.lower()
         kb = FALLBACK_RESPONSES.get(lang, FALLBACK_RESPONSES["en"])
 
-        if any(w in q_lower for w in ["cibil", "score", "स्कोर", "స్కోర్", "மதிப்பீடு", "how"]):
+        if any(w in q_lower for w in ["call", "callback", "phone", "voice", "कॉल", "ఫోన్", "ஃபோன்", "speak", "talk", "agent", "officer", "banking"]):
+            reply_text = kb.get("callback", kb["default"])
+        elif any(w in q_lower for w in ["cibil", "score", "स्कोर", "స్కోర్", "மதிப்பீடு", "how"]):
             reply_text = kb["score"]
         elif any(w in q_lower for w in ["doc", "aadhaar", "pan", "कागजात", "పత్రాలు", "ஆவணங்கள்", "need"]):
             reply_text = kb["documents"]

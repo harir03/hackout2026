@@ -154,7 +154,7 @@ async def get_user_intelligence(user_id: str):
 
     if segment_name == "farmer":
         audio_scripts = {
-            "te": f"నమస్కారం! మీ 30 ఏళ్ల గ్రామీణ నివాస స్థిరత్వం మరియు సకాలంలో బిల్లు చెల్లింపుల ఆధారంగా, మీ ఆల్ట్‌గ్రేడ్ స్కోరు {score}. మీరు ₹{credit_limit:,} వరకు కిసాన్ పంట రుణానికి మరియు పి.ఎం. పంట బీమాకు అర్హులు. మీ స్థానిక లోన్ అధికారిని కలవడానికి క్రింది బటన్‌ను నొక్కండి.",
+            "gu": f"નમસ્તે! તમારા 30 વર્ષના ગ્રામીણ રહેઠાણ અને નિયમિત બિલ ચુકવણીના આધારે, તમારો ઓલ્ટગ્રેડ સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની કિસાન લોન અને પીએમ પાક વીમા માટે પાત્ર છો. તમારા સ્થાનિક લોન અધિકારીનો સંપર્ક કરવા નીચેના બટન પર ટેપ કરો.",
             "hi": f"नमस्ते! आपकी 30 वर्ष की ग्रामीण निवास स्थिरता और समय पर बिल भुगतान के आधार पर, आपका ऑल्टग्रेड स्कोर {score} है। आप ₹{credit_limit:,} तक के किसान ऋण और पीएम फसल बीमा के पात्र हैं। अपने स्थानीय ऋण अधिकारी से मिलने के लिए नीचे दिए गए बटन पर टैप करें।",
             "ta": f"வணக்கம்! உங்கள் கிராமிய குடியிருப்பு நிலைத்தன்மை மற்றும் சரியான நேர கட்டணங்களின் அடிப்படையில், உங்கள் கடன் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை விவசாயக் கடன் மற்றும் பயிர் காப்பீட்டிற்கு தகுதியுடையவர்.",
             "en": f"Good news! Based on your long-term land stability and regular bill payments, your AltGrade score is {score}. You qualify for agricultural credit up to ₹{credit_limit:,} and PM crop insurance."
@@ -163,7 +163,7 @@ async def get_user_intelligence(user_id: str):
         plain_tip = "Keep paying your mobile recharges and electricity bills on time to unlock a higher credit limit."
     elif segment_name == "msme":
         audio_scripts = {
-            "te": f"నమస్కారం! మీ వ్యాపార టర్నోవర్ మరియు స్థిరమైన UPI లావాదేవీల ఆధారంగా, మీ స్కోరు {score}. మీరు ₹{credit_limit:,} వరకు ముద్రా వర్కింగ్ క్యాపిటల్ లోన్‌కు అర్హులు.",
+            "gu": f"નમસ્તે! તમારા વ્યવસાયિક ટર્નઓવર અને નિયમિત UPI વેચાણના આધારે, તમારો સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની મુદ્રા બિઝનેસ લોન માટે પાત્ર છો.",
             "hi": f"नमस्ते! आपके व्यापारिक टर्नओवर और नियमित यूपीआई बिक्री के आधार पर, आपका स्कोर {score} है। आप ₹{credit_limit:,} तक के मुद्रा व्यापार ऋण के पात्र हैं।",
             "ta": f"வணக்கம்! உங்கள் வணிக விற்பனை மற்றும் UPI பரிவர்த்தனைகளின் அடிப்படையில், உங்கள் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை முத்ரா கடனுக்கு தகுதியுடையவர்.",
             "en": f"Good news! Based on your business sales and regular UPI inflows, your score is {score}. You qualify for MUDRA working capital up to ₹{credit_limit:,}."
@@ -172,7 +172,7 @@ async def get_user_intelligence(user_id: str):
         plain_tip = "Continue accepting digital UPI customer payments to verify higher monthly sales."
     else:
         audio_scripts = {
-            "te": f"నమస్కారం! మీ సకాలంలో రీఛార్జ్‌లు మరియు బ్యాంక్ రికార్డు ఆధారంగా, మీ స్కోరు {score}. మీరు ₹{credit_limit:,} వరకు రుణం పొందవచ్చు.",
+            "gu": f"નમસ્તે! તમારી સમયસર બિલ ચુકવણી અને બેંક રેકોર્ડના આધારે, તમારો સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની લોન માટે પાત્ર છો.",
             "hi": f"नमस्ते! आपके समय पर बिल भुगतान और बैंक रिकॉर्ड के आधार पर, आपका स्कोर {score} है। आप ₹{credit_limit:,} तक के ऋण के लिए पात्र हैं।",
             "ta": f"வணக்கம்! உங்கள் சரியான நேர கட்டணங்களின் அடிப்படையில், உங்கள் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை கடன் பெறலாம்.",
             "en": f"Good news! Based on your consistent bill payments, your AltGrade score is {score}. You qualify for credit up to ₹{credit_limit:,}."

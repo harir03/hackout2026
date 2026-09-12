@@ -37,13 +37,15 @@ export async function requestOutboundCall(
   userId: string,
   phone: string,
   language: string,
-  profession: string
+  profession: string,
+  callType: 'assessment' | 'on_call_banking' = 'assessment'
 ): Promise<{ status: string; message: string; call_id?: string }> {
   const { data } = await api.post('/vapi/outbound-call', {
     user_id: userId,
     phone,
     language,
     profession,
+    call_type: callType,
   })
   return data
 }
@@ -63,6 +65,22 @@ export async function getCallResults(
   transcript?: string
   retry_count?: number
   in_call?: boolean
+  stage?: string
+  call_type?: string
+  message?: string
+  redirect_to?: string
+  ai_suggestion?: {
+    score: number
+    risk_band: string
+    credit_limit: number
+    annual_interest_rate: number
+    tenure_months: number
+    emi: number
+    product_name: string
+    spoken_offer: string
+    plain_tip: string
+  }
+  loan_offer?: any
 }> {
   const { data } = await api.get(`/vapi/call-results/${encodeURIComponent(userId)}`)
   return data

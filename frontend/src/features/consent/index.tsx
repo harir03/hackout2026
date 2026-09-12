@@ -21,6 +21,8 @@ import {
   Home,
   Briefcase,
   Mail,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,6 +44,7 @@ import { VoiceQuestionnaire } from './components/voice-questionnaire'
 import { LanguageSelector } from '@/components/language-selector'
 import { requestOutboundCall, getCallResults } from '@/lib/api'
 import { PhoneCall } from 'lucide-react'
+import { getDefaultPhone, maskPhoneNumber } from '@/lib/utils'
 
 const DEMO_PROFILES: Record<string, string> = {
   "9876543210": "hari",
@@ -188,25 +191,19 @@ const FARMER_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: strin
     { q: "आपकी कृषि वित्त पोषण और पीएम-किसान / केसीसी उपयोग का प्राथमिक स्रोत क्या है?", options: ["किसान क्रेडिट कार्ड (KCC) समय पर भुगतान के साथ", "पीएम-किसान प्रत्यक्ष लाभ हस्तांतरण (DBT)", "स्थानीय व्यापारी का अग्रिम (आढ़तिया)", "केवल व्यक्तिगत बचत"] },
     { q: "फसल की कटाई और प्रतीक्षा चक्र के दौरान आप खर्चों का प्रबंधन कैसे करते हैं?", options: ["कटाई के लिए समर्पित आरक्षित कोष रखते हैं", "फसल बीमा (PMFBY) पर भरोसा करते हैं", "अल्पकालिक व्यापारी क्रेडिट", "अनौपचारिक स्रोतों से उधार लेते हैं"] },
     { q: "आप बीज, उर्वरक या कृषि उपकरण ऋण का भुगतान कितनी बार करते हैं?", options: ["हमेशा कटाई के बाद समय पर", "फसल चक्र के कारण कभी-कभी देरी होती है", "अक्सर देरी होती है", "नियमित रूप से भुगतान करने में असमर्थ"] },
-    { q: "आपकी फसल बीमा कवरेज स्थिति (प्रधानमंत्री फसल बीमा योजना) क्या है?", options: ["हर सीजन में पूरी तरह से बीमित", "केवल प्रमुख फसलों के लिए बीमित", "शायद ही कभी बीमित", "बीमित नहीं"] },
-    { q: "मंडी / एपीएमसी में अपनी उपज का भुगतान आप कैसे प्राप्त करते हैं?", options: ["सीधे बैंक खाते में हस्तांतरण (DBT / e-NAM)", "चेक द्वारा भुगतान", "नकद और बैंक ट्रांसफर का मिश्रण", "केवल नकद निपटान"] },
-    { q: "आप अप्रत्याशित फसल खराब होने या सूखे के जोखिम को कैसे संभालते हैं?", options: ["आपातकालीन कृषि बचत", "फसल बीमा दावा", "मवेशी या छोटी संपत्तियां बेचना", "उच्च ब्याज वाला अनौपचारिक ऋण"] },
-    { q: "क्या आप कृषि लागत (उर्वरक, कीटनाशक, श्रम) का रिकॉर्ड रखते हैं?", options: ["हाँ, व्यवस्थित लिखित नोटबुक", "मोटा मानसिक अनुमान", "केवल बड़े ट्रैक्टर/बीज खर्च", "कोई रिकॉर्ड नहीं रखा गया"] },
-    { q: "आप कृषि उपकरण या सौर पंपों के लिए निवेश की योजना कैसे बनाते हैं?", options: ["सरकारी सब्सिडी + बैंक ऋण", "चरणबद्ध व्यक्तिगत बचत", "साझा गांव किराए पर लेना", "अनौपचारिक उधार"] },
-    { q: "आपकी कृषि उपज का कितना हिस्सा औपचारिक एपीएमसी/सहकारी समितियों के माध्यम से बेचा जाता है?", options: ["100% औपचारिक चैनल", "50-80% औपचारिक चैनल", "50% से कम", "100% अनौपचारिक स्थानीय व्यापारी"] },
-    { q: "पीएम-किसान स्थिति जांच के लिए वॉइस/एसएमएस बैंकिंग का उपयोग करने में आप कितने सहज हैं?", options: ["बहुत सहज", "खुदरा विक्रेता की सहायता लेते हैं", "थोड़ा सहज", "सहज नहीं"] }
+    { q: "आपकी फसल बीमा कवरेज स्थिति (प्रधानमंत्री फसल बीमा योजना) क्या है?", options: ["हर सीजन में पूरी तरह से बीमित", "केवल प्रमुख फसलों के लिए बीमित", "शायद ही कभी बीमित", "कभी बीमित नहीं"] },
   ],
-  te: [
-    { q: "మీ వ్యవసాయ ఆర్థిక సహాయం మరియు పిఎమ్-కిసాన్ / కెసిసి వినియోగానికి ప్రధాన మూలం ఏమిటి?", options: ["సకాలంలో చెల్లింపుతో కిసాన్ క్రెడిట్ కార్డ్ (KCC)", "పిఎమ్-కిసాన్ ప్రత్యక్ష ప్రయోజన బదిలీలు (DBT)", "స్థానిక వ్యాపారి అడ్వాన్స్", "వ్యక్తిగత పొదుపు మాత్రమే"] },
-    { q: "పంట కోత మరియు వేచి ఉండే సమయంలో మీరు ఖర్చులను ఎలా నిర్వహిస్తారు?", options: ["ప్రత్యేక పంట పొదుపు నిధిని నిర్వహిస్తాను", "పంట భీమా (PMFBY) పై ఆధారపడతాను", "స్వల్పకాలిక వ్యాపారి రుణం", "అనధికార మూలాల నుండి అప్పు పొందుతాను"] },
-    { q: "మీరు విత్తనాలు, ఎరువులు లేదా వ్యవసాయ పరికరాల రుణాలను ఎంత తరచుగా తిరిగి చెల్లిస్తారు?", options: ["ఎల్లప్పుడూ పంట కోత తర్వాత సకాలంలో", "పంట చక్రం వల్ల అప్పుడప్పుడు ఆలస్యం", "తరచుగా ఆలస్యం అవుతుంది", "క్రమంగా తిరిగి చెల్లించలేను"] },
-    { q: "మీ పంట భీమా కవరేజ్ పరిస్థితి (PM ఫసల్ భీమా యోజన) ఏమిటి?", options: ["ప్రతి సీజన్ లో పూర్తిగా భీమా చేయబడింది", "ప్రధాన పంటలకు మాత్రమే భీమా", "అరుదుగా భీమా చేస్తాను", "భీమా చేయలేదు"] },
-    { q: "మండి / APMC వద్ద మీ ఉత్పత్తులకు చెల్లింపులను మీరు ఎలా పొందుతారు?", options: ["నేరుగా బ్యాంక్ ఖాతా బదిలీ (DBT / e-NAM)", "చెక్కు చెల్లింపులు", "నగదు మరియు బ్యాంక్ బదిలీ కలయిక", "నగదు చెల్లింపు మాత్రమే"] },
-    { q: "అనుకోకుండా పంట నష్టం లేదా కరువు ప్రమాదాన్ని మీరు ఎలా నివారిస్తారు?", options: ["అత్యవసర వ్యవసాయ పొదుపులు", "పంట భీమా క్లెయిమ్", "పశువులు లేదా చిన్న ఆస్తులను అమ్మడం", "అధిక వడ్డీ అనధికార రుణం"] },
-    { q: "మీరు వ్యవసాయ ఖర్చుల (ఎరువులు, పురుగుమందులు, కూలీలు) రికార్డును నిర్వహిస్తున్నారా?", options: ["అవును, క్రమబద్ధమైన రాతపూర్వక నోట్‌బుక్", "అంచనా మాత్రమే", "కేవలం ట్రాక్టర్/విత్తనాల ఖర్చులు మాత్రమే", "ఎలాంటి రికార్డులు లేవు"] },
-    { q: "మీరు వ్యవసాయ పరికరాలు లేదా సోలార్ పంపుల పెట్టుబడులను ఎలా ప్రణాళిక చేస్తారు?", options: ["ప్రభుత్వ సబ్సిడీ + బ్యాంక్ రుణం", "దశలవారీగా వ్యక్తిగత పొదుపు", "గ్రామంలో అద్దెకు తీసుకోవడం", "అనధికార అప్పు"] },
-    { q: "మీ వ్యవసాయ ఉత్పత్తులలో ఎంత శాతం అధికారిక APMC/సహకార సంఘాల ద్వారా విక్రయించబడుతుంది?", options: ["100% అధికారిక మార్గాలు", "50–80% అధికారిక మార్గాలు", "50% కంటే తక్కువ", "100% అనధికార స్థానిక వ్యాపారులు"] },
-    { q: "పిఎమ్-కిసాన్ స్థితి తనిఖీల కోసం వాయిస్/SMS బ్యాంకింగ్ ఉపయోగించడం మీకు ఎంత అనుకూలంగా ఉంది?", options: ["చాలా అనుకూలం", "రిటైలర్ సాయం పొందుతాను", "కొద్దిగా అనుకూలం", "అనుకూలం కాదు"] }
+  gu: [
+    { q: "તમારી કૃષિ ધિરાણ અને પીએમ-કિસાન / કેસીસી વપરાશનો પ્રાથમિક સ્ત્રોત કયો છે?", options: ["કિસાન ક્રેડિટ કાર્ડ (KCC) સમયસર ચુકવણી સાથે", "પીએમ-કિસાન ડાયરેક્ટ બેનિફિટ ટ્રાન્સફર (DBT)", "સ્થાનિક વેપારીની એડવાન્સ (આડતિયા)", "માત્ર વ્યક્તિગત બચત"] },
+    { q: "પાકની લણણી અને રાહ જોવાના સમયગાળા દરમિયાન તમે ખર્ચનું સંચાલન કેવી રીતે કરો છો?", options: ["લણણી માટે સમર્પિત અનામત ભંડોળ રાખીએ છીએ", "પાક વીમા (PMFBY) પર આધાર રાખીએ છીએ", "ટૂંકા ગાળાની વેપારી ક્રેડિટ", "અનૌપચારિક સ્ત્રોતો પાસેથી ઉધાર લઈએ છીએ"] },
+    { q: "તમે બિયારણ, ખાતર અથવા કૃષિ સાધન લોનની ચુકવણી કેટલી વાર કરો છો?", options: ["હંમેશાં લણણી પછી સમયસર", "પાક ચક્રના કારણે ક્યારેક વિલંબ થાય છે", "વારંવાર વિલંબ થાય છે", "નિયમિત રીતે ચુકવવામાં અસમર્થ"] },
+    { q: "તમારી પાક વીમા કવરેજ સ્થિતિ (પ્રધાનમંત્રી ફસલ બીમા યોજના) શું છે?", options: ["દરેક સિઝનમાં સંપૂર્ણપણે વીમાકૃત", "માત્ર મુખ્ય પાકો માટે વીમાકૃત", "ભાગ્યે જ વીમો લઈએ છીએ", "વીમો લેતા નથી"] },
+    { q: "માર્કેટિંગ યાર્ડ / એપીએમસીમાં તમારી ઉપજના નાણાં તમે કેવી રીતે મેળવો છો?", options: ["સીધા બેંક ખાતામાં ટ્રાન્સફર (DBT / e-NAM)", "ચેક દ્વારા ચુકવણી", "રોકડ અને બેંક ટ્રાન્સફરનું મિશ્રણ", "માત્ર રોકડ પતાવટ"] },
+    { q: "તમે અણધાર્યા પાક નુકસાન અથવા દુષ્કાળના જોખમને કેવી રીતે પહોંચી વળો છો?", options: ["કટોકટી કૃષિ બચતમાંથી", "પાક વીમા ક્લેમ દ્વારા", "પશુધન અથવા નાની સંપત્તિ વેચીને", "ઊંચા વ્યાજની અનૌપચારિક લોન"] },
+    { q: "શું તમે ખેતી ખર્ચ (ખાતર, જંતુનાશક, મજૂરી) નો હિસાબ રાખો છો?", options: ["હા, વ્યવસ્થિત લેખિત ચોપડો", "કાચો માનસિક અંદાજ", "માત્ર મોટા ટ્રેક્ટર/બિયારણ ખર્ચ", "કોઈ રેકોર્ડ રાખતા નથી"] },
+    { q: "તમે કૃષિ સાધનો અથવા સોલર પંપ માટે રોકાણનું આયોજન કેવી રીતે કરો છો?", options: ["સરકારી સબસિડી + બેંક લોન", "તબક્કાવાર વ્યક્તિગત બચત", "ગામમાં ભાડેથી લેવું", "અનૌપચારિક ઉધાર"] },
+    { q: "તમારી કૃષિ ઉપજનો કેટલો હિસ્સો અધિકૃત એપીએમસી / સહકારી મંડળીઓ દ્વારા વેચાય છે?", options: ["100% અધિકૃત ચેનલો દ્વારા", "50-80% અધિકૃત ચેનલો દ્વારા", "50% કરતાં ઓછો", "100% અનૌપચારિક સ્થાનિક વેપારીઓ"] },
+    { q: "પીએમ-કિસાન સ્થિતિ તપાસવા માટે વૉઇસ/એસએમએસ બેંકિંગનો ઉપયોગ કરવામાં તમે કેટલા અનુકૂળ છો?", options: ["ખૂબ જ અનુકૂળ", "રિટેલરની મદદ લઈએ છીએ", "થોડા અનુકૂળ", "અનુકૂળ નથી"] }
   ]
 }
 
@@ -220,6 +217,51 @@ const MSME_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[
     { q: "मौसमी कम मांग के दौरान आप कार्यशील पूंजी की कमी को कैसे संभालते हैं?", options: ["व्यावसायिक नकद भंडार रखा गया", "बैंक से ओवरड्राफ्ट (OD) सुविधा", "आपूर्तिकर्ता व्यापार क्रेडिट विस्तार", "व्यक्तिगत आपातकालीन बचत"] },
     { q: "वाणिज्यिक क्रेडिट प्राप्त करने का आपका मुख्य उद्देश्य क्या है?", options: ["कार्यशील पूंजी और इन्वेंट्री विस्तार", "मशीनरी / उपकरण अपग्रेड", "नया आउटलेट / शाखा खोलना", "मौजूदा ऋण का पुनर्वित्त"] },
     { q: "आप कितनी बार इन्वेंट्री का ऑडिट या पुनर्भंडारण करते हैं?", options: ["साप्ताहिक व्यवस्थित ट्रैकिंग", "मासिक स्थान जांच", "त्रैमासिक जब कम हो", "कोई व्यवस्थित इन्वेंट्री ऑडिट नहीं"] },
+    { q: "क्या आपने कभी वाणिज्यिक उपयोगिता या वाणिज्यिक किराया भुगतान में देरी का अनुभव किया है?", options: ["कभी देरी नहीं हुई", "एक या दो बार देरी हुई", "कभी-कभी देरी हुई", "अक्सर देरी हुई"] },
+    { q: "क्या आप ग्राहक क्रेडिट / खाता पुस्तकें प्रदान करते हैं और आप प्राप्तियों को कैसे ट्रैक करते हैं?", options: ["एसएमएस रिमाइंडर के साथ डिजिटल खाता ऐप", "भौतिक बहीखाता पुस्तक", "मोटा मानसिक ट्रैकिंग", "सख्ती से केवल नकद बिक्री"] },
+    { q: "आपकी व्यावसायिक संपत्ति और दुकान बीमा कवरेज स्तर क्या है?", options: ["व्यापक दुकान और स्टॉक बीमा", "बुनियादी आग और चोरी नीति", "केवल संपत्ति", "कोई व्यावसायिक बीमा नहीं"] }
+  ],
+  gu: [
+    { q: "તમારો અંદાજિત વાર્ષિક વ્યવસાયિક ટર્નઓવર કેટલો છે?", options: ["₹25 લાખ – ₹1 કરોડ", "₹10 લાખ – ₹25 લાખ", "₹5 લાખ – ₹10 લાખ", "₹5 લાખથી ઓછો"] },
+    { q: "તમે જીએસટી રિટર્ન ફાઇલિંગ અને વ્યવસાયિક હિસાબનું સંચાલન કેવી રીતે કરો છો?", options: ["સીએ / પોર્ટલ દ્વારા સમયસર માસિક ફાઇલિંગ", "ત્રિમાસિક સોફ્ટવેર ફાઇલિંગ", "મેન્યુઅલ જાતે ફાઇલિંગ", "કોઈ જીએસટી ફાઇલિંગ નથી"] },
+    { q: "સપ્લાયર ઇનવોઇસ ચુકવણી માટે તમારી માનક શરતો શું છે?", options: ["15-30 દિવસની અંદર સમયસર ક્રેડિટ", "30-60 દિવસ", "60-90 દિવસ વિલંબિત ક્રેડિટ", "90 દિવસથી વધુ વિલંબિત"] },
+    { q: "તમારા વ્યવસાયિક વ્યવહારોનો કેટલો હિસ્સો ડિજિટલ માધ્યમો (UPI / QR / POS) દ્વારા થાય છે?", options: ["75% થી વધુ ડિજિટલ ચુકવણી", "50%–75% ડિજિટલ ચુકવણી", "25%–50% ડિજિટલ ચુકવણી", "25% થી ઓછો (મોટાભાગે રોકડ)"] },
+    { q: "ઓછી સિઝન દરમિયાન તમે કાર્યકારી મૂડી (વર્કિંગ કેપિટલ) ની અછત કેવી રીતે સંભાળો છો?", options: ["વેપાર અનામત ભંડોળમાંથી", "બેંક ઓવરડ્રાફ્ટ (OD) સુવિધા", "સપ્લાયર ટ્રેડ ક્રેડિટ વિસ્તરણ", "વ્યક્તિગત કટોકટી બચત"] },
+    { q: "વાણિજ્યિક ક્રેડિટ મેળવવાનો તમારો મુખ્ય ઉદ્દેશ્ય શું છે?", options: ["કાર્યકારી મૂડી અને ઇન્વેન્ટરી વિસ્તરણ", "મશીનરી / સાધન અપગ્રેડ", "નવી શાખા / આઉટલેટ ખોલવું", "હાલની લોનનું પુનર્ધિરાણ"] },
+    { q: "તમે કેટલી વાર ઇન્વેન્ટરીનું ઓડિટ અથવા પુનઃસ્ટોક કરો છો?", options: ["સાપ્તાહિક વ્યવસ્થિત ટ્રેકિંગ", "માસિક સ્પોટ ચેક", "ત્રિમાસિક જ્યારે સ્ટોક ઘટે", "કોઈ વ્યવસ્થિત ઓડિટ નથી"] },
+    { q: "શું તમે ક્યારેય દુકાન ભાડું અથવા વાણિજ્યિક લાઇટ બિલ ચુકવણીમાં વિલંબ અનુભવ્યો છે?", options: ["ક્યારેય વિલંબ થયો નથી", "એક કે બે વાર વિલંબ થયો", "ક્યારેક વિલંબ થયો", "વારંવાર વિલંબ થયો"] },
+    { q: "શું તમે ગ્રાહક ક્રેડિટ / ખાતા બુક આપો છો અને ઉઘરાણી કેવી રીતે ટ્રેક કરો છો?", options: ["એસએમએસ રિમાઇન્ડર સાથે ડિજિટલ ખાતા એપ", "ભૌતિક ચોપડો / ખાતાવહી", "કાચો માનસિક અંદાજ", "સખત રીતે માત્ર રોકડ વેચાણ"] },
+    { q: "તમારી વ્યવસાયિક મિલકત અને દુકાન વીમા કવરેજ સ્તર શું છે?", options: ["સંપૂર્ણ દુકાન અને સ્ટોક વીમો", "મૂળભૂત આગ અને ચોરી વીમો", "માત્ર મિલકત", "કોઈ વ્યવસાયિક વીમો નથી"] }
+  ]
+}
+
+const PSYCHOMETRIC_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[] }>> = {
+  en: GENERAL_QUESTIONS,
+  hi: [
+    { q: "आप मासिक आवर्ती खर्चों और बिलों की योजना कैसे बनाते हैं?", options: ["सख्त बजट बनाए रखते हैं और समय पर भुगतान करते हैं", "रिमाइंडर आने पर भुगतान करते हैं", "कैश फ्लो के कारण कभी-कभी देर से भुगतान करते हैं", "कोई औपचारिक योजना नहीं"] },
+    { q: "यदि ₹10,000 का अप्रत्याशित आपातकालीन खर्च आता है, तो आप इसे कैसे पूरा करेंगे?", options: ["समर्पित आपातकालीन बचत से", "अगले महीने की कमाई से", "दोस्तों या परिवार से उधार लेंगे", "कम अवधि का उच्च ब्याज ऋण लेंगे"] },
+    { q: "दैनिक लेनदेन के लिए आप डिजिटल भुगतान विधियों (UPI, नेटबैंकिंग) का कितनी बार उपयोग करते हैं?", options: ["लगभग सभी लेनदेन के लिए दैनिक", "सप्ताह में कई बार", "कभी-कभी (महीने में 1-2 बार)", "कभी नहीं / केवल नकद"] },
+    { q: "नया ऋण या ऋण प्रतिबद्धता लेने के प्रति आपका दृष्टिकोण क्या है?", options: ["केवल तभी लें जब आवश्यक हो और पुनर्भुगतान की गारंटी हो", "यदि ब्याज दर कम और प्रबंधनीय हो तो लें", "जब भी क्रेडिट उपलब्ध हो तब लें", "ऋण से पूरी तरह बचें"] },
+    { q: "आप अपनी आय और दैनिक वित्तीय लेनदेन को कैसे ट्रैक करते हैं?", options: ["डिजिटल अकाउंटिंग ऐप या व्यवस्थित बहीखाता", "नोटबुक / डायरी रिकॉर्ड", "मोटा मानसिक अनुमान", "कोई ट्रैकिंग नहीं"] },
+    { q: "भविष्य के लक्ष्यों के लिए आपकी मासिक आय का कितना हिस्सा बचाया या निवेश किया जाता है?", options: ["20% से अधिक", "10% से 20%", "10% से कम", "नियमित रूप से कुछ नहीं बचाया"] },
+    { q: "आप उपयोगिता बिल भुगतानों (बिजली, पानी, एलपीजी) का प्रबंधन कैसे करते हैं?", options: ["हमेशा नियत तारीख से पहले भुगतान", "नियत तारीख पर भुगतान", "विलंब शुल्क के साथ नियत तारीख के बाद भुगतान", "भुगतान न करने के कारण अक्सर डिस्कनेक्ट"] },
+    { q: "आप वित्तीय उत्पादों या निवेश के अवसरों का मूल्यांकन कैसे करते हैं?", options: ["विस्तृत शोध और तुलना", "विश्वसनीय परिवार या सलाहकार से परामर्श", "लोकप्रिय रुझानों का पालन करें", "आवेगपूर्ण निर्णय लें"] },
+    { q: "अगले 12 महीनों के लिए आपका प्राथमिक वित्तीय लक्ष्य क्या है?", options: ["व्यवसाय का विस्तार / आय स्रोतों में वृद्धि", "आपातकालीन कोष का निर्माण", "मौजूदा ऋणों का भुगतान करें", "कोई विशिष्ट वित्तीय लक्ष्य नहीं"] },
+    { q: "क्या आपने पिछले 2 वर्षों में कभी ऋण ईएमआई या क्रेडिट पुनर्भुगतान समय सीमा को याद किया है?", options: ["कभी कोई भुगतान नहीं चूका", "तकनीकी समस्या के कारण एक या दो बार", "अक्सर देरी हुई", "नियमित रूप से छूटा"] }
+  ],
+  gu: [
+    { q: "તમે માસિક આવર્તક ખર્ચ અને બિલનું આયોજન કેવી રીતે કરો છો?", options: ["ચોક્કસ બજેટ જાળવીએ છીએ અને સમયસર ચુકવીએ છીએ", "રિમાઇન્ડર આવે ત્યારે ચુકવીએ છીએ", "કેશફ્લોના કારણે ક્યારેક મોડું થાય છે", "કોઈ ઔપચારિક આયોજન નથી"] },
+    { q: "જો ₹10,000 નો અણધાર્યો કટોકટી ખર્ચ આવે, તો તમે તેને કેવી રીતે પહોંચી વળશો?", options: ["સમર્પિત કટોકટી બચતમાંથી", "આવતા મહિનાની કમાણીમાંથી", "મિત્રો કે પરિવાર પાસેથી ઉધાર લઈને", "ટૂંકા ગાળાની લોન લઈને"] },
+    { q: "દૈનિક વ્યવહારો માટે તમે ડિજિટલ પેમેન્ટ (UPI, નેટબેંકિંગ) નો કેટલી વાર ઉપયોગ કરો છો?", options: ["લગભગ તમામ વ્યવહારો માટે રોજેરોજ", "અઠવાડિયામાં ઘણી વખત", "ક્યારેક (મહિનામાં 1-2 વાર)", "ક્યારેય નહીં / માત્ર રોકડ"] },
+    { q: "નવી લોન લેવા પ્રત્યે તમારો અભિગમ શું છે?", options: ["માત્ર ત્યારે જ લો જ્યારે જરૂરી હોય અને ચુકવણીની ખાતરી હોય", "જો વ્યાજ દર ઓછો અને વ્યાજબી હોય તો લો", "જ્યારે પણ લોન મળે ત્યારે લો", "લોન લેવાનું સંપૂર્ણ ટાળો"] },
+    { q: "તમે તમારી આવક અને દૈનિક નાણાકીય વ્યવહારો કેવી રીતે ટ્રેક કરો છો?", options: ["ડિજિટલ એકાઉન્ટિંગ એપ અથવા વ્યવસ્થિત ચોપડો", "નોટબુક / ડાયરી રેકોર્ડ", "કાચો માનસિક અંદાજ", "કોઈ ટ્રેકિંગ નથી"] },
+    { q: "ભવિષ્યના લક્ષ્યો માટે તમારી માસિક આવકનો કેટલો હિસ્સો બચાવો કે રોકાણ કરો છો?", options: ["20% થી વધુ", "10% થી 20%", "10% થી ઓછો", "નિયમિત કંઈ બચાવતા નથી"] },
+    { q: "તમે યુટિલિટી બિલ ચુકવણીઓ (વીજળી, પાણી, ગેસ) નું સંચાલન કેવી રીતે કરો છો?", options: ["હંમેશાં નિયત તારીખ પહેલાં ચુકવણી", "નિયત તારીખે ચુકવણી", "વિલંબ ફી સાથે નિયત તારીખ પછી", "ચુકવણી ન કરવાને કારણે ક્યારેક કનેક્શન કપાયું"] },
+    { q: "તમે નાણાકીય ઉત્પાદનો અથવા રોકાણની તકોનું મૂલ્યાંકન કેવી રીતે કરો છો?", options: ["સંપૂર્ણ સંશોધન અને સરખામણી કરીને", "વિશ્વસનીય પરિવાર કે સલાહકારની સલાહ લઈને", "ટ્રેન્ડ અનુસરીને", "ત્વરિત ઉત્સાહમાં નિર્ણય લઈને"] },
+    { q: "આગામી 12 મહિના માટે તમારું પ્રાથમિક નાણાકીય લક્ષ્ય શું છે?", options: ["વ્યવસાય વિસ્તરણ / આવકના સ્ત્રોત વધારવા", "કટોકટી ભંડોળ ઊભું કરવું", "હાલની લોન ચૂકવી દેવી", "કોઈ ચોક્કસ નાણાકીય લક્ષ્ય નથી"] },
+    { q: "શું તમે છેલ્લા 2 વર્ષમાં ક્યારેય લોન ઇએમઆઈ અથવા ક્રેડિટ ચુકવણીની સમયસીમા ચૂકી ગયા છો?", options: ["ક્યારેય કોઈ ચુકવણી ચૂકી નથી", "ટેકનિકલ સમસ્યાના કારણે 1 કે 2 વાર", "વારંવાર મોડું થયું", "નિયમિતપણે ચૂકી ગયા"] }
+  ]
+}रण करते हैं?", options: ["साप्ताहिक व्यवस्थित ट्रैकिंग", "मासिक स्थान जांच", "त्रैमासिक जब कम हो", "कोई व्यवस्थित इन्वेंट्री ऑडिट नहीं"] },
     { q: "क्या आपने कभी वाणिज्यिक उपयोगिता या वाणिज्यिक किराया भुगतान में देरी का अनुभव किया है?", options: ["कभी देरी नहीं हुई", "एक या दो बार देरी हुई", "कभी-कभी देरी हुई", "अक्सर देरी हुई"] },
     { q: "क्या आप ग्राहक क्रेडिट / खाता पुस्तकें प्रदान करते हैं और आप प्राप्तियों को कैसे ट्रैक करते हैं?", options: ["एसएमएस रिमाइंडर के साथ डिजिटल खाता ऐप", "भौतिक बहीखाता पुस्तक", "मोटा मानसिक ट्रैकिंग", "सख्ती से केवल नकद बिक्री"] },
     { q: "आपकी व्यावसायिक संपत्ति और दुकान बीमा कवरेज स्तर क्या है?", options: ["व्यापक दुकान और स्टॉक बीमा", "बुनियादी आग और चोरी नीति", "केवल संपत्ति", "कोई व्यावसायिक बीमा नहीं"] }
@@ -277,11 +319,16 @@ export function ConsentPage() {
   const isMockProfile = ['testhari@altgrade.in', 'farmer@altgrade.in', 'msme@altgrade.in'].includes(user?.email || '')
   
   // Step 1: Phone & OTP States
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(() => getDefaultPhone())
   const [otpSent, setOtpSent] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [verifyingOtp, setVerifyingOtp] = useState(false)
   const [profileName, setProfileName] = useState<string | null>(null)
+
+  // Voice Call Phone Confirmation Modal
+  const [showCallConfirmModal, setShowCallConfirmModal] = useState(false)
+  const [callPhoneInput, setCallPhoneInput] = useState(() => getDefaultPhone())
+  const [isCallPhoneMasked, setIsCallPhoneMasked] = useState(true)
 
   // Step 2: PAN States
   const [pan, setPan] = useState('')
@@ -1577,60 +1624,112 @@ export function ConsentPage() {
             </CardDescription>
 
             {/* AI Phone Callback Request Banner */}
-            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3.5 text-xs text-foreground'>
-              <div className='flex items-center gap-2.5'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white border border-white/15'>
-                  <PhoneCall className='h-4 w-4' />
+            <div className='mt-3 rounded-xl border border-white/10 bg-white/[0.02] p-3.5 text-xs text-foreground'>
+              <div className='flex flex-wrap items-center justify-between gap-3'>
+                <div className='flex items-center gap-2.5'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white border border-white/15'>
+                    <PhoneCall className='h-4 w-4' />
+                  </div>
+                  <div>
+                    <p className='font-semibold text-white'>{t('consent.preferVoiceCall', 'Prefer an AI Voice Call?')}</p>
+                    <p className='text-white/60 text-[11px]'>{t('consent.voiceOfficerInfo', 'AI Voice Officer calls you and asks each question one-by-one verbally.')}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className='font-semibold text-white'>{t('consent.preferVoiceCall', 'Prefer an AI Voice Call?')}</p>
-                  <p className='text-white/60 text-[11px]'>{t('consent.voiceOfficerInfo', 'AI Voice Officer calls you and asks each question one-by-one verbally.')}</p>
-                </div>
+                <Button
+                  type='button'
+                  size='sm'
+                  disabled={callActive || callRetryCount >= MAX_CALL_RETRIES}
+                  onClick={() => {
+                    if (callActive) return
+                    setShowCallConfirmModal(!showCallConfirmModal)
+                  }}
+                  className='bg-white text-black hover:bg-white/90 font-medium h-8 text-xs gap-1.5 rounded-full disabled:opacity-50 shadow-none'
+                >
+                  {callActive ? (
+                    <>
+                      <Loader2 className='h-3.5 w-3.5 animate-spin text-black' />
+                      <span className='text-black font-semibold'>Call Active...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PhoneCall className='h-3.5 w-3.5 text-black' />
+                      <span className='text-black font-semibold'>{showCallConfirmModal ? 'Close Form' : t('consent.requestCallback', 'Request AI Callback')}</span>
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button
-                type='button'
-                size='sm'
-                disabled={callActive || callRetryCount >= MAX_CALL_RETRIES}
-                onClick={async () => {
-                  try {
-                    setCallFailed(false)
-                    setCallIncomplete(false)
-                    setCallActive(true)
-                    setCallProgressPct(0)
-                    setCallQuestionsCompleted(0)
-                    setCallStatusMsg('Initiating AI Voice Call...')
-                    const res = await requestOutboundCall(userId, phone || '9876543215', i18n.language || 'en', profession || 'farmer')
-                    if (res.status === 'error') {
-                      setCallActive(false)
-                      setCallFailed(true)
-                      setCallErrorMsg(res.message || 'Failed to initiate call.')
-                      return
-                    }
-                    toast.success(res.message || 'AI Voice Call requested!', { duration: 5000 })
-                    setCallStatusMsg('Ringing... Waiting for the call to be answered.')
-                    setCallProgressPct(5)
-                    setCallPolling(true)
-                  } catch {
-                    setCallActive(false)
-                    setCallFailed(true)
-                    setCallErrorMsg('Failed to dispatch AI callback.')
-                    toast.error('Failed to request AI callback. Please try again.')
-                  }
-                }}
-                className='bg-white text-black hover:bg-white/90 font-medium h-8 text-xs gap-1.5 rounded-full disabled:opacity-50 shadow-none'
-              >
-                {callActive ? (
-                  <>
-                    <Loader2 className='h-3.5 w-3.5 animate-spin text-black' />
-                    <span className='text-black font-semibold'>Call Active...</span>
-                  </>
-                ) : (
-                  <>
-                    <PhoneCall className='h-3.5 w-3.5 text-black' />
-                    <span className='text-black font-semibold'>{t('consent.requestCallback', 'Request AI Callback')}</span>
-                  </>
-                )}
-              </Button>
+
+              {/* Number Confirmation Drawer */}
+              {showCallConfirmModal && !callActive && (
+                <div className='mt-3 pt-3 border-t border-white/10 space-y-2.5 animate-in fade-in slide-in-from-top-1'>
+                  <div className='flex items-center justify-between'>
+                    <p className='text-[11px] font-mono text-white/70'>
+                      Confirm mobile number for verbal psychometric interview:
+                    </p>
+                  </div>
+                  <div className='flex gap-2'>
+                    <div className='relative flex-1'>
+                      <span className='absolute left-3 top-2 text-xs font-mono text-white/40'>+91</span>
+                      <Input
+                        type={isCallPhoneMasked ? 'password' : 'tel'}
+                        value={isCallPhoneMasked ? maskPhoneNumber(callPhoneInput).replace('+91 ', '') : callPhoneInput}
+                        onChange={(e) => {
+                          setIsCallPhoneMasked(false)
+                          setCallPhoneInput(e.target.value)
+                        }}
+                        onFocus={() => {
+                          if (isCallPhoneMasked) setIsCallPhoneMasked(false)
+                        }}
+                        placeholder='98765 43215'
+                        className='h-8 pl-11 pr-9 text-xs font-mono bg-white/[0.04] border-white/15 text-white placeholder:text-white/30 rounded-lg'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => setIsCallPhoneMasked(!isCallPhoneMasked)}
+                        className='absolute right-2.5 top-2 text-white/40 hover:text-white transition-colors'
+                        title={isCallPhoneMasked ? 'Show unmasked' : 'Mask'}
+                      >
+                        {isCallPhoneMasked ? <EyeOff className='h-3.5 w-3.5' /> : <Eye className='h-3.5 w-3.5' />}
+                      </button>
+                    </div>
+                    <Button
+                      type='button'
+                      size='sm'
+                      onClick={async () => {
+                        const targetPhone = callPhoneInput.trim() || phone || getDefaultPhone()
+                        setShowCallConfirmModal(false)
+                        try {
+                          setCallFailed(false)
+                          setCallIncomplete(false)
+                          setCallActive(true)
+                          setCallProgressPct(0)
+                          setCallQuestionsCompleted(0)
+                          setCallStatusMsg('Initiating AI Voice Call...')
+                          const res = await requestOutboundCall(userId, targetPhone, i18n.language || 'en', profession || 'farmer', 'assessment')
+                          if (res.status === 'error') {
+                            setCallActive(false)
+                            setCallFailed(true)
+                            setCallErrorMsg(res.message || 'Failed to initiate call.')
+                            return
+                          }
+                          toast.success(res.message || `AI Voice Call requested for ${maskPhoneNumber(targetPhone)}!`, { duration: 5000 })
+                          setCallStatusMsg('Ringing... Waiting for the call to be answered.')
+                          setCallProgressPct(5)
+                          setCallPolling(true)
+                        } catch {
+                          setCallActive(false)
+                          setCallFailed(true)
+                          setCallErrorMsg('Failed to dispatch AI callback.')
+                          toast.error('Failed to request AI callback. Please try again.')
+                        }
+                      }}
+                      className='bg-white text-black hover:bg-white/90 h-8 px-4 text-xs font-mono font-semibold rounded-lg shrink-0'
+                    >
+                      Call Me Now
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Brand-Themed Active Call Progress Banner */}

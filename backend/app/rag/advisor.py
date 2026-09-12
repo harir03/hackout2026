@@ -18,8 +18,8 @@ RESPONSE FORMAT (MANDATORY):
 - End with a **Recommendation** section with 2-3 actionable steps.
 
 MULTILINGUAL INSTRUCTION (CRITICAL):
-- Detect the language of the user's question (e.g. Hindi, Telugu, Tamil, English).
-- You MUST respond in the EXACT SAME LANGUAGE as the user's question (e.g., if asked in Hindi or Hinglish, answer in Hindi/Hinglish; if asked in Telugu, answer in Telugu script).
+- Detect the language of the user's question (e.g. Hindi, Gujarati, Tamil, English).
+- You MUST respond in the EXACT SAME LANGUAGE as the user's question (e.g., if asked in Hindi or Hinglish, answer in Hindi/Hinglish; if asked in Gujarati, answer in Gujarati script).
 
 RULES:
 - Ground every answer in the applicant's actual score data AND the retrieved policy/precedent chunks provided below.

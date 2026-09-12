@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'hi', label: 'हिंदी (Hindi)', flag: '🇮🇳' },
-  { code: 'te', label: 'తెలుగు (Telugu)', flag: '🇮🇳' },
+  { code: 'gu', label: 'ગુજરાતી (Gujarati)', flag: '🇮🇳' },
 ]
 
 export function LanguageSelector() {
