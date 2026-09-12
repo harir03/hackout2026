@@ -263,8 +263,3 @@ AltGrade implements bank-grade identity verification prior to scoring:
 if we win this then  i might throw a party 
 
 ---
-
-## 📄 License & Attribution
-
-Developed for **PSB Hackathon 2026 (Problem Statement 1 - Alternate Credit Scoring)**.  
-Built by Team AltGrade.
