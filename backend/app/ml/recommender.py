@@ -120,6 +120,34 @@ SCHEMES_CATALOGUE = [
         "icon": "PiggyBank",
         "official_portal": "https://rbi.org.in",
         "key_criterion": "Account with low minimum balance buffer ratio (< 15%)"
+    },
+    {
+        "id": "pmjdy_basic_savings",
+        "name": "PMJDY Zero-Balance Priority Savings",
+        "category": "Basic Banking & Liquidity",
+        "target_segments": ["farmer", "gig_worker", "stressed", "msme"],
+        "min_score": 0,
+        "max_score": 850,
+        "subsidy_rate": "Zero Maintenance Charges + ₹10,000 Overdraft Buffer",
+        "max_benefit": "₹10,000 Hassle-Free Overdraft Facility after 6 months",
+        "description": "Financial inclusion primary savings account with no minimum balance requirement, free RuPay debit card, and direct DBT transfer support.",
+        "icon": "Wallet",
+        "official_portal": "https://pmjdy.gov.in",
+        "key_criterion": "Thin-file applicant requiring baseline formal banking relationship"
+    },
+    {
+        "id": "atal_pension_yojana",
+        "name": "Atal Pension Yojana (Guaranteed Retirement)",
+        "category": "Social Security & Pension",
+        "target_segments": ["farmer", "gig_worker", "msme", "stable_earner"],
+        "min_score": 0,
+        "max_score": 850,
+        "subsidy_rate": "Guaranteed 8% Return Backed by Govt of India",
+        "max_benefit": "Guaranteed ₹1,000 to ₹5,000 Monthly Lifetime Pension",
+        "description": "Statutory pension scheme for workers in the unorganized sector with guaranteed lifelong income after age 60.",
+        "icon": "Award",
+        "official_portal": "https://www.npscra.nsdl.co.in",
+        "key_criterion": "Unorganized worker aged 18 to 40 years seeking lifelong retirement safety"
     }
 ]
 

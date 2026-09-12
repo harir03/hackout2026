@@ -227,44 +227,188 @@ async def simulate_restructuring(req: SimulationRequest):
 @router.get("/alerts/officer")
 async def get_loan_officer_alerts():
     """
-    Returns prioritized field alerts for the loan officer dashboard:
-    1. Pre-delinquency watchlist (Stressed accounts needing proactive visits)
-    2. Upgrade eligible accounts (Consistent payers ready for limit expansion)
+    Returns prioritized field alerts for the loan officer dashboard.
+    Merges static field alerts with dynamic stress triggers for all known users.
+    Each alert now includes severity_score, confidence_score, and ai_summary.
     """
+    from app.ml.stress_monitor import analyze_stress
+
+    static_alerts = [
+        {
+            "user_id": "msme@altgrade.in",
+            "name": "Lakshmi Stores (Madurai)",
+            "segment": "msme",
+            "status": "amber",
+            "score": 680,
+            "type": "pre_delinquency",
+            "urgency": "medium",
+            "message": "Monthly merchant UPI velocity dropped 22% this cycle. Proactive field check recommended before inventory season.",
+            "action": "Schedule Field Check",
+            "severity_score": 62,
+            "confidence_score": 78,
+            "ai_summary": "Merchant UPI transaction volume has dropped 22% compared to the previous cycle. This is a leading indicator of cash flow stress — typically precedes payment defaults by 30-45 days in MSME segments. Recommend proactive field visit before the inventory replenishment season.",
+        },
+        {
+            "user_id": "farmer@altgrade.in",
+            "name": "Ramesh Kumar (Kovvur)",
+            "segment": "farmer",
+            "status": "amber",
+            "score": 710,
+            "type": "seasonal_watch",
+            "urgency": "low",
+            "message": "Normal Kharif pre-sowing input expenditure. Advise enrolling in PMFBY crop insurance and 60-day moratorium.",
+            "action": "Attach PMFBY Subsidy",
+            "severity_score": 35,
+            "confidence_score": 88,
+            "ai_summary": "Seasonal spending pattern detected consistent with Kharif pre-sowing preparation (seeds, fertilizer, labor). This is expected agricultural cash flow and not a stress signal. Recommend enrolling in PMFBY crop insurance to protect against harvest loss, and activating 60-day moratorium aligned with harvest cycle.",
+        },
+        {
+            "user_id": "hari@altgrade.in",
+            "name": "Hari Prasad",
+            "segment": "stable_earner",
+            "status": "green",
+            "score": 750,
+            "type": "upgrade_eligible",
+            "urgency": "high",
+            "message": "100% on-time installments for 6 consecutive months. Pre-approved for ₹1,00,000 credit limit increase.",
+            "action": "Offer Credit Upgrade",
+            "severity_score": 0,
+            "confidence_score": 95,
+            "ai_summary": "Exemplary repayment behavior — 6 consecutive months of on-time installments with stable income pattern. Balance volatility is minimal. Pre-approved for credit limit expansion of ₹1,00,000. Low risk of default.",
+        },
+    ]
+
+    # Run stress analysis for known users and merge as additional alerts
+    stress_user_ids = [
+        ("msme@altgrade.in", "msme"),
+        ("farmer@altgrade.in", "farmer"),
+        ("hari@altgrade.in", "stable_earner"),
+    ]
+    stress_alerts = []
+    for uid, seg in stress_user_ids:
+        try:
+            score, _, features = _extract_features_for_user(uid)
+            triggers = analyze_stress(uid, features, segment=seg, score=score)
+            for t in triggers:
+                name_map = {
+                    "msme@altgrade.in": "Lakshmi Stores (Madurai)",
+                    "farmer@altgrade.in": "Ramesh Kumar (Kovvur)",
+                    "hari@altgrade.in": "Hari Prasad",
+                }
+                stress_alerts.append({
+                    "user_id": uid,
+                    "name": name_map.get(uid, uid),
+                    "segment": seg,
+                    "status": "red" if t["severity_score"] > 70 else "amber",
+                    "score": t["user_score"],
+                    "type": t["trigger_type"],
+                    "urgency": "critical" if t["severity_score"] > 80 else ("high" if t["severity_score"] > 60 else "medium"),
+                    "message": t["ai_summary"][:200],
+                    "action": "Send Empathetic Message",
+                    "severity_score": t["severity_score"],
+                    "confidence_score": t["confidence_score"],
+                    "ai_summary": t["ai_summary"],
+                    "empathetic_message": t.get("empathetic_message", ""),
+                    "recommended_action": t.get("recommended_action", ""),
+                })
+        except Exception as e:
+            print(f"Stress analysis failed for {uid}: {e}")
+
+    all_alerts = static_alerts + stress_alerts
+    # Sort: highest severity first, then by urgency
+    urgency_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    all_alerts.sort(key=lambda a: (-a.get("severity_score", 0), urgency_order.get(a.get("urgency", "low"), 3)))
+
+    return {"alerts": all_alerts}
+
+
+@router.get("/stress-triggers/{user_id}")
+async def get_stress_triggers(user_id: str):
+    """Analyze a specific user's financial stress indicators."""
+    from app.ml.stress_monitor import analyze_stress
+
+    score, band, features = _extract_features_for_user(user_id)
+    segment_info = detect_segment(features)
+    segment = segment_info.get("segment", "general")
+
+    triggers = analyze_stress(user_id, features, segment=segment, score=score)
+
     return {
-        "alerts": [
-            {
-                "user_id": "msme@altgrade.in",
-                "name": "Lakshmi Stores (Madurai)",
-                "segment": "msme",
-                "status": "amber",
-                "score": 680,
-                "type": "pre_delinquency",
-                "urgency": "medium",
-                "message": "Monthly merchant UPI velocity dropped 22% this cycle. Proactive field check recommended before inventory season.",
-                "action": "Schedule Field Check"
-            },
-            {
-                "user_id": "farmer@altgrade.in",
-                "name": "Ramesh Kumar (Kovvur)",
-                "segment": "farmer",
-                "status": "amber",
-                "score": 710,
-                "type": "seasonal_watch",
-                "urgency": "low",
-                "message": "Normal Kharif pre-sowing input expenditure. Advise enrolling in PMFBY crop insurance and 60-day moratorium.",
-                "action": "Attach PMFBY Subsidy"
-            },
-            {
-                "user_id": "hari@altgrade.in",
-                "name": "Hari Prasad",
-                "segment": "stable_earner",
-                "status": "green",
-                "score": 750,
-                "type": "upgrade_eligible",
-                "urgency": "high",
-                "message": "100% on-time installments for 6 consecutive months. Pre-approved for ₹1,00,000 credit limit increase.",
-                "action": "Offer Credit Upgrade"
-            }
-        ]
+        "user_id": user_id,
+        "score": score,
+        "risk_band": band,
+        "segment": segment,
+        "triggers": triggers,
+        "total_triggers": len(triggers),
+        "max_severity": max((t["severity_score"] for t in triggers), default=0),
     }
+
+
+class OfficerMessageRequest(BaseModel):
+    user_id: str
+    message: str
+    category: str = "check_in"  # payment_reminder | restructuring_offer | check_in | product_recommendation
+    channel: str = "sms"  # sms | call | in_app
+    officer_name: str = "Loan Officer"
+
+
+@router.post("/officer-message")
+async def send_officer_message(req: OfficerMessageRequest):
+    """
+    Store a personalized message from the officer to a user.
+    Supports channels: sms, call (triggers AI agent callback), in_app (shows in dashboard).
+    """
+    import datetime as dt
+
+    messages_path = Path(__file__).resolve().parents[2] / "demo_data" / "officer_messages.json"
+    messages: dict = {}
+    if messages_path.exists():
+        try:
+            messages = json.loads(messages_path.read_text())
+        except Exception:
+            pass
+
+    if req.user_id not in messages:
+        messages[req.user_id] = []
+
+    message_record = {
+        "message": req.message,
+        "category": req.category,
+        "channel": req.channel,
+        "officer_name": req.officer_name,
+        "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "status": "delivered" if req.channel == "in_app" else "queued",
+    }
+    messages[req.user_id].append(message_record)
+
+    messages_path.parent.mkdir(parents=True, exist_ok=True)
+    messages_path.write_text(json.dumps(messages, indent=2))
+
+    # If channel is "call", return info that an AI agent call should be triggered
+    trigger_call = req.channel == "call"
+
+    return {
+        "status": "ok",
+        "user_id": req.user_id,
+        "channel": req.channel,
+        "message_stored": True,
+        "trigger_ai_call": trigger_call,
+        "message_preview": req.message[:100],
+    }
+
+
+@router.get("/officer-messages/{user_id}")
+async def get_officer_messages(user_id: str):
+    """Retrieve all messages sent by officers to this user."""
+    messages_path = Path(__file__).resolve().parents[2] / "demo_data" / "officer_messages.json"
+    if not messages_path.exists():
+        return {"user_id": user_id, "messages": [], "total": 0}
+
+    try:
+        messages = json.loads(messages_path.read_text())
+        user_messages = messages.get(user_id, [])
+        # Sort newest first
+        user_messages.sort(key=lambda m: m.get("timestamp", ""), reverse=True)
+        return {"user_id": user_id, "messages": user_messages, "total": len(user_messages)}
+    except Exception:
+        return {"user_id": user_id, "messages": [], "total": 0}

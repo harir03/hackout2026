@@ -261,51 +261,6 @@ const PSYCHOMETRIC_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options:
     { q: "આગામી 12 મહિના માટે તમારું પ્રાથમિક નાણાકીય લક્ષ્ય શું છે?", options: ["વ્યવસાય વિસ્તરણ / આવકના સ્ત્રોત વધારવા", "કટોકટી ભંડોળ ઊભું કરવું", "હાલની લોન ચૂકવી દેવી", "કોઈ ચોક્કસ નાણાકીય લક્ષ્ય નથી"] },
     { q: "શું તમે છેલ્લા 2 વર્ષમાં ક્યારેય લોન ઇએમઆઈ અથવા ક્રેડિટ ચુકવણીની સમયસીમા ચૂકી ગયા છો?", options: ["ક્યારેય કોઈ ચુકવણી ચૂકી નથી", "ટેકનિકલ સમસ્યાના કારણે 1 કે 2 વાર", "વારંવાર મોડું થયું", "નિયમિતપણે ચૂકી ગયા"] }
   ]
-}रण करते हैं?", options: ["साप्ताहिक व्यवस्थित ट्रैकिंग", "मासिक स्थान जांच", "त्रैमासिक जब कम हो", "कोई व्यवस्थित इन्वेंट्री ऑडिट नहीं"] },
-    { q: "क्या आपने कभी वाणिज्यिक उपयोगिता या वाणिज्यिक किराया भुगतान में देरी का अनुभव किया है?", options: ["कभी देरी नहीं हुई", "एक या दो बार देरी हुई", "कभी-कभी देरी हुई", "अक्सर देरी हुई"] },
-    { q: "क्या आप ग्राहक क्रेडिट / खाता पुस्तकें प्रदान करते हैं और आप प्राप्तियों को कैसे ट्रैक करते हैं?", options: ["एसएमएस रिमाइंडर के साथ डिजिटल खाता ऐप", "भौतिक बहीखाता पुस्तक", "मोटा मानसिक ट्रैकिंग", "सख्ती से केवल नकद बिक्री"] },
-    { q: "आपकी व्यावसायिक संपत्ति और दुकान बीमा कवरेज स्तर क्या है?", options: ["व्यापक दुकान और स्टॉक बीमा", "बुनियादी आग और चोरी नीति", "केवल संपत्ति", "कोई व्यावसायिक बीमा नहीं"] }
-  ],
-  te: [
-    { q: "మీ అంచనా వేసిన వార్షిక వ్యాపార టర్నోవర్ పరిధి ఎంత?", options: ["₹25 లక్షలు – ₹1 కోటి", "₹10 లక్షలు – ₹25 లక్షలు", "₹5 లక్షలు – ₹10 లక్షలు", "₹5 లక్షల కంటే తక్కువ"] },
-    { q: "మీరు GST రిటర్న్ ఫైలింగ్ మరియు వ్యాపార అకౌంటింగ్‌ను ఎలా నిర్వహిస్తారు?", options: ["నెలవారీ CA / పోర్టల్ ఫైలింగ్", "త్రైమాసిక సాఫ్ట్‌వేర్ ఫైలింగ్", "మాన్యువల్ ఫైలింగ్", "GST ఫైలింగ్ లేదు"] },
-    { q: "సరఫరాదారు ఇన్‌వాయిస్ చెల్లింపు కోసం మీ ప్రామాణిక నిబంధనలు ఏమిటి?", options: ["15–30 రోజులలోపు సకాలంలో", "30–60 రోజులు", "60–90 రోజులు ఆలస్యంగా", "90 రోజులకు పైగా ఆలస్యం"] },
-    { q: "మీ వ్యాపార లావాదేవీలలో ఎంత శాతం డిజిటల్ మార్గాల ద్వారా (UPI / QR / POS) జరుగుతాయి?", options: ["75% కంటే ఎక్కువ డిజిటల్ చెల్లింపులు", "50%–75% డిజిటల్", "25%–50% డిజిటల్", "25% కంటే తక్కువ (ఎక్కువగా నగదు)"] },
-    { q: "వ్యాపార సీజన్ తగ్గినప్పుడు వర్కింగ్ క్యాపిటల్ కొరతను ఎలా నిర్వహిస్తారు?", options: ["వ్యాపార రిజర్వు నిధులు", "బ్యాంక్ ఓవర్‌డ్రాఫ్ట్ (OD) సౌకర్యం", "సరఫరాదారు క్రెడిట్ పొడిగింపు", "వ్యక్తిగత అత్యవసర పొదుపు"] },
-    { q: "మీరు క్రెడిట్ రుణం కోరడానికి ప్రధాన ఉద్దేశ్యం ఏమిటి?", options: ["వర్కింగ్ క్యాపిటల్ & వ్యాపార విస్తరణ", "యంత్రాలు / పరికరాల నవీకరణ", "కొత్త షాపు / బ్రాంచ్ ప్రారంభం", "పాత రుణాల పునరుద్ధరణ"] },
-    { q: "మీరు ఇన్వెంటరీ నిల్వలను ఎంత తరచుగా తనిఖీ చేస్తారు?", options: ["వారానికోసారి క్రమబద్ధమైన తనిఖీ", "నెలవారీ స్పాట్ చెక్", "మూడు నెలలకోసారి", "ఎలాంటి తనిఖీ లేదు"] },
-    { q: "మీరు ఎప్పుడైనా షాపు అద్దె లేదా కరెంట్ బిల్లుల చెల్లింపులో ఆలస్యం అనుభవించారా?", options: ["ఎప్పుడూ ఆలస్యం కాలేదు", "1-2 సార్లు ఆలస్యమైంది", "అప్పుడప్పుడు ఆలస్యం", "తరచుగా ఆలస్యం"] },
-    { q: "మీరు కస్టమర్ క్రెడిట్ / ఖాతా పుస్తకాలను ఎలా నిర్వహిస్తారు?", options: ["SMS రికార్డులతో డిజిటల్ ఖాతా యాప్", "భౌతిక పుస్తకం", "అంచనా మాత్రమే", "కేవలం నగదు విక్రయాలు"] },
-    { q: "మీ షాపు మరియు సరుకుల భీమా పరిస్థితి ఏమిటి?", options: ["పూర్తి షాపు & సరుకుల భీమా", "మంటలు & దొంగతనాల భీమా", "ఆస్తికి మాత్రమే", "ఎలాంటి భీమా లేదు"] }
-  ]
-}
-
-const PSYCHOMETRIC_QUESTIONS_BY_LANG: Record<string, Array<{ q: string; options: string[] }>> = {
-  en: GENERAL_QUESTIONS,
-  hi: [
-    { q: "आप मासिक आवर्ती खर्चों और बिलों की योजना कैसे बनाते हैं?", options: ["सख्त बजट बनाए रखते हैं और समय पर भुगतान करते हैं", "रिमाइंडर आने पर भुगतान करते हैं", "कैश फ्लो के कारण कभी-कभी देर से भुगतान करते हैं", "कोई औपचारिक योजना नहीं"] },
-    { q: "यदि ₹10,000 का अप्रत्याशित आपातकालीन खर्च आता है, तो आप इसे कैसे पूरा करेंगे?", options: ["समर्पित आपातकालीन बचत से", "अगले महीने की कमाई से", "दोस्तों या परिवार से उधार लेंगे", "कम अवधि का उच्च ब्याज ऋण लेंगे"] },
-    { q: "दैनिक लेनदेन के लिए आप डिजिटल भुगतान विधियों (UPI, नेटबैंकिंग) का कितनी बार उपयोग करते हैं?", options: ["लगभग सभी लेनदेन के लिए दैनिक", "सप्ताह में कई बार", "कभी-कभी (महीने में 1-2 बार)", "कभी नहीं / केवल नकद"] },
-    { q: "नया ऋण या ऋण प्रतिबद्धता लेने के प्रति आपका दृष्टिकोण क्या है?", options: ["केवल तभी लें जब आवश्यक हो और पुनर्भुगतान की गारंटी हो", "यदि ब्याज दर कम और प्रबंधनीय हो तो लें", "जब भी क्रेडिट उपलब्ध हो तब लें", "ऋण से पूरी तरह बचें"] },
-    { q: "आप अपनी आय और दैनिक वित्तीय लेनदेन को कैसे ट्रैक करते हैं?", options: ["डिजिटल अकाउंटिंग ऐप या व्यवस्थित बहीखाता", "नोटबुक / डायरी रिकॉर्ड", "मोटा मानसिक अनुमान", "कोई ट्रैकिंग नहीं"] },
-    { q: "भविष्य के लक्ष्यों के लिए आपकी मासिक आय का कितना हिस्सा बचाया या निवेश किया जाता है?", options: ["20% से अधिक", "10% से 20%", "10% से कम", "नियमित रूप से कुछ नहीं बचाया"] },
-    { q: "आप उपयोगिता बिल भुगतानों (बिजली, पानी, एलपीजी) का प्रबंधन कैसे करते हैं?", options: ["हमेशा नियत तारीख से पहले भुगतान", "नियत तारीख पर भुगतान", "विलंब शुल्क के साथ नियत तारीख के बाद भुगतान", "भुगतान न करने के कारण अक्सर डिस्कनेक्ट"] },
-    { q: "आप वित्तीय उत्पादों या निवेश के अवसरों का मूल्यांकन कैसे करते हैं?", options: ["विस्तृत शोध और तुलना", "विश्वसनीय परिवार या सलाहकार से परामर्श", "लोकप्रिय रुझानों का पालन करें", "आवेगपूर्ण निर्णय लें"] },
-    { q: "अगले 12 महीनों के लिए आपका प्राथमिक वित्तीय लक्ष्य क्या है?", options: ["व्यवसाय का विस्तार / आय स्रोतों में वृद्धि", "आपातकालीन कोष का निर्माण", "मौजूदा ऋणों का भुगतान करें", "कोई विशिष्ट वित्तीय लक्ष्य नहीं"] },
-    { q: "क्या आपने पिछले 2 वर्षों में कभी ऋण ईएमआई या क्रेडिट पुनर्भुगतान समय सीमा को याद किया है?", options: ["कभी कोई भुगतान नहीं चूका", "तकनीकी समस्या के कारण एक या दो बार", "अक्सर देरी हुई", "नियमित रूप से छूटा"] }
-  ],
-  te: [
-    { q: "మీరు నెలవారీ పునరావృత ఖర్చులు మరియు బిల్లులను ఎలా ప్రణాళిక చేస్తారు?", options: ["ఖచ్చితమైన బడ్జెట్‌ను నిర్వహిస్తాను మరియు సకాలంలో చెల్లిస్తాను", "జ్ఞాపికలు వచ్చినప్పుడు చెల్లిస్తాను", "నగదు ప్రవాహం వల్ల అప్పుడప్పుడు ఆలస్యంగా చెల్లిస్తాను", "ఎలాంటి ఔపచారిక ప్రణాళిక లేదు"] },
-    { q: "₹10,000 అనుకోని అత్యవసర ఖర్చు వస్తే, మీరు దానిని ఎలా భరిస్తారు?", options: ["అత్యవసర పొదుపు నిధి నుండి", "తదుపరి నెల సంపాదన నుండి", "స్నేహితులు లేదా కుటుంబ సభ్యుల నుండి అప్పు పొందుతాను", "స్వల్పకాలిక అధిక వడ్డీ రుణం తీసుకుంటాను"] },
-    { q: "రోజువారీ లావాదేవీల కోసం డిజిటల్ చెల్లింపు పద్ధతులను (UPI, నెట్‌బ్యాంకింగ్) ఎంత తరచుగా ఉపయోగిస్తారు?", options: ["దాదాపు అన్ని లావాదేవీలకు రోజూ", "వారానికి పలుమార్లు", "అప్పుడప్పుడు (నెలలో 1-2 సార్లు)", "ఎప్పుడూ లేదు / నగదు మాత్రమే"] },
-    { q: "కొత్త రుణం తీసుకోవడం పట్ల మీ వైఖరి ఏమిటి?", options: ["అవసరమైతే మరియు తిరోగమనం ఖచ్చితంగా ఉంటేనే తీసుకుంటాను", "వడ్డీ రేటు తక్కువగా ఉంటే తీసుకుంటాను", "రుణం అందుబాటులో ఉన్నప్పుడు తీసుకుంటాను", "రుణాలను పూర్తిగా నివారిస్తాను"] },
-    { q: "మీ ఆదాయం మరియు రోజువారీ ఆర్థిక లావాదేవీలను ఎలా నమోదు చేస్తారు?", options: ["డిజిటల్ అకౌంటింగ్ యాప్ లేదా లేజర్ బుక్", "నోట్‌బుక్ / డైరీ రికార్డులు", "అంచనా మాత్రమే", "ఎలాంటి నమోదు లేదు"] },
-    { q: "భవిష్యత్తు లక్ష్యాల కోసం మీ నెలవారీ ఆదాయంలో ఎంత శాతం పొదుపు చేస్తారు?", options: ["20% కంటే ఎక్కువ", "10% నుండి 20%", "10% కంటే తక్కువ", "క్రమబద్ధంగా ఏమీ పొదుపు చేయలేదు"] },
-    { q: "మీరు విద్యుత్, నీరు, గ్యాస్ బిల్లుల చెల్లింపులను ఎలా నిర్వహిస్తారు?", options: ["ఎల్లప్పుడూ ఆఖరి తేదీ కంటే ముందే చెల్లిస్తాను", "ఆఖరి తేదీ రోజున చెల్లిస్తాను", "ఆలస్య రుసుముతో ఆఖరి తేదీ తర్వాత", "చెల్లించకపోవడం వల్ల కనెక్షన్ కట్ అయ్యేది"] },
-    { q: "మీరు ఆర్థిక ఉత్పత్తులు లేదా పెట్టుబడి అవకాశాలను ఎలా మూల్యాంకనం చేస్తారు?", options: ["పూర్తి పరిశోధన మరియు పోలిక", "నమ్మకమైన కుటుంబం లేదా సలహాదారుని సంప్రదిస్తాను", "ట్రెండ్స్ అనుసరిస్తాను", "తక్షణ నిర్ణయాలు తీసుకుంటాను"] },
-    { q: "తదుపరి 12 నెలలకు మీ ప్రధాన ఆర్థిక లక్ష్యం ఏమిటి?", options: ["వ్యాపార విస్తరణ / ఆదాయ వనరులను పెంచడం", "అత్యవసర నిధి నిర్మాణం", "పాత రుణాలను తీర్చడం", "ప్రత్యేక ఆర్థిక లక్ష్యం లేదు"] },
-    { q: "గత 2 సంవత్సరాలలో మీరు ఎప్పుడైనా రుణం ఇఎంఐ లేదా క్రెడిట్ చెల్లింపు గడువు తప్పారా?", options: ["ఎప్పుడూ చెల్లింపులు తప్పలేదు", "సాంకేతిక సమస్య వల్ల 1-2 సార్లు", "తరచుగా ఆలస్యమైంది", "క్రమంగా తప్పేది"] }
-  ]
 }
 
 export function ConsentPage() {
@@ -1396,7 +1351,7 @@ export function ConsentPage() {
             {/* === PERMANENT ADDRESS === */}
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
-                <Home className='h-4 w-4 text-emerald-600' />
+                <Home className='h-4 w-4 text-foreground' />
                 <Label className='text-sm font-semibold'>{t('consent.permanentAddress', 'Permanent Address')}</Label>
               </div>
               <label className='flex items-center gap-2 cursor-pointer'>
@@ -1439,8 +1394,8 @@ export function ConsentPage() {
                     </div>
                   )}
                   {locAddingType === 'permanent' && locSelectedPlace && (
-                    <div className='animate-fade-up space-y-3 rounded-[12px] bg-emerald-50 border border-emerald-200 p-4'>
-                      <div className='flex items-center gap-2 text-sm font-medium text-emerald-700'>
+                    <div className='animate-fade-up space-y-3 rounded-[12px] bg-muted/30 border border-border p-4'>
+                      <div className='flex items-center gap-2 text-sm font-medium text-foreground'>
                         <MapPin className='h-4 w-4' />
                         {locSelectedPlace.name}
                       </div>
@@ -1461,8 +1416,8 @@ export function ConsentPage() {
                 </div>
               )}
               {!permanentSameAsCurrent && permanentAddress && (
-                <div className='flex items-center gap-3 rounded-[12px] border border-emerald-200 bg-emerald-50 px-3 py-2.5'>
-                  <MapPin className='h-4 w-4 text-emerald-600 shrink-0' />
+                <div className='flex items-center gap-3 rounded-[12px] border border-border bg-muted/20 px-3 py-2.5'>
+                  <MapPin className='h-4 w-4 text-foreground shrink-0' />
                   <div className='flex-1 min-w-0'>
                     <p className='text-sm font-medium truncate'>{permanentAddress.place}</p>
                     <p className='text-[10px] text-muted-foreground'>{t('consent.permanentAddressText', 'Permanent address')}</p>
@@ -1732,37 +1687,37 @@ export function ConsentPage() {
               )}
             </div>
 
-            {/* Brand-Themed Active Call Progress Banner */}
+            {/* Monochrome Active Call Progress Banner */}
             {callActive && (
-              <div className='mt-4 rounded-2xl border border-brand-blue/30 bg-brand-blue/5 p-4 text-foreground animate-fade-up space-y-3 shadow-subtle'>
+              <div className='mt-4 rounded-2xl border border-white/20 bg-black p-4 text-white animate-fade-up space-y-3 shadow-none'>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-2.5'>
-                    <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-white border border-white/20'>
                       <PhoneCall className='h-4 w-4 animate-pulse' />
                     </div>
                     <div>
-                      <h4 className='font-semibold text-xs text-foreground flex items-center gap-2'>
+                      <h4 className='font-semibold text-xs text-white flex items-center gap-2'>
                         AI Voice Officer Call Active
                         <span className='flex h-2 w-2 relative'>
-                          <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75'></span>
-                          <span className='relative inline-flex rounded-full h-2 w-2 bg-brand-blue'></span>
+                          <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75'></span>
+                          <span className='relative inline-flex rounded-full h-2 w-2 bg-white'></span>
                         </span>
                       </h4>
-                      <p className='text-[11px] text-muted-foreground'>{callStatusMsg}</p>
+                      <p className='text-[11px] text-white/60 font-mono'>{callStatusMsg}</p>
                     </div>
                   </div>
-                  <Badge variant='outline' className='border-brand-blue/40 bg-brand-blue/10 text-brand-blue text-[10px] font-mono'>
+                  <Badge variant='outline' className='border-white/20 bg-white/10 text-white text-[10px] font-mono'>
                     Question {callQuestionsCompleted} / 10
                   </Badge>
                 </div>
                 <div className='space-y-1'>
-                  <div className='flex justify-between text-[10px] text-muted-foreground font-mono'>
+                  <div className='flex justify-between text-[10px] text-white/60 font-mono'>
                     <span>Assessment Progress</span>
                     <span>{callProgressPct}%</span>
                   </div>
-                  <div className='h-2 w-full rounded-full bg-muted overflow-hidden border border-dove/20'>
+                  <div className='h-2 w-full rounded-full bg-white/10 overflow-hidden border border-white/15'>
                     <div
-                      className='h-full bg-brand-blue rounded-full transition-all duration-500 ease-out'
+                      className='h-full bg-white rounded-full transition-all duration-500 ease-out'
                       style={{ width: `${callProgressPct}%` }}
                     />
                   </div>
@@ -1772,16 +1727,16 @@ export function ConsentPage() {
 
             {/* Call Failed / Declined Banner */}
             {callFailed && (
-              <div className='mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-4 text-foreground animate-fade-up space-y-3 shadow-subtle'>
+              <div className='mt-4 rounded-2xl border border-white/20 bg-black p-4 text-white animate-fade-up space-y-3 shadow-none'>
                 <div className='flex items-center gap-2.5'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-white border border-white/20'>
                     <AlertCircle className='h-4 w-4' />
                   </div>
                   <div>
-                    <h4 className='font-semibold text-xs text-rose-500'>Call Failed</h4>
-                    <p className='text-[11px] text-muted-foreground mt-0.5'>{callErrorMsg || 'The AI call was unanswered or ended early.'}</p>
+                    <h4 className='font-semibold text-xs text-white'>Call Failed</h4>
+                    <p className='text-[11px] text-white/60 mt-0.5'>{callErrorMsg || 'The AI call was unanswered or ended early.'}</p>
                     {callRetryCount > 0 && (
-                      <p className='text-[10px] text-rose-400 mt-1 font-mono'>Attempt {callRetryCount} of {MAX_CALL_RETRIES}</p>
+                      <p className='text-[10px] text-white/50 mt-1 font-mono'>Attempt {callRetryCount} of {MAX_CALL_RETRIES}</p>
                     )}
                   </div>
                 </div>
@@ -1793,7 +1748,7 @@ export function ConsentPage() {
                     onClick={() => {
                       setCallFailed(false)
                     }}
-                    className='h-7 text-xs rounded-full border-dove/40'
+                    className='h-7 text-xs rounded-full border-white/20 text-white hover:bg-white/10 font-mono'
                   >
                     Continue On-Screen
                   </Button>
@@ -1826,26 +1781,26 @@ export function ConsentPage() {
                           setCallFailed(true)
                         }
                       }}
-                      className='h-7 text-xs rounded-full bg-white text-black hover:bg-white/90 font-medium'
+                      className='h-7 text-xs rounded-full bg-white text-black hover:bg-white/90 font-medium font-mono'
                     >
                       Retry AI Call ({MAX_CALL_RETRIES - callRetryCount} left)
                     </Button>
                   ) : (
-                    <p className='text-[11px] text-rose-400 font-medium self-center'>Maximum retries reached. Please answer on screen.</p>
+                    <p className='text-[11px] text-white/50 font-medium self-center font-mono'>Maximum retries reached. Please answer on screen.</p>
                   )}
                 </div>
               </div>
             )}
 
             {callIncomplete && !callFailed && (
-              <div className='mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-foreground animate-fade-up space-y-2 shadow-subtle'>
+              <div className='mt-4 rounded-2xl border border-white/20 bg-black p-4 text-white animate-fade-up space-y-2 shadow-none'>
                 <div className='flex items-center gap-2.5'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-white border border-white/20'>
                     <AlertCircle className='h-4 w-4' />
                   </div>
                   <div>
-                    <h4 className='font-semibold text-xs text-amber-600'>Call Ended Early</h4>
-                    <p className='text-[11px] text-muted-foreground mt-0.5'>{callErrorMsg || 'The call ended before all questions were answered. Please complete the remaining questions below.'}</p>
+                    <h4 className='font-semibold text-xs text-white'>Call Ended Early</h4>
+                    <p className='text-[11px] text-white/60 mt-0.5'>{callErrorMsg || 'The call ended before all questions were answered. Please complete the remaining questions below.'}</p>
                   </div>
                 </div>
               </div>

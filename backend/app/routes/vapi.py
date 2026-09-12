@@ -555,7 +555,6 @@ async def trigger_outbound_call(body: OutboundCallRequest) -> OutboundCallRespon
     azure_voice_map = {
         "hi": "hi-IN-SwaraNeural",
         "gu": "gu-IN-DhwaniNeural",
-        "te": "te-IN-ShrutiNeural",
         "ta": "ta-IN-PallaviNeural",
         "en": "en-IN-NeerjaNeural",
     }
@@ -633,7 +632,6 @@ def _build_first_message(language: str, user_id: str) -> str:
     greetings = {
         "hi": f"नमस्ते! मैं AltGrade AI क्रेडिट असेसमेंट ऑफिसर हूँ। क्या आप {user_id} हैं? मैं आपका साइकोमेट्रिक क्रेडिट मूल्यांकन करने के लिए कॉल कर रहा हूँ। क्या आप तैयार हैं?",
         "gu": f"નમસ્તે! હું AltGrade AI ક્રેડિટ અસેસમેન્ટ ઑફિસર છું. શું તમે {user_id} છો? હું તમારું સાયકોમેટ્રિક ક્રેડિટ મૂલ્યાંકન કરવા માટે કૉલ કરી રહ્યો છું. શું તમે શરૂ કરવા તૈયાર છો?",
-        "te": f"నమస్కారం! నేను AltGrade AI క్రెడిట్ అసెస్‌మెంట్ ఆఫీసర్‌ని. మీరు {user_id} గారా? మీ సైకోమెట్రిక్ క్రెడిట్ అసెస్‌మెంట్ కోసం కాల్ చేస్తున్నాను. మీరు సిద్ధంగా ఉన్నారా?",
         "ta": f"வணக்கம்! நான் AltGrade AI கடன் மதிப்பீட்டு அதிகாரி பேசுகிறேன். நீங்கள் {user_id} தானா? உங்கள் கிரெடிட் மதிப்பீட்டிற்காக அழைக்கிறேன். தொடங்க நீங்கள் தயாரா?",
         "en": f"Hello! This is the AltGrade AI Credit Assessment Officer calling for {user_id}. I will be conducting your psychometric credit assessment. Are you ready to begin?",
     }

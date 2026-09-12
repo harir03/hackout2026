@@ -18,6 +18,9 @@ import {
   Calendar,
   Award,
   BellRing,
+  MessageCircle,
+  Phone,
+  Sparkles,
 } from 'lucide-react'
 import {
   Card,
@@ -50,6 +53,8 @@ import {
   fetchOfficerAlerts,
   fetchPersonalization,
   simulateRestructuring,
+  sendOfficerMessage,
+  requestOutboundCall,
 } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import type { DashboardOverview, ConflictApplicant, EligibilityResponse } from '@/lib/types'
@@ -82,9 +87,178 @@ const BAND_BG: Record<string, string> = {
   'Not Eligible': 'bg-destructive/15 text-destructive border-destructive/30',
 }
 
+function PersonalizedMessageComposer({
+  open,
+  onOpenChange,
+  alert,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  alert: {
+    user_id: string
+    name: string
+    empathetic_message?: string
+    ai_summary?: string
+  } | null
+}) {
+  const [message, setMessage] = useState('')
+  const [category, setCategory] = useState('check_in')
+  const [channel, setChannel] = useState('sms')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+
+  useEffect(() => {
+    if (open && alert) {
+      setMessage(alert.empathetic_message || '')
+      setSent(false)
+    }
+  }, [open, alert])
+
+  async function handleSend() {
+    if (!alert || !message.trim()) return
+    setSending(true)
+    try {
+      const result = await sendOfficerMessage({
+        userId: alert.user_id,
+        message: message.trim(),
+        category,
+        channel,
+      })
+      setSent(true)
+
+      // If channel is 'call', also trigger an outbound AI agent call
+      if (channel === 'call' && result.trigger_ai_call) {
+        try {
+          await requestOutboundCall(alert.user_id, '', 'gu', 'general', 'on_call_banking')
+        } catch {
+          console.warn('AI call trigger failed, message was still sent')
+        }
+      }
+    } catch {
+      console.error('Failed to send message')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (!alert) return null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='sm:max-w-[520px] bg-black border border-white/15 text-white'>
+        <DialogHeader>
+          <DialogTitle className='tracking-tight text-white'>Send Personalized Message</DialogTitle>
+          <DialogDescription className='text-xs text-white/50'>
+            Reach out to {alert.name} with an empathetic, context-aware message.
+          </DialogDescription>
+        </DialogHeader>
+
+        {sent ? (
+          <div className='py-8 text-center space-y-3'>
+            <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20'>
+              <CheckCircle2 className='h-6 w-6 text-white' />
+            </div>
+            <p className='text-sm font-medium text-white'>Message {channel === 'call' ? 'queued & AI call triggered' : 'sent'} successfully</p>
+            <p className='text-xs text-white/50'>
+              {channel === 'call'
+                ? 'An AI agent will call the user with your message context.'
+                : channel === 'sms'
+                  ? 'SMS will be delivered shortly.'
+                  : 'Message will appear in the user\'s dashboard.'}
+            </p>
+          </div>
+        ) : (
+          <div className='space-y-4 py-2'>
+            {alert.ai_summary && (
+              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-3 text-xs text-white/60 leading-relaxed'>
+                <span className='font-mono font-medium text-white/80 text-[10px] uppercase tracking-wider'>AI Context</span>
+                <p className='mt-1'>{alert.ai_summary}</p>
+              </div>
+            )}
+
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-mono text-white/60'>Delivery Channel</Label>
+              <div className='flex gap-2'>
+                {[
+                  { value: 'sms', label: 'SMS', icon: <MessageCircle className='h-3 w-3' /> },
+                  { value: 'call', label: 'AI Call', icon: <Phone className='h-3 w-3' /> },
+                  { value: 'in_app', label: 'In-App', icon: <BellRing className='h-3 w-3' /> },
+                ].map((ch) => (
+                  <button
+                    key={ch.value}
+                    type='button'
+                    onClick={() => setChannel(ch.value)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-mono border transition-colors ${
+                      channel === ch.value
+                        ? 'border-white/40 bg-white text-black font-semibold'
+                        : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {ch.icon} {ch.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-mono text-white/60'>Category</Label>
+              <div className='flex gap-2 flex-wrap'>
+                {[
+                  { value: 'check_in', label: 'Check-in' },
+                  { value: 'payment_reminder', label: 'Payment' },
+                  { value: 'restructuring_offer', label: 'Restructure' },
+                  { value: 'product_recommendation', label: 'Product' },
+                ].map((cat) => (
+                  <button
+                    key={cat.value}
+                    type='button'
+                    onClick={() => setCategory(cat.value)}
+                    className={`px-2.5 py-1 rounded text-[10px] font-mono border transition-colors ${
+                      category === cat.value
+                        ? 'border-white/40 bg-white text-black font-semibold'
+                        : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className='space-y-1.5'>
+              <Label className='text-xs font-mono text-white/60'>Message</Label>
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                className='text-xs font-mono resize-none bg-white/[0.04] border-white/15 text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white'
+                placeholder='Type a personalized message...'
+              />
+            </div>
+
+            <Button
+              onClick={handleSend}
+              disabled={!message.trim() || sending}
+              className='w-full text-xs font-mono bg-white text-black hover:bg-white/90 font-semibold'
+            >
+              {sending ? (
+                <><Loader2 className='h-3 w-3 animate-spin mr-1.5 text-black' /> Sending...</>
+              ) : (
+                <>{channel === 'call' ? <Phone className='h-3 w-3 mr-1.5' /> : <Send className='h-3 w-3 mr-1.5' />} Send via {channel === 'call' ? 'AI Agent Call' : channel === 'sms' ? 'SMS' : 'In-App'}</>
+              )}
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+
 function OfficerAlertsBanner({
   alerts,
   onActionClick,
+  onSendMessage,
 }: {
   alerts: Array<{
     user_id: string
@@ -96,9 +270,17 @@ function OfficerAlertsBanner({
     urgency: string
     message: string
     action: string
+    severity_score?: number
+    confidence_score?: number
+    ai_summary?: string
+    empathetic_message?: string
+    recommended_action?: string
   }>
   onActionClick: (userId: string) => void
+  onSendMessage: (alert: any) => void
 }) {
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
+
   if (!alerts || alerts.length === 0) return null
 
   return (
@@ -110,17 +292,21 @@ function OfficerAlertsBanner({
               <BellRing className='h-3 w-3' />
             </div>
             <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
-              Priority Underwriter & Field Action Triggers ({alerts.length})
+              Financial Stress & Action Triggers ({alerts.length})
             </CardTitle>
           </div>
           <Badge variant='outline' className='text-[10px] font-mono text-white/50 border-white/10'>
-            Auto-Detected from Alternate Data
+            AI-Powered Detection
           </Badge>
         </div>
       </CardHeader>
       <CardContent className='px-5 pb-4'>
         <div className='grid gap-3 md:grid-cols-3'>
           {alerts.map((a, i) => {
+            const severity = a.severity_score ?? 0
+            const confidence = a.confidence_score ?? 0
+            const isExpanded = expandedIdx === i
+
             return (
               <div
                 key={i}
@@ -130,24 +316,87 @@ function OfficerAlertsBanner({
                   <div className='flex items-center justify-between'>
                     <span className='font-mono font-medium text-xs text-white truncate max-w-[170px]'>{a.name}</span>
                     <span className='font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-white/80'>
-                      {a.type.replace('_', ' ')}
+                      {a.type.replace(/_/g, ' ')}
                     </span>
                   </div>
+
+                  {/* Severity & Confidence — themed black/white */}
+                  <div className='flex items-center gap-3 mt-1'>
+                    <div className='flex-1'>
+                      <div className='flex items-center justify-between mb-0.5'>
+                        <span className='font-mono text-[9px] uppercase tracking-wider text-white/40'>Severity</span>
+                        <span className='font-mono text-[10px] font-medium text-white/70'>{severity}</span>
+                      </div>
+                      <div className='h-1 w-full rounded-full bg-white/10'>
+                        <div
+                          className='h-1 rounded-full bg-white/60 transition-all duration-500'
+                          style={{ width: `${severity}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className='flex-1'>
+                      <div className='flex items-center justify-between mb-0.5'>
+                        <span className='font-mono text-[9px] uppercase tracking-wider text-white/40'>Confidence</span>
+                        <span className='font-mono text-[10px] font-medium text-white/70'>{confidence}%</span>
+                      </div>
+                      <div className='h-1 w-full rounded-full bg-white/10'>
+                        <div
+                          className='h-1 rounded-full bg-white/40 transition-all duration-500'
+                          style={{ width: `${confidence}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <p className='text-[11px] text-white/60 leading-relaxed line-clamp-2'>
                     {a.message}
                   </p>
+
+                  {/* Expandable AI Summary */}
+                  {a.ai_summary && (
+                    <button
+                      type='button'
+                      onClick={() => setExpandedIdx(isExpanded ? null : i)}
+                      className='text-[10px] font-mono text-white/40 hover:text-white/70 transition-colors flex items-center gap-1'
+                    >
+                      <Sparkles className='h-2.5 w-2.5' />
+                      {isExpanded ? 'Hide AI Summary' : 'View AI Summary'}
+                    </button>
+                  )}
+                  {isExpanded && a.ai_summary && (
+                    <div className='rounded border border-white/10 bg-white/[0.03] p-2.5 text-[11px] text-white/60 leading-relaxed animate-fade-up'>
+                      <p>{a.ai_summary}</p>
+                      {a.recommended_action && (
+                        <p className='mt-1.5 text-white/80 font-medium'>
+                          → {a.recommended_action}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className='mt-3 flex items-center justify-between border-t border-white/10 pt-2 text-[11px]'>
                   <span className='font-mono text-white/40'>Score: {a.score}</span>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    onClick={() => onActionClick(a.user_id)}
-                    className='h-6 px-2.5 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black transition-colors'
-                  >
-                    {a.action} →
-                  </Button>
+                  <div className='flex gap-1.5'>
+                    {(a.empathetic_message || a.type === 'pre_delinquency' || a.type === 'low_savings' || a.type === 'salary_delay' || a.type === 'medical_emergency' || a.type === 'emi_default_risk') && (
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => onSendMessage(a)}
+                        className='h-6 px-2 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black transition-colors'
+                      >
+                        <MessageCircle className='h-2.5 w-2.5 mr-1' /> Message
+                      </Button>
+                    )}
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => onActionClick(a.user_id)}
+                      className='h-6 px-2.5 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black transition-colors'
+                    >
+                      {a.action} →
+                    </Button>
+                  </div>
                 </div>
               </div>
             )
@@ -158,9 +407,9 @@ function OfficerAlertsBanner({
   )
 }
 
-function StatsCards({ data }: { data: DashboardOverview }) {
+function StatsCards({ data, stressCount = 0 }: { data: DashboardOverview; stressCount?: number }) {
   return (
-    <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+    <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-5'>
       <Card className='animate-fade-up'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Total Scored</CardTitle>
@@ -196,6 +445,19 @@ function StatsCards({ data }: { data: DashboardOverview }) {
         </CardContent>
       </Card>
 
+      <Card className='animate-fade-up [animation-delay:125ms] border-white/20 bg-white/[0.02]'>
+        <CardHeader className='flex flex-row items-center justify-between pb-2'>
+          <CardTitle className='text-sm font-medium text-white'>Stress Alerts</CardTitle>
+          <BellRing className='h-4 w-4 text-white/70' />
+        </CardHeader>
+        <CardContent>
+          <div className='text-2xl font-bold tracking-[-0.04em] font-mono text-white'>{stressCount}</div>
+          <p className='text-xs text-white/50'>
+            Salary delay & savings signals
+          </p>
+        </CardContent>
+      </Card>
+
       <Card className='animate-fade-up [animation-delay:150ms]'>
         <CardHeader className='flex flex-row items-center justify-between pb-2'>
           <CardTitle className='text-sm font-medium'>Hard Blocked</CardTitle>
@@ -204,7 +466,7 @@ function StatsCards({ data }: { data: DashboardOverview }) {
         <CardContent>
           <div className='text-2xl font-bold tracking-[-0.04em]'>{data.hard_cap_count}</div>
           <p className='text-xs text-muted-foreground'>
-            Wilful defaulter or EMI burden cap
+            Wilful defaulter or EMI cap
           </p>
         </CardContent>
       </Card>
@@ -564,6 +826,9 @@ export function LoanOfficerDashboard() {
   const [advisorLoading, setAdvisorLoading] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
+  const [messageComposerOpen, setMessageComposerOpen] = useState(false)
+  const [messageComposerAlert, setMessageComposerAlert] = useState<any | null>(null)
+
   const [eligibility, setEligibility] = useState<EligibilityResponse | null>(null)
   const [eligibilityLoading, setEligibilityLoading] = useState(false)
 
@@ -772,7 +1037,7 @@ export function LoanOfficerDashboard() {
             </p>
           </div>
           {isSimulated && user?.email !== 'testadmin@altgrade.in' && (
-            <Badge variant='outline' className='bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-3 py-1 font-mono text-xs animate-pulse'>
+            <Badge variant='outline' className='bg-white/10 text-white/90 border-white/20 px-3 py-1 font-mono text-xs animate-pulse'>
               Simulated Data
             </Badge>
           )}
@@ -784,8 +1049,20 @@ export function LoanOfficerDashboard() {
           </div>
         ) : (
           <div className='space-y-4'>
-            <OfficerAlertsBanner alerts={officerAlerts} onActionClick={handleAlertAction} />
-            <StatsCards data={data} />
+            <OfficerAlertsBanner
+              alerts={officerAlerts}
+              onActionClick={handleAlertAction}
+              onSendMessage={(alert) => {
+                setMessageComposerAlert(alert)
+                setMessageComposerOpen(true)
+              }}
+            />
+            <PersonalizedMessageComposer
+              open={messageComposerOpen}
+              onOpenChange={setMessageComposerOpen}
+              alert={messageComposerAlert}
+            />
+            <StatsCards data={data} stressCount={officerAlerts.length} />
 
             <div className='grid gap-4 lg:grid-cols-3'>
               <div className='lg:col-span-2'>

@@ -19,6 +19,10 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
+  Wallet,
+  MessageCircle,
+  ArrowUpRight,
+  TrendingUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -44,6 +48,7 @@ import {
   fetchUserNotifications,
   submitInterviewSummary,
   fetchPersonalization,
+  fetchOfficerMessages,
 } from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
@@ -199,9 +204,24 @@ export function ScorePage() {
     fetchPersonalization(userId)
       .then((p) => setPersonalizeData(p))
       .catch((err) => console.error("Failed to load personalization:", err))
+
+    fetchOfficerMessages(userId)
+      .then((res) => {
+        if (res?.messages) setOfficerMessages(res.messages)
+      })
+      .catch((err) => console.warn("Failed to load officer messages:", err))
   }, [userId])
 
   const [personalizeData, setPersonalizeData] = useState<any | null>(null)
+  const [officerMessages, setOfficerMessages] = useState<Array<{
+    message: string
+    category: string
+    channel: string
+    officer_name: string
+    timestamp: string
+    status: string
+  }>>([])
+  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'simple' | 'technical'>('simple')
   const [audioLang, setAudioLang] = useState<'gu' | 'hi' | 'ta' | 'en'>('gu')
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
@@ -676,32 +696,22 @@ export function ScorePage() {
   return (
     <div>
       {notification?.has_notification && (
-        <div className={`mb-6 rounded-lg border p-4 flex items-start gap-3 animate-fade-up ${
-          notification.decision === 'approved'
-            ? 'bg-brand-blue/5 border-brand-blue/30'
-            : 'bg-rust/5 border-rust/30'
-        }`}>
-          <div className={`mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
-            notification.decision === 'approved' ? 'bg-brand-blue/20' : 'bg-rust/20'
-          }`}>
+        <div className='mb-6 rounded-lg border border-white/20 bg-black p-4 flex items-start gap-3 animate-fade-up text-white'>
+          <div className='mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-white/10 text-white border border-white/20'>
             {notification.decision === 'approved' ? (
-              <svg className='h-4 w-4 text-brand-blue' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
-                <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
-              </svg>
+              <CheckCircle2 className='h-4 w-4 text-white' />
             ) : (
-              <ShieldAlert className='h-4 w-4 text-rust' />
+              <ShieldAlert className='h-4 w-4 text-white/80' />
             )}
           </div>
           <div>
-            <p className={`text-sm font-semibold ${
-              notification.decision === 'approved' ? 'text-brand-blue' : 'text-rust'
-            }`}>
-              Loan Application {notification.decision === 'approved' ? 'Approved' : 'Rejected'}
+            <p className='text-sm font-semibold font-mono text-white'>
+              Loan Application {notification.decision === 'approved' ? 'Approved' : 'Decision Logged'}
             </p>
-            <p className='text-xs text-muted-foreground mt-0.5'>
+            <p className='text-xs text-white/60 mt-0.5 font-mono'>
               {notification.decision === 'approved'
                 ? `Your loan application has been approved at ${notification.interest_rate}% interest for ${notification.terms}.`
-                : 'Your loan application was not approved after officer review. You may reapply or contact support.'}
+                : 'Your loan application was reviewed by the loan officer with inclusive restructuring options.'}
             </p>
           </div>
         </div>
@@ -710,11 +720,11 @@ export function ScorePage() {
       <div className='mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
           <h1 className='font-signifier text-[36px] sm:text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
-            {viewMode === 'simple' ? 'Your Credit Trust Report' : t('score.title', 'AltGrade Alternate Credit Score')}
+            {viewMode === 'simple' ? 'Your Banking & Financial Health Hub' : t('score.title', 'AltGrade Alternate Credit Score')}
           </h1>
           <p className='text-sm text-muted-foreground mt-1'>
             {viewMode === 'simple'
-              ? 'Simple, voice-guided report based on your everyday bill payments and residence stability'
+              ? 'Personalized banking products, savings buffers, and credit lines based on your everyday financial footprint'
               : t('score.subtitle', 'Explainable risk estimation based on multi-source non-traditional financial data')}
           </p>
         </div>
@@ -722,25 +732,92 @@ export function ScorePage() {
           variant='outline'
           size='sm'
           onClick={() => setViewMode(viewMode === 'simple' ? 'technical' : 'simple')}
-          className='self-start sm:self-auto text-xs gap-1.5 rounded-full border-border/80 hover:bg-muted'
+          className='self-start sm:self-auto text-xs font-mono gap-1.5 rounded-md border border-white/15 bg-black text-white hover:bg-white hover:text-black transition-colors'
         >
           {viewMode === 'simple' ? (
             <>
-              <Eye className='h-3.5 w-3.5 text-brand-blue' />
+              <Eye className='h-3.5 w-3.5 text-white/80' />
               <span>Technical Breakdown (Advanced)</span>
             </>
           ) : (
             <>
-              <EyeOff className='h-3.5 w-3.5 text-emerald-500' />
-              <span>Simple Borrower View</span>
+              <EyeOff className='h-3.5 w-3.5 text-white/80' />
+              <span>Simple Banking View</span>
             </>
           )}
         </Button>
       </div>
 
       {viewMode === 'simple' ? (
-        /* ================= RADICALLY SIMPLE BORROWER VIEW (LOW-LITERACY TAILORED - VERCEL MINIMALIST) ================= */
+        /* ================= INCLUSIVE BANKING PRODUCTS & BORROWER HUB (VERCEL MINIMALIST) ================= */
         <div className='space-y-5 animate-fade-up'>
+          {/* Officer Messages & Empathetic Outreach */}
+          {officerMessages.length > 0 && (
+            <Card className='border border-white/20 bg-black shadow-none animate-fade-up'>
+              <CardHeader className='pb-2 pt-4 px-5'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <div className='flex h-6 w-6 items-center justify-center rounded-full bg-white text-black'>
+                      <MessageCircle className='h-3.5 w-3.5' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
+                        Messages from your Assigned Loan Officer ({officerMessages.length})
+                      </CardTitle>
+                      <CardDescription className='text-[11px] text-white/50'>
+                        Personalized guidance, restructuring options, and account support
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Badge variant='outline' className='text-[10px] font-mono border-white/20 text-white/80 bg-white/5'>
+                    Support Active
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className='px-5 pb-4 space-y-2.5'>
+                {officerMessages.map((m, idx) => (
+                  <div
+                    key={idx}
+                    className='rounded-lg border border-white/10 bg-white/[0.02] p-3.5 space-y-2 transition-all hover:border-white/20'
+                  >
+                    <div className='flex items-center justify-between text-[11px] font-mono'>
+                      <div className='flex items-center gap-2'>
+                        <span className='font-semibold text-white'>{m.officer_name || 'Bank Loan Officer'}</span>
+                        <span className='px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-[9px] uppercase tracking-wider text-white/70'>
+                          {m.category?.replace(/_/g, ' ')}
+                        </span>
+                        <span className='px-1.5 py-0.5 rounded border border-white/10 text-[9px] uppercase tracking-wider text-white/50'>
+                          via {m.channel?.toUpperCase()}
+                        </span>
+                      </div>
+                      <span className='text-[10px] text-white/40'>
+                        {new Date(m.timestamp).toLocaleDateString('en-IN', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                    <p className='text-xs text-white/80 leading-relaxed font-mono'>
+                      {m.message}
+                    </p>
+                    <div className='flex items-center justify-end gap-2 pt-1 border-t border-white/5'>
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => setOfficerModalOpen(true)}
+                        className='h-7 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black gap-1'
+                      >
+                        <PhoneCall className='h-2.5 w-2.5' /> Reply / Speak with Officer
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Main Hero Card */}
           <Card className='overflow-hidden border border-white/10 bg-black shadow-none'>
             <div className='p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 justify-between'>
@@ -774,7 +851,7 @@ export function ScorePage() {
                 <div className='space-y-2'>
                   <div className='inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-xs font-medium text-white/90 font-mono'>
                     <CheckCircle2 className='h-3.5 w-3.5 text-white' />
-                    <span>Eligible for Credit Approval</span>
+                    <span>Eligible for Regulated Banking Products</span>
                   </div>
                   <h2 className='text-xl sm:text-2xl font-bold tracking-tight text-white'>
                     {data.score >= 700 ? 'High Financial Trust' : 'Good Financial Standing'}
@@ -784,7 +861,7 @@ export function ScorePage() {
                     <span className='font-bold text-white font-mono'>
                       ₹{personalizeData?.credit_limit ? personalizeData.credit_limit.toLocaleString('en-IN') : '50,000'}
                     </span>{' '}
-                    at fair regulated bank interest rates.
+                    plus subsidized zero-balance accounts and crop/life insurance.
                   </p>
                 </div>
               </div>
@@ -796,7 +873,7 @@ export function ScorePage() {
                   <div className='flex gap-1'>
                     {(
                       [
-                        { code: 'te', label: 'తెలుగు' },
+                        { code: 'gu', label: 'ગુજરાતી' },
                         { code: 'hi', label: 'हिंदी' },
                         { code: 'ta', label: 'தமிழ்' },
                         { code: 'en', label: 'Eng' },
@@ -882,8 +959,183 @@ export function ScorePage() {
             </div>
           </Card>
 
+          {/* Financial Health & Resilience Pulse */}
+          {personalizeData?.health && (
+            <Card className='border border-white/10 bg-black shadow-none'>
+              <CardHeader className='pb-2 pt-4 px-5'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <TrendingUp className='h-4 w-4 text-white/80' />
+                    <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
+                      Financial Health Pulse & Resilience
+                    </CardTitle>
+                  </div>
+                  <Badge variant='outline' className='text-[10px] font-mono border-white/15 text-white/80 bg-white/5'>
+                    Stability Score: {personalizeData.health.stability_score ?? 75}/100
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className='px-5 pb-4'>
+                <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-center mb-3'>
+                  <div className='rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
+                    <div className='text-[10px] uppercase text-white/40'>Emergency Buffer</div>
+                    <div className='text-sm font-bold text-white mt-0.5'>
+                      {personalizeData.health.liquidity_buffer_days ?? 6} Days
+                    </div>
+                    <div className='text-[9px] text-white/40'>Available cash reserve</div>
+                  </div>
+                  <div className='rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
+                    <div className='text-[10px] uppercase text-white/40'>Bill Discipline</div>
+                    <div className='text-sm font-bold text-white mt-0.5'>
+                      {personalizeData.health.bill_discipline_pct ?? 92}%
+                    </div>
+                    <div className='text-[9px] text-white/40'>On-time payment rate</div>
+                  </div>
+                  <div className='col-span-2 sm:col-span-1 rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
+                    <div className='text-[10px] uppercase text-white/40'>Livelihood Persona</div>
+                    <div className='text-sm font-bold text-white mt-0.5 flex items-center justify-center gap-1.5'>
+                      <span className='capitalize font-mono'>{personalizeData.segment?.name || 'General Earner'}</span>
+                      <Badge variant='outline' className='text-[9px] font-mono border-white/15 bg-white/5 text-white/70'>
+                        {personalizeData.segment?.segment?.toUpperCase() || 'GENERAL'}
+                      </Badge>
+                    </div>
+                    <div className='text-[9px] text-white/40 font-mono'>{personalizeData.segment?.tagline || 'Verified Alternative Footprint'}</div>
+                  </div>
+                </div>
+
+                {personalizeData.health.warning_signals && personalizeData.health.warning_signals.length > 0 && (
+                  <div className='rounded-lg border border-white/15 bg-white/[0.03] p-3 text-xs text-white/70 font-mono space-y-1'>
+                    <div className='flex items-center gap-1.5 text-white text-[11px] font-semibold'>
+                      <AlertTriangle className='h-3 w-3 text-white/80' />
+                      <span>Early Caution Note</span>
+                    </div>
+                    <p className='text-[11px] text-white/60 leading-relaxed'>
+                      {personalizeData.health.warning_signals[0]}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Inclusive Banking Products Hub */}
+          <div className='space-y-3 pt-2'>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2'>
+              <div>
+                <h3 className='font-mono text-xs uppercase tracking-widest text-white flex items-center gap-2'>
+                  <Wallet className='h-3.5 w-3.5 text-white/80' />
+                  Recommended Banking Products ({personalizeData?.recommendations?.length || 0})
+                </h3>
+                <p className='text-xs text-white/50 font-mono'>
+                  Regulated savings accounts, emergency buffers, subsidized credit, and insurance matched to your needs
+                </p>
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className='flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0'>
+                {[
+                  { id: 'all', label: 'All Products' },
+                  { id: 'savings', label: 'Savings & RD' },
+                  { id: 'credit', label: 'Credit Lines' },
+                  { id: 'insurance', label: 'Insurance' },
+                  { id: 'pension', label: 'Pensions' },
+                ].map((filter) => (
+                  <button
+                    key={filter.id}
+                    type='button'
+                    onClick={() => setProductCategoryFilter(filter.id)}
+                    className={`px-2.5 py-1 rounded text-[10px] font-mono whitespace-nowrap transition-colors border ${
+                      productCategoryFilter === filter.id
+                        ? 'border-white/40 bg-white text-black font-semibold'
+                        : 'border-white/10 bg-white/[0.02] text-white/60 hover:text-white hover:border-white/20'
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+              {(personalizeData?.recommendations || [])
+                .filter((rec: any) => {
+                  if (productCategoryFilter === 'all') return true
+                  const cat = (rec.category || '').toLowerCase()
+                  const name = (rec.name || '').toLowerCase()
+                  if (productCategoryFilter === 'savings') return cat.includes('savings') || cat.includes('buffer') || cat.includes('liquidity') || name.includes('saving') || name.includes('deposit') || name.includes('jandhan') || name.includes('pmjdy')
+                  if (productCategoryFilter === 'credit') return cat.includes('credit') || cat.includes('capital') || name.includes('loan') || name.includes('kcc') || name.includes('mudra') || name.includes('svanidhi')
+                  if (productCategoryFilter === 'insurance') return cat.includes('insurance') || cat.includes('protection') || cat.includes('disability') || name.includes('bima')
+                  if (productCategoryFilter === 'pension') return cat.includes('pension') || name.includes('pension') || name.includes('atal')
+                  return true
+                })
+                .map((rec: any, i: number) => (
+                  <div
+                    key={i}
+                    className='rounded-lg border border-white/10 bg-black p-4 flex flex-col justify-between transition-all duration-200 hover:border-white/25 hover:bg-white/[0.01]'
+                  >
+                    <div className='space-y-2'>
+                      <div className='flex items-start justify-between gap-2'>
+                        <span className='font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-white/70'>
+                          {rec.category}
+                        </span>
+                        <Badge variant='outline' className='text-[10px] font-mono border-white/20 text-white bg-white/10 shrink-0'>
+                          {rec.fit_score || 85}% Match
+                        </Badge>
+                      </div>
+
+                      <h4 className='font-mono font-medium text-xs text-white leading-snug'>
+                        {rec.name}
+                      </h4>
+
+                      <div className='rounded border border-white/10 bg-white/[0.02] p-2 space-y-1 text-[11px] font-mono text-white/70'>
+                        <div className='text-white font-semibold flex items-center gap-1.5'>
+                          <Sparkles className='h-3 w-3 text-white/60 shrink-0' />
+                          <span>{rec.max_benefit}</span>
+                        </div>
+                        <div className='text-[10px] text-white/50 pl-4.5'>
+                          {rec.subsidy_rate}
+                        </div>
+                      </div>
+
+                      <p className='text-[11px] text-white/60 leading-relaxed line-clamp-2 font-mono'>
+                        {rec.description}
+                      </p>
+                    </div>
+
+                    <div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2'>
+                      <span className='text-[9px] font-mono text-white/40 truncate max-w-[120px] flex items-center gap-1'>
+                        <ShieldCheck className='h-3 w-3 text-white/40 shrink-0' />
+                        <span className='truncate'>{rec.ministry_or_body || 'Govt of India'}</span>
+                      </span>
+                      <div className='flex gap-1.5'>
+                        {rec.official_portal && (
+                          <a
+                            href={rec.official_portal}
+                            target='_blank'
+                            rel='noreferrer'
+                            className='inline-flex items-center gap-1 text-[10px] font-mono text-white/60 hover:text-white px-2 py-1 rounded border border-white/10 hover:border-white/20'
+                          >
+                            <span>Info</span>
+                            <ArrowUpRight className='h-2.5 w-2.5' />
+                          </a>
+                        )}
+                        <Button
+                          size='sm'
+                          onClick={() => setOfficerModalOpen(true)}
+                          className='h-7 text-[10px] font-mono bg-white text-black hover:bg-white/90 px-2.5 rounded'
+                        >
+                          Enroll / Apply
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+
           {/* Action Row */}
-          <div className='flex flex-col sm:flex-row items-center gap-3 justify-between pt-2'>
+          <div className='flex flex-col sm:flex-row items-center gap-3 justify-between pt-3 border-t border-white/10'>
             <Button
               size='lg'
               onClick={() => setOfficerModalOpen(true)}
@@ -901,7 +1153,7 @@ export function ScorePage() {
               >
                 <Button variant='outline' size='lg' className='w-full h-11 rounded-lg text-xs font-mono gap-2 border-white/10 hover:bg-white/5'>
                   <IndianRupee className='h-3.5 w-3.5' />
-                  <span>View Loan Options</span>
+                  <span>View Subsidized Credit Terms</span>
                 </Button>
               </Link>
             </div>
@@ -974,22 +1226,22 @@ export function ScorePage() {
       )}
 
       {data.has_conflicts && (
-        <Card className='mt-4 border-rust/30 shadow-none'>
+        <Card className='mt-4 border-white/20 bg-black text-white shadow-none'>
           <CardHeader>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
               <div>
-                <CardTitle className='flex items-center gap-2 text-base text-rust'>
-                  <AlertTriangle className='h-4 w-4' />
+                <CardTitle className='flex items-center gap-2 text-base text-white font-mono'>
+                  <AlertTriangle className='h-4 w-4 text-white' />
                   Conflicting Signals
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className='text-white/60 text-xs font-mono'>
                   Some of your data sources provided contradicting information
                 </CardDescription>
               </div>
               <Button
                 variant='outline'
                 size='sm'
-                className='border-rust/40 text-rust hover:bg-rust/5 font-semibold text-xs rounded-full'
+                className='border-white/20 bg-white/5 text-white hover:bg-white hover:text-black font-semibold text-xs rounded-full font-mono'
                 onClick={() => setInterviewOpen(true)}
               >
                 Resolve via AI Interview
@@ -1000,14 +1252,14 @@ export function ScorePage() {
             {data.signal_conflicts.map((conflict, i) => (
               <div
                 key={i}
-                className='flex items-center justify-between rounded-lg border border-rust/20 bg-rust/5 p-3'
+                className='flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] p-3'
               >
                 <div className='flex items-center gap-2'>
-                  <Badge className='bg-brand-blue/15 text-brand-blue border-brand-blue/30' variant='outline'>
+                  <Badge className='bg-white/10 text-white border-white/20 font-mono text-[10px]' variant='outline'>
                     {conflict.positive_worker}: {conflict.positive_net_points > 0 ? '+' : ''}{conflict.positive_net_points.toFixed(1)} pts
                   </Badge>
-                  <span className='text-xs text-muted-foreground'>vs</span>
-                  <Badge className='bg-rust/15 text-rust border-rust/30' variant='outline'>
+                  <span className='text-xs text-white/40 font-mono'>vs</span>
+                  <Badge className='bg-white/5 text-white/70 border-white/15 font-mono text-[10px]' variant='outline'>
                     {conflict.negative_worker}: {conflict.negative_net_points.toFixed(1)} pts
                   </Badge>
                 </div>
@@ -1047,36 +1299,36 @@ export function ScorePage() {
 
       {/* AI Conflict Resolution Interview Modal */}
       <Dialog open={interviewOpen} onOpenChange={setInterviewOpen}>
-        <DialogContent className='sm:max-w-[500px] max-h-[80vh] flex flex-col p-6 bg-neutral-950 border-neutral-800 text-foreground rounded-2xl'>
-          <DialogHeader className='pb-3 border-b border-neutral-800 shrink-0'>
-            <DialogTitle className='flex items-center gap-2 text-rust tracking-tight'>
-              <AlertTriangle className='h-5 w-5' />
+        <DialogContent className='sm:max-w-[500px] max-h-[80vh] flex flex-col p-6 bg-black border border-white/15 text-white rounded-2xl'>
+          <DialogHeader className='pb-3 border-b border-white/10 shrink-0'>
+            <DialogTitle className='flex items-center gap-2 text-white font-mono tracking-tight'>
+              <AlertTriangle className='h-5 w-5 text-white' />
               AI Verification Interview
             </DialogTitle>
-            <DialogDescription className='text-xs text-neutral-400'>
+            <DialogDescription className='text-xs text-white/50 font-mono'>
               Your answers are scored for credibility and sent to the Loan Officer.
             </DialogDescription>
           </DialogHeader>
 
           {/* Conversation history area */}
-          <div className='flex-1 overflow-y-auto py-4 space-y-4 pr-1 min-h-[250px]'>
+          <div className='flex-1 overflow-y-auto py-4 space-y-4 pr-1 min-h-[250px] font-mono'>
             {interviewMessages.map((msg, i) => (
               <div key={i} className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'bot' && (
-                  <div className='h-7 w-7 rounded-full bg-rust/10 flex items-center justify-center shrink-0 border border-rust/20'>
-                    <Bot className='h-4 w-4 text-rust' />
+                  <div className='h-7 w-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20'>
+                    <Bot className='h-4 w-4 text-white' />
                   </div>
                 )}
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-wrap ${
                   msg.role === 'user'
-                    ? 'bg-neutral-200 text-neutral-950 rounded-tr-none'
-                    : 'bg-neutral-900 border border-neutral-800 text-neutral-200 rounded-tl-none'
+                    ? 'bg-white text-black rounded-tr-none font-medium'
+                    : 'bg-white/[0.04] border border-white/10 text-white/90 rounded-tl-none'
                 }`}>
                   {msg.content}
                 </div>
                 {msg.role === 'user' && (
-                  <div className='h-7 w-7 rounded-full bg-brand-blue/10 flex items-center justify-center shrink-0 border border-brand-blue/20'>
-                    <User className='h-4 w-4 text-brand-blue' />
+                  <div className='h-7 w-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20'>
+                    <User className='h-4 w-4 text-white' />
                   </div>
                 )}
               </div>
@@ -1085,7 +1337,7 @@ export function ScorePage() {
           </div>
 
           {/* Input field */}
-          <div className='pt-3 border-t border-neutral-800 shrink-0 flex gap-2'>
+          <div className='pt-3 border-t border-white/10 shrink-0 flex gap-2'>
             <input
               type='text'
               value={interviewInput}
@@ -1093,16 +1345,16 @@ export function ScorePage() {
               onKeyDown={(e) => e.key === 'Enter' && !isInterviewSubmitted && handleSendInterviewMessage()}
               placeholder={isInterviewSubmitted ? 'Conversation finished.' : 'Explain details here...'}
               disabled={isInterviewSubmitted || submittingSummary}
-              className='flex-1 rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-rust disabled:opacity-50'
+              className='flex-1 rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white disabled:opacity-50 font-mono'
             />
             <Button
               size='sm'
               onClick={handleSendInterviewMessage}
               disabled={isInterviewSubmitted || submittingSummary || !interviewInput.trim()}
-              className='rounded-xl bg-rust text-white hover:bg-rust/90 px-4 h-9 text-xs font-medium gap-1.5'
+              className='rounded-xl bg-white text-black hover:bg-white/90 px-4 h-9 text-xs font-mono font-semibold gap-1.5'
             >
               {submittingSummary ? (
-                <Loader2 className='h-3.5 w-3.5 animate-spin' />
+                <Loader2 className='h-3.5 w-3.5 animate-spin text-black' />
               ) : (
                 <><Send className='h-3.5 w-3.5' /> Send</>
               )}
