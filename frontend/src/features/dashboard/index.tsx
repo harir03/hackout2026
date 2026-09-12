@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Users,
   CheckCircle2,
@@ -14,6 +14,10 @@ import {
   Clock,
   Maximize2,
   Minimize2,
+  Sliders,
+  Calendar,
+  Award,
+  BellRing,
 } from 'lucide-react'
 import {
   Card,
@@ -35,7 +39,18 @@ import {
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { fetchDashboard, submitDecision, submitKnowledge, askAdvisor, fetchApplicantProfile, fetchEligibility, fetchInterviewSummary } from '@/lib/api'
+import {
+  fetchDashboard,
+  submitDecision,
+  submitKnowledge,
+  askAdvisor,
+  fetchApplicantProfile,
+  fetchEligibility,
+  fetchInterviewSummary,
+  fetchOfficerAlerts,
+  fetchPersonalization,
+  simulateRestructuring,
+} from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import type { DashboardOverview, ConflictApplicant, EligibilityResponse } from '@/lib/types'
 import {
@@ -65,6 +80,82 @@ const BAND_BG: Record<string, string> = {
   'Fair': 'bg-graphite/15 text-graphite border-graphite/30',
   'Poor': 'bg-rust/15 text-rust border-rust/30',
   'Not Eligible': 'bg-destructive/15 text-destructive border-destructive/30',
+}
+
+function OfficerAlertsBanner({
+  alerts,
+  onActionClick,
+}: {
+  alerts: Array<{
+    user_id: string
+    name: string
+    segment: string
+    status: string
+    score: number
+    type: string
+    urgency: string
+    message: string
+    action: string
+  }>
+  onActionClick: (userId: string) => void
+}) {
+  if (!alerts || alerts.length === 0) return null
+
+  return (
+    <Card className='border border-white/10 bg-black shadow-none mb-4 animate-fade-up'>
+      <CardHeader className='pb-2 pt-4 px-5'>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <div className='flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white'>
+              <BellRing className='h-3 w-3' />
+            </div>
+            <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
+              Priority Underwriter & Field Action Triggers ({alerts.length})
+            </CardTitle>
+          </div>
+          <Badge variant='outline' className='text-[10px] font-mono text-white/50 border-white/10'>
+            Auto-Detected from Alternate Data
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className='px-5 pb-4'>
+        <div className='grid gap-3 md:grid-cols-3'>
+          {alerts.map((a, i) => {
+            return (
+              <div
+                key={i}
+                className='flex flex-col justify-between rounded-lg border border-white/10 bg-white/[0.02] p-3.5 transition-all duration-200 hover:border-white/20'
+              >
+                <div className='space-y-1.5'>
+                  <div className='flex items-center justify-between'>
+                    <span className='font-mono font-medium text-xs text-white truncate max-w-[170px]'>{a.name}</span>
+                    <span className='font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-white/80'>
+                      {a.type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <p className='text-[11px] text-white/60 leading-relaxed line-clamp-2'>
+                    {a.message}
+                  </p>
+                </div>
+
+                <div className='mt-3 flex items-center justify-between border-t border-white/10 pt-2 text-[11px]'>
+                  <span className='font-mono text-white/40'>Score: {a.score}</span>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    onClick={() => onActionClick(a.user_id)}
+                    className='h-6 px-2.5 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black transition-colors'
+                  >
+                    {a.action} →
+                  </Button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 function StatsCards({ data }: { data: DashboardOverview }) {
@@ -435,6 +526,32 @@ export function LoanOfficerDashboard() {
   const [completedDecisions, setCompletedDecisions] = useState<Record<string, 'approved' | 'rejected'>>({})
   const [currentStep, setCurrentStep] = useState(1)
 
+  const [officerAlerts, setOfficerAlerts] = useState<Array<{
+    user_id: string
+    name: string
+    segment: string
+    status: string
+    score: number
+    type: string
+    urgency: string
+    message: string
+    action: string
+  }>>([])
+  const [personalization, setPersonalization] = useState<any | null>(null)
+  const [personalizationLoading, setPersonalizationLoading] = useState(false)
+  const [simulating, setSimulating] = useState(false)
+  const [simulationResult, setSimulationResult] = useState<{
+    monthly_emi: number
+    foir_ratio_pct: number
+    is_affordable: boolean
+    max_recommended_emi: number
+    projected_score: number
+    score_delta: number
+    repayment_schedule_type: string
+    guidance: string
+  } | null>(null)
+  const [moratoriumMonths, setMoratoriumMonths] = useState<number>(0)
+  const [selectedSchemes, setSelectedSchemes] = useState<string[]>([])
 
   const [applicantProfile, setApplicantProfile] = useState<{
     shap_details: Array<{ label: string; points: number; worker: string }>
@@ -474,7 +591,40 @@ export function LoanOfficerDashboard() {
         }
       })
       .finally(() => setLoading(false))
+
+    fetchOfficerAlerts()
+      .then((res) => {
+        if (res?.alerts) {
+          setOfficerAlerts(res.alerts)
+        }
+      })
+      .catch((err) => console.warn('Alerts fetch failed', err))
   }, [user?.email])
+
+  async function runSimulation(
+    userId: string,
+    amt: number,
+    rate: number,
+    tenureStr: string,
+    morat: number
+  ) {
+    setSimulating(true)
+    const tenureNum = parseInt(tenureStr.replace(/\D/g, ''), 10) || 36
+    try {
+      const res = await simulateRestructuring({
+        userId,
+        loanAmount: amt,
+        tenureMonths: tenureNum,
+        annualInterestRate: rate,
+        moratoriumMonths: morat,
+      })
+      setSimulationResult(res)
+    } catch (err) {
+      console.warn('Simulation failed', err)
+    } finally {
+      setSimulating(false)
+    }
+  }
 
   function handleReview(applicant: ConflictApplicant) {
     setSelectedApplicant(applicant)
@@ -490,6 +640,27 @@ export function LoanOfficerDashboard() {
     setApplicantProfile(null)
     setDialogOpen(true)
     setIsExpanded(false)
+
+    setPersonalization(null)
+    setPersonalizationLoading(true)
+    setSimulationResult(null)
+    setMoratoriumMonths(0)
+    setSelectedSchemes([])
+
+    fetchPersonalization(applicant.user_id)
+      .then((p) => {
+        setPersonalization(p)
+        if (p.recommendations && p.recommendations.length > 0) {
+          setSelectedSchemes([p.recommendations[0].scheme_name])
+        }
+        const defaultMorat = p.segment?.segment === 'farmer' ? 2 : 0
+        setMoratoriumMonths(defaultMorat)
+        runSimulation(applicant.user_id, 200000, 10.5, '36 months', defaultMorat)
+      })
+      .catch(() => {
+        runSimulation(applicant.user_id, 200000, 10.5, '36 months', 0)
+      })
+      .finally(() => setPersonalizationLoading(false))
 
     setProfileLoading(true)
     fetchApplicantProfile(applicant.user_id)
@@ -523,6 +694,21 @@ export function LoanOfficerDashboard() {
       .finally(() => setEligibilityLoading(false))
   }
 
+  function handleAlertAction(userId: string) {
+    const found = data?.flagged_applicants.find((a) => a.user_id === userId)
+    if (found) {
+      handleReview(found)
+    } else {
+      const alert = officerAlerts.find((a) => a.user_id === userId)
+      handleReview({
+        user_id: userId,
+        score: alert?.score ?? 600,
+        band: (alert?.score ?? 600) >= 600 ? 'Good' : 'Fair',
+        conflicts: [alert?.message ?? 'Field intelligence alert triggered for underwriter review.'],
+      })
+    }
+  }
+
   async function handleAdvisorAsk() {
     if (!advisorInput.trim() || !selectedApplicant) return
     const question = advisorInput.trim()
@@ -544,11 +730,15 @@ export function LoanOfficerDashboard() {
     if (!selectedApplicant) return
     setSubmitting(true)
     try {
-      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms, notes, approvedAmount)
+      const attachedSchemesText = selectedSchemes.length > 0 ? ` [Attached Schemes: ${selectedSchemes.join(', ')}]` : ''
+      const moratoriumText = moratoriumMonths > 0 ? ` [Moratorium: ${moratoriumMonths}m harvest grace]` : ''
+      const fullNotes = `${notes}${attachedSchemesText}${moratoriumText}`
+
+      await submitDecision(selectedApplicant.user_id, decision, interestRate, terms, fullNotes, approvedAmount)
       const chatLog = advisorMessages.map((m) => ({ role: m.role === 'advisor' ? 'assistant' : 'officer', content: m.content }))
-      await submitKnowledge(selectedApplicant.user_id, notes, [
+      await submitKnowledge(selectedApplicant.user_id, fullNotes, [
         { role: 'system', content: `Applicant core score: ${selectedApplicant.score}. Conflicting signals: ${selectedApplicant.conflicts.join(', ')}` },
-        { role: 'officer', content: `Approved Amount: ₹${approvedAmount}. Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.` },
+        { role: 'officer', content: `Approved Amount: ₹${approvedAmount}. Interest rate set at ${interestRate}% for ${terms}. Decision: ${decision}.${attachedSchemesText}${moratoriumText}` },
         ...chatLog,
       ])
 
@@ -594,6 +784,7 @@ export function LoanOfficerDashboard() {
           </div>
         ) : (
           <div className='space-y-4'>
+            <OfficerAlertsBanner alerts={officerAlerts} onActionClick={handleAlertAction} />
             <StatsCards data={data} />
 
             <div className='grid gap-4 lg:grid-cols-3'>
@@ -667,6 +858,80 @@ export function LoanOfficerDashboard() {
                       <Badge variant='outline' className={BAND_BG[selectedApplicant.band] ?? ''}>{selectedApplicant.band}</Badge>
                     </div>
                   </div>
+
+                  {personalizationLoading ? (
+                    <div className='flex items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/[0.02] text-xs text-white/60 font-mono'>
+                      <Loader2 className='h-3.5 w-3.5 animate-spin' /> Loading livelihood persona & financial health pulse...
+                    </div>
+                  ) : personalization ? (
+                    <div className='space-y-2.5'>
+                      {personalization.segment && (
+                        <div className='rounded-lg bg-black border border-white/10 p-3 space-y-1.5 animate-fade-up'>
+                          <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-2'>
+                              <span className='text-base'>{personalization.segment.icon}</span>
+                              <span className='font-mono font-medium text-xs text-white'>
+                                {personalization.segment.name}
+                              </span>
+                            </div>
+                            <Badge variant='outline' className='bg-white/5 border-white/15 text-[10px] font-mono text-white/80'>
+                              {personalization.segment.segment?.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className='text-[11px] text-white/60 leading-relaxed'>
+                            {personalization.segment.tagline}
+                          </p>
+                          {personalization.segment.underwriter_notes && (
+                            <div className='text-[11px] text-white/80 bg-white/[0.03] border border-white/10 p-2.5 rounded mt-1 leading-relaxed font-mono'>
+                              <span className='font-semibold text-white'>Underwriter Intelligence:</span> {personalization.segment.underwriter_notes}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {personalization.health && (
+                        <div className='rounded-lg border border-white/10 bg-black p-3 space-y-2.5 animate-fade-up'>
+                          <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-2'>
+                              <div className='h-2 w-2 rounded-full bg-white animate-pulse' />
+                              <span className='font-mono font-medium text-xs text-white'>
+                                {personalization.health.status_label}
+                              </span>
+                            </div>
+                            <span className='text-xs font-mono text-white/60'>
+                              Stability: {personalization.health.stability_score}/100
+                            </span>
+                          </div>
+
+                          <div className='grid grid-cols-2 gap-2 text-xs'>
+                            <div className='bg-white/[0.02] rounded p-2 border border-white/10 text-center font-mono'>
+                              <div className='text-white/40 text-[10px]'>Liquidity Buffer</div>
+                              <div className='font-bold text-xs text-white'>{personalization.health.liquidity_buffer_days} Days</div>
+                            </div>
+                            <div className='bg-white/[0.02] rounded p-2 border border-white/10 text-center font-mono'>
+                              <div className='text-white/40 text-[10px]'>Bill Discipline</div>
+                              <div className='font-bold text-xs text-white'>{personalization.health.bill_discipline_pct}% On-Time</div>
+                            </div>
+                          </div>
+
+                          <p className='text-[11px] text-white/60 leading-relaxed'>
+                            {personalization.health.intervention_summary}
+                          </p>
+
+                          {personalization.health.warning_signals?.length > 0 && (
+                            <div className='text-[11px] text-white/80 space-y-0.5 pt-1 font-mono border-t border-white/10'>
+                              {personalization.health.warning_signals.map((w: string, idx: number) => (
+                                <div key={idx} className='flex items-start gap-1.5'>
+                                  <span className='text-white/40'>•</span>
+                                  <span>{w}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
 
                   {profileLoading ? (
                     <div className='space-y-2'>
@@ -835,7 +1100,7 @@ export function LoanOfficerDashboard() {
 
               <Step>
                 <div className={`space-y-4 py-2 text-sm ${isExpanded ? 'overflow-y-auto max-h-[70vh] pr-2' : ''}`}>
-                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Credit Decision</h3>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 3: Credit Decision & Inclusive Structuring</h3>
                   <div className='space-y-3.5'>
                     <div className='space-y-1.5'>
                       <Label htmlFor='decision'>Officer Credit Decision</Label>
@@ -851,34 +1116,186 @@ export function LoanOfficerDashboard() {
                     </div>
 
                     {decision === 'approved' && (
-                      <div className='grid grid-cols-2 gap-3.5 animate-fade-up'>
-                        <div className='col-span-2 space-y-1.5'>
-                          <Label htmlFor='amount'>Approved Loan Amount (₹)</Label>
-                          <Input
-                            id='amount'
-                            type='number'
-                            value={approvedAmount}
-                            onChange={(e) => setApprovedAmount(parseInt(e.target.value, 10) || 0)}
-                          />
+                      <div className='space-y-4 animate-fade-up'>
+                        <div className='grid grid-cols-2 gap-3'>
+                          <div className='col-span-2 space-y-1.5'>
+                            <Label htmlFor='amount'>Approved Loan Amount (₹)</Label>
+                            <Input
+                              id='amount'
+                              type='number'
+                              value={approvedAmount}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 0
+                                setApprovedAmount(val)
+                                if (selectedApplicant) {
+                                  runSimulation(selectedApplicant.user_id, val, interestRate, terms, moratoriumMonths)
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className='space-y-1.5'>
+                            <Label htmlFor='rate'>Interest Rate (%)</Label>
+                            <Input
+                              id='rate'
+                              type='number'
+                              step='0.1'
+                              value={interestRate}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value) || 0
+                                setInterestRate(val)
+                                if (selectedApplicant) {
+                                  runSimulation(selectedApplicant.user_id, approvedAmount, val, terms, moratoriumMonths)
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className='space-y-1.5'>
+                            <Label htmlFor='terms'>Repayment Terms</Label>
+                            <Input
+                              id='terms'
+                              value={terms}
+                              onChange={(e) => {
+                                setTerms(e.target.value)
+                                if (selectedApplicant) {
+                                  runSimulation(selectedApplicant.user_id, approvedAmount, interestRate, e.target.value, moratoriumMonths)
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className='col-span-2 space-y-1.5'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='moratorium' className='flex items-center gap-1.5'>
+                                <Calendar className='h-3.5 w-3.5 text-brand-blue' />
+                                Seasonal Harvest Grace Period (Moratorium)
+                              </Label>
+                              <span className='text-[10px] text-muted-foreground'>Prevents early default during pre-harvest cycles</span>
+                            </div>
+                            <select
+                              id='moratorium'
+                              value={moratoriumMonths}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10) || 0
+                                setMoratoriumMonths(val)
+                                if (selectedApplicant) {
+                                  runSimulation(selectedApplicant.user_id, approvedAmount, interestRate, terms, val)
+                                }
+                              }}
+                              className='w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-xs dark:border-neutral-800 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-50'
+                            >
+                              <option value={0}>0 months — Standard monthly EMI schedule</option>
+                              <option value={1}>1 month — Post-seeding / setup relief window</option>
+                              <option value={2}>2 months — Kharif harvest grace period (Recommended for Farmers)</option>
+                              <option value={3}>3 months — Extended crop maturity / seasonal cycle</option>
+                            </select>
+                          </div>
                         </div>
-                        <div className='space-y-1.5'>
-                          <Label htmlFor='rate'>Interest Rate (%)</Label>
-                          <Input
-                            id='rate'
-                            type='number'
-                            step='0.1'
-                            value={interestRate}
-                            onChange={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                          />
-                        </div>
-                        <div className='space-y-1.5'>
-                          <Label htmlFor='terms'>Repayment Terms</Label>
-                          <Input
-                            id='terms'
-                            value={terms}
-                            onChange={(e) => setTerms(e.target.value)}
-                          />
-                        </div>
+
+                        {/* Underwriter What-If Simulator Result - Vercel Minimalist */}
+                        {simulating ? (
+                          <div className='flex items-center justify-center p-3 border border-white/10 rounded-lg bg-white/[0.02] text-xs text-white/60 font-mono gap-2'>
+                            <Loader2 className='h-3.5 w-3.5 animate-spin' /> Recalculating reducing-balance EMI & debt burden...
+                          </div>
+                        ) : simulationResult ? (
+                          <div className='rounded-lg border border-white/10 bg-black p-3 space-y-2.5 animate-fade-up'>
+                            <div className='flex items-center justify-between'>
+                              <div className='flex items-center gap-1.5'>
+                                <Sliders className='h-3.5 w-3.5 text-white/70' />
+                                <span className='font-mono font-medium text-xs text-white'>Reducing Balance EMI & Affordability</span>
+                              </div>
+                              <span
+                                className='font-mono text-[10px] px-2 py-0.5 rounded border border-white/15 bg-white/5 text-white'
+                              >
+                                {simulationResult.is_affordable ? 'Affordable (FOIR Safe)' : 'High Debt Burden'}
+                              </span>
+                            </div>
+
+                            <div className='grid grid-cols-3 gap-2 text-center font-mono'>
+                              <div className='bg-white/[0.02] p-2 rounded-md border border-white/10'>
+                                <div className='text-[10px] text-white/40'>Monthly EMI</div>
+                                <div className='text-xs font-bold text-white'>
+                                  ₹{Math.round(simulationResult.monthly_emi).toLocaleString('en-IN')}
+                                </div>
+                              </div>
+                              <div className='bg-white/[0.02] p-2 rounded-md border border-white/10'>
+                                <div className='text-[10px] text-white/40'>FOIR Burden</div>
+                                <div className='text-xs font-bold text-white'>
+                                  {simulationResult.foir_ratio_pct.toFixed(1)}%
+                                </div>
+                              </div>
+                              <div className='bg-white/[0.02] p-2 rounded-md border border-white/10'>
+                                <div className='text-[10px] text-white/40'>Score Impact</div>
+                                <div className='text-xs font-bold text-white'>
+                                  {simulationResult.score_delta >= 0 ? `+${simulationResult.score_delta}` : simulationResult.score_delta} pts
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className='text-[11px] text-white/60 leading-relaxed bg-white/[0.02] border border-white/10 p-2 rounded font-mono'>
+                              <strong className='text-white'>Guidance:</strong> {simulationResult.guidance}
+                            </p>
+                          </div>
+                        ) : null}
+
+                        {/* Government Welfare Scheme Matcher - Vercel Minimalist */}
+                        {personalization?.recommendations && personalization.recommendations.length > 0 && (
+                          <div className='space-y-2 pt-2 border-t border-white/10 animate-fade-up'>
+                            <div className='flex items-center justify-between'>
+                              <div className='flex items-center gap-1.5'>
+                                <Award className='h-3.5 w-3.5 text-white/70' />
+                                <span className='text-xs font-mono uppercase tracking-wider text-white/70'>
+                                  Matched Welfare & Subsidized Schemes
+                                </span>
+                              </div>
+                              <span className='text-[10px] font-mono text-white/40'>Attach to reduce default risk</span>
+                            </div>
+
+                            <div className='space-y-2'>
+                              {personalization.recommendations.map((rec: any, idx: number) => {
+                                const isChecked = selectedSchemes.includes(rec.scheme_name)
+                                return (
+                                  <div
+                                    key={idx}
+                                    onClick={() => {
+                                      setSelectedSchemes((prev) =>
+                                        isChecked ? prev.filter((s) => s !== rec.scheme_name) : [...prev, rec.scheme_name]
+                                      )
+                                    }}
+                                    className={`cursor-pointer rounded-lg border p-2.5 transition-all duration-150 flex items-start gap-2.5 ${
+                                      isChecked
+                                        ? 'border-white/30 bg-white/10'
+                                        : 'border-white/10 bg-white/[0.01] hover:border-white/20 hover:bg-white/[0.03]'
+                                    }`}
+                                  >
+                                    <input
+                                      type='checkbox'
+                                      checked={isChecked}
+                                      onChange={() => {}}
+                                      className='mt-1 h-3.5 w-3.5 rounded border-white/20 bg-black text-white focus:ring-white cursor-pointer accent-white'
+                                    />
+                                    <div className='flex-1 min-w-0 space-y-1'>
+                                      <div className='flex items-center justify-between gap-1'>
+                                        <span className='font-mono font-medium text-xs text-white truncate'>
+                                          {rec.scheme_name}
+                                        </span>
+                                        <Badge variant='outline' className='text-[9px] px-1.5 py-0 bg-white/5 text-white border-white/15 shrink-0 font-mono'>
+                                          {rec.match_score}% Match
+                                        </Badge>
+                                      </div>
+                                      <div className='flex flex-wrap gap-x-2 text-[10px] text-white/50 font-mono'>
+                                        <span>🏛️ {rec.ministry_or_body}</span>
+                                        <span>• 💰 {rec.max_benefit}</span>
+                                        <span>• 📉 {rec.interest_subsidy}</span>
+                                      </div>
+                                      <p className='text-[10px] text-white/40 line-clamp-1'>
+                                        {rec.match_reasons?.join('; ')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -887,17 +1304,46 @@ export function LoanOfficerDashboard() {
 
               <Step>
                 <div className={`space-y-4 py-2 text-sm ${isExpanded ? 'overflow-y-auto max-h-[70vh] pr-2' : ''}`}>
-                  <h3 className='font-medium text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1'>Step 4: Reasoning & Audit Log</h3>
+                  <h3 className='font-medium text-xs uppercase tracking-wider text-white/50 mb-1 font-mono'>Step 4: Reasoning & Audit Log</h3>
+
+                  {/* Summary of Structuring Package - Vercel Minimalist */}
+                  <div className='rounded-lg bg-black border border-white/10 p-3 space-y-2'>
+                    <div className='flex items-center justify-between'>
+                      <span className='text-xs font-mono font-medium text-white'>Structuring Package Summary</span>
+                      <Badge variant='outline' className={decision === 'approved' ? 'bg-white text-black border-white font-mono text-[10px]' : 'bg-white/10 text-white/80 border-white/20 font-mono text-[10px]'}>
+                        {decision === 'approved' ? 'APPROVE WITH SAFEGUARDS' : 'REJECT APPLICATION'}
+                      </Badge>
+                    </div>
+
+                    {decision === 'approved' && (
+                      <div className='flex flex-wrap gap-1.5 text-[11px] font-mono'>
+                        <span className='rounded bg-white/5 px-2 py-0.5 border border-white/15 text-white'>₹{approvedAmount.toLocaleString('en-IN')}</span>
+                        <span className='rounded bg-white/5 px-2 py-0.5 border border-white/15 text-white'>{interestRate}% p.a.</span>
+                        <span className='rounded bg-white/5 px-2 py-0.5 border border-white/15 text-white'>{terms}</span>
+                        {moratoriumMonths > 0 && (
+                          <span className='rounded bg-white/10 text-white px-2 py-0.5 border border-white/20'>
+                            {moratoriumMonths}m Harvest Moratorium
+                          </span>
+                        )}
+                        {selectedSchemes.map((s, idx) => (
+                          <span key={idx} className='rounded bg-white/10 text-white px-2 py-0.5 border border-white/20'>
+                            ✓ {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div className='space-y-1.5'>
                     <Label htmlFor='notes'>Decision Notes & Reasoning</Label>
                     <Textarea
                       id='notes'
-                      placeholder='Explain rationale for override, collateral status, or mitigating factors...'
+                      placeholder='Explain rationale for override, field verification findings, crop/shop health, or attached subsidies...'
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={4}
                     />
-                    <p className='text-xs text-muted-foreground mt-1'>Notes are required to submit. Decision will be sent as a notification to the applicant.</p>
+                    <p className='text-xs text-muted-foreground mt-1'>Notes are required to submit. Decision and attached restructuring package will be logged to knowledge audit trail.</p>
                   </div>
                 </div>
               </Step>

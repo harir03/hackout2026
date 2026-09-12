@@ -60,7 +60,7 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
                   </div>
                 </div>
                 {isSelected && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-black">
                     <Check className="h-4 w-4 stroke-[3]" />
                   </div>
                 )}

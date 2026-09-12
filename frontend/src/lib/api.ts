@@ -288,3 +288,62 @@ export async function fetchInterviewSummary(
   return data
 }
 
+export interface MascotChatResponse {
+  reply: string
+  language: string
+  model_used: string
+  is_local: boolean
+}
+
+export async function sendMascotMessage(params: {
+  message: string
+  language?: string
+  history?: Array<{ role: string; content: string }>
+}): Promise<MascotChatResponse> {
+  const { data } = await api.post<MascotChatResponse>('/chat/mascot', {
+    message: params.message,
+    language: params.language || 'en',
+    history: params.history || [],
+  })
+  return data
+}
+
+export async function fetchMascotStatus(): Promise<{
+  ollama_online: boolean
+  models: string[]
+  has_gemini: boolean
+  status: string
+}> {
+  const { data } = await api.get('/chat/status')
+  return data
+}
+
+export async function fetchPersonalization(userId: string): Promise<any> {
+  const { data } = await api.get(`/personalize/${encodeURIComponent(userId)}`)
+  return data
+}
+
+export async function simulateRestructuring(params: {
+  userId: string
+  loanAmount: number
+  tenureMonths: number
+  annualInterestRate?: number
+  moratoriumMonths?: number
+  behavioralImprovements?: string[]
+}): Promise<any> {
+  const { data } = await api.post('/personalize/simulate', {
+    user_id: params.userId,
+    loan_amount: params.loanAmount,
+    tenure_months: params.tenureMonths,
+    annual_interest_rate: params.annualInterestRate ?? 10.5,
+    moratorium_months: params.moratoriumMonths ?? 0,
+    behavioral_improvements: params.behavioralImprovements ?? [],
+  })
+  return data
+}
+
+export async function fetchOfficerAlerts(): Promise<any> {
+  const { data } = await api.get('/personalize/alerts/officer')
+  return data
+}
+

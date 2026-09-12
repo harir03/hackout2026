@@ -1577,14 +1577,14 @@ export function ConsentPage() {
             </CardDescription>
 
             {/* AI Phone Callback Request Banner */}
-            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-blue/30 bg-brand-blue/5 p-3.5 text-xs text-foreground'>
+            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3.5 text-xs text-foreground'>
               <div className='flex items-center gap-2.5'>
-                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue border border-brand-blue/20'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white border border-white/15'>
                   <PhoneCall className='h-4 w-4' />
                 </div>
                 <div>
-                  <p className='font-semibold text-foreground'>{t('consent.preferVoiceCall', 'Prefer an AI Voice Call?')}</p>
-                  <p className='text-muted-foreground text-[11px]'>{t('consent.voiceOfficerInfo', 'AI Voice Officer calls you and asks each question one-by-one verbally.')}</p>
+                  <p className='font-semibold text-white'>{t('consent.preferVoiceCall', 'Prefer an AI Voice Call?')}</p>
+                  <p className='text-white/60 text-[11px]'>{t('consent.voiceOfficerInfo', 'AI Voice Officer calls you and asks each question one-by-one verbally.')}</p>
                 </div>
               </div>
               <Button
@@ -1617,17 +1617,17 @@ export function ConsentPage() {
                     toast.error('Failed to request AI callback. Please try again.')
                   }
                 }}
-                className='bg-brand-blue text-white hover:bg-brand-blue/90 font-medium h-8 text-xs gap-1.5 rounded-full disabled:opacity-50 shadow-sm'
+                className='bg-white text-black hover:bg-white/90 font-medium h-8 text-xs gap-1.5 rounded-full disabled:opacity-50 shadow-none'
               >
                 {callActive ? (
                   <>
-                    <Loader2 className='h-3.5 w-3.5 animate-spin' />
-                    Call Active...
+                    <Loader2 className='h-3.5 w-3.5 animate-spin text-black' />
+                    <span className='text-black font-semibold'>Call Active...</span>
                   </>
                 ) : (
                   <>
-                    <PhoneCall className='h-3.5 w-3.5' />
-                    {t('consent.requestCallback', 'Request AI Callback')}
+                    <PhoneCall className='h-3.5 w-3.5 text-black' />
+                    <span className='text-black font-semibold'>{t('consent.requestCallback', 'Request AI Callback')}</span>
                   </>
                 )}
               </Button>
@@ -1727,7 +1727,7 @@ export function ConsentPage() {
                           setCallFailed(true)
                         }
                       }}
-                      className='h-7 text-xs rounded-full bg-brand-blue text-white hover:bg-brand-blue/90'
+                      className='h-7 text-xs rounded-full bg-white text-black hover:bg-white/90 font-medium'
                     >
                       Retry AI Call ({MAX_CALL_RETRIES - callRetryCount} left)
                     </Button>
@@ -1780,7 +1780,7 @@ export function ConsentPage() {
                     >
                       <span className='flex items-center gap-2.5'>
                         <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                          isSelected ? 'bg-brand-blue text-white' : 'bg-muted text-muted-foreground'
+                          isSelected ? 'bg-white text-black' : 'bg-muted text-muted-foreground'
                         }`}>
                           {oIdx + 1}
                         </span>

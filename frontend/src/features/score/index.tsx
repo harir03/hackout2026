@@ -1,7 +1,26 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useSearch, Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, ShieldAlert, MessageSquare, Loader2, IndianRupee, Send, Bot, User, ChevronDown } from 'lucide-react'
+import {
+  AlertTriangle,
+  ShieldAlert,
+  MessageSquare,
+  Loader2,
+  IndianRupee,
+  Send,
+  Bot,
+  User,
+  ChevronDown,
+  Volume2,
+  VolumeX,
+  PhoneCall,
+  CheckCircle2,
+  Sparkles,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
+import { toast } from 'sonner'
 import {
   Card,
   CardContent,
@@ -19,7 +38,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { fetchScore, fetchScoreById, fetchUserNotifications, submitInterviewSummary } from '@/lib/api'
+import {
+  fetchScore,
+  fetchScoreById,
+  fetchUserNotifications,
+  submitInterviewSummary,
+  fetchPersonalization,
+} from '@/lib/api'
 import type { ScoreResponse, ShapFeature } from '@/lib/types'
 
 function bandColor(band: string): string {
@@ -170,7 +195,53 @@ export function ScorePage() {
     fetchUserNotifications(userId)
       .then((n) => setNotification(n))
       .catch(() => {})
+
+    fetchPersonalization(userId)
+      .then((p) => setPersonalizeData(p))
+      .catch((err) => console.error("Failed to load personalization:", err))
   }, [userId])
+
+  const [personalizeData, setPersonalizeData] = useState<any | null>(null)
+  const [viewMode, setViewMode] = useState<'simple' | 'technical'>('simple')
+  const [audioLang, setAudioLang] = useState<'te' | 'hi' | 'ta' | 'en'>('te')
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [officerModalOpen, setOfficerModalOpen] = useState(false)
+  const [officerRequested, setOfficerRequested] = useState(false)
+
+  const handlePlayAudio = (langToPlay?: 'te' | 'hi' | 'ta' | 'en') => {
+    const targetLang = langToPlay || audioLang
+    if (isPlayingAudio) {
+      window.speechSynthesis?.cancel()
+      setIsPlayingAudio(false)
+      return
+    }
+
+    if (!('speechSynthesis' in window)) {
+      toast.error('Voice synthesis not supported in this browser')
+      return
+    }
+
+    window.speechSynthesis.cancel()
+    const script = personalizeData?.borrower_summary?.audio_scripts?.[targetLang] ||
+      personalizeData?.borrower_summary?.plain_summary ||
+      `Your AltGrade credit score is ${data?.score || 700}. You qualify for loan approval.`
+
+    const utterance = new SpeechSynthesisUtterance(script)
+    const langCodes: Record<string, string> = {
+      te: 'te-IN',
+      hi: 'hi-IN',
+      ta: 'ta-IN',
+      en: 'en-IN',
+    }
+    utterance.lang = langCodes[targetLang] || 'en-US'
+    utterance.rate = 0.92
+
+    utterance.onend = () => setIsPlayingAudio(false)
+    utterance.onerror = () => setIsPlayingAudio(false)
+
+    setIsPlayingAudio(true)
+    window.speechSynthesis.speak(utterance)
+  }
 
   useEffect(() => {
     if (activePipelines.length > 0) {
@@ -576,12 +647,12 @@ export function ScorePage() {
               <Card key={idx} className={`shadow-subtle transition-all duration-300 ${isActive ? 'border-brand-blue bg-brand-blue/5' : ''} ${isCompleted ? 'opacity-60' : ''}`}>
                 <CardHeader className='py-3 px-4 flex flex-row items-center justify-between space-y-0'>
                   <div className='flex items-center gap-3'>
-                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isCompleted ? 'bg-brand-blue text-white' : isActive ? 'bg-brand-blue/20 text-brand-blue animate-pulse' : 'bg-muted text-muted-foreground'}`}>
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isCompleted ? 'bg-white text-black' : isActive ? 'bg-white/20 text-white animate-pulse' : 'bg-muted text-muted-foreground'}`}>
                       {isCompleted ? '✓' : idx + 1}
                     </div>
-                    <span className={`text-sm font-medium ${isActive ? 'text-brand-blue font-semibold' : ''}`}>{name}</span>
+                    <span className={`text-sm font-medium ${isActive ? 'text-white font-semibold' : ''}`}>{name}</span>
                   </div>
-                  {isActive && <span className='text-xs text-brand-blue font-medium animate-pulse'>Processing...</span>}
+                  {isActive && <span className='text-xs text-white/70 font-mono animate-pulse'>Processing...</span>}
                   {isCompleted && <span className='text-xs text-graphite font-medium'>Completed</span>}
                 </CardHeader>
               </Card>
@@ -636,63 +707,259 @@ export function ScorePage() {
         </div>
       )}
 
-      <div className='mb-6'>
-        <h1 className='font-signifier text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>{t('score.title', 'AltGrade Alternate Credit Score')}</h1>
-        <p className='text-sm text-muted-foreground'>
-          {t('score.subtitle', 'Explainable risk estimation based on multi-source non-traditional financial data')}
-        </p>
+      <div className='mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+        <div>
+          <h1 className='font-signifier text-[36px] sm:text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
+            {viewMode === 'simple' ? 'Your Credit Trust Report' : t('score.title', 'AltGrade Alternate Credit Score')}
+          </h1>
+          <p className='text-sm text-muted-foreground mt-1'>
+            {viewMode === 'simple'
+              ? 'Simple, voice-guided report based on your everyday bill payments and residence stability'
+              : t('score.subtitle', 'Explainable risk estimation based on multi-source non-traditional financial data')}
+          </p>
+        </div>
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => setViewMode(viewMode === 'simple' ? 'technical' : 'simple')}
+          className='self-start sm:self-auto text-xs gap-1.5 rounded-full border-border/80 hover:bg-muted'
+        >
+          {viewMode === 'simple' ? (
+            <>
+              <Eye className='h-3.5 w-3.5 text-brand-blue' />
+              <span>Technical Breakdown (Advanced)</span>
+            </>
+          ) : (
+            <>
+              <EyeOff className='h-3.5 w-3.5 text-emerald-500' />
+              <span>Simple Borrower View</span>
+            </>
+          )}
+        </Button>
       </div>
 
-      <div className='grid gap-4 md:grid-cols-3'>
-        <Card className='md:col-span-1'>
-          <CardContent className='flex flex-col items-center justify-center py-8'>
-            <div className='relative flex h-40 w-40 items-center justify-center'>
-              <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
-                <circle
-                  cx='50' cy='50' r='42'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='6'
-                  className='text-muted'
-                />
-                <circle
-                  cx='50' cy='50' r='42'
-                  fill='none'
-                  strokeWidth='6'
-                  strokeLinecap='round'
-                  strokeDasharray={`${(data.score / 850) * 264} 264`}
-                  stroke={scoreGradient(data.score)}
-                  className='transition-all duration-1000'
-                />
-              </svg>
-              <div className='text-center'>
-                <div className='text-4xl font-bold tracking-[-0.04em]'>{data.score}</div>
-                <div className='text-xs text-muted-foreground'>of 850</div>
+      {viewMode === 'simple' ? (
+        /* ================= RADICALLY SIMPLE BORROWER VIEW (LOW-LITERACY TAILORED - VERCEL MINIMALIST) ================= */
+        <div className='space-y-5 animate-fade-up'>
+          {/* Main Hero Card */}
+          <Card className='overflow-hidden border border-white/10 bg-black shadow-none'>
+            <div className='p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 justify-between'>
+              {/* Left: Big Score & Trust Badge */}
+              <div className='flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left'>
+                <div className='relative flex h-36 w-36 shrink-0 items-center justify-center rounded-full bg-black border border-white/15 shadow-none'>
+                  <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
+                    <circle
+                      cx='50' cy='50' r='42'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                      className='text-white/10'
+                    />
+                    <circle
+                      cx='50' cy='50' r='42'
+                      fill='none'
+                      strokeWidth='4'
+                      strokeLinecap='round'
+                      strokeDasharray={`${(data.score / 850) * 264} 264`}
+                      stroke='#ffffff'
+                      className='transition-all duration-1000'
+                    />
+                  </svg>
+                  <div className='flex flex-col items-center justify-center'>
+                    <span className='text-3xl font-extrabold tracking-tight text-white font-mono'>{data.score}</span>
+                    <span className='text-[10px] uppercase tracking-widest text-white/50 font-mono'>Score</span>
+                  </div>
+                </div>
+
+                <div className='space-y-2'>
+                  <div className='inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-xs font-medium text-white/90 font-mono'>
+                    <CheckCircle2 className='h-3.5 w-3.5 text-white' />
+                    <span>Eligible for Credit Approval</span>
+                  </div>
+                  <h2 className='text-xl sm:text-2xl font-bold tracking-tight text-white'>
+                    {data.score >= 700 ? 'High Financial Trust' : 'Good Financial Standing'}
+                  </h2>
+                  <p className='text-xs text-white/60 max-w-sm leading-relaxed'>
+                    Pre-approved credit line limit up to{' '}
+                    <span className='font-bold text-white font-mono'>
+                      ₹{personalizeData?.credit_limit ? personalizeData.credit_limit.toLocaleString('en-IN') : '50,000'}
+                    </span>{' '}
+                    at fair regulated bank interest rates.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: Unmissable Vernacular Voice Audio Narration */}
+              <div className='w-full md:w-auto shrink-0 flex flex-col items-center sm:items-end gap-3'>
+                <div className='flex items-center gap-1.5 text-xs text-white/50 font-mono'>
+                  <span>Audio Language:</span>
+                  <div className='flex gap-1'>
+                    {(
+                      [
+                        { code: 'te', label: 'తెలుగు' },
+                        { code: 'hi', label: 'हिंदी' },
+                        { code: 'ta', label: 'தமிழ்' },
+                        { code: 'en', label: 'Eng' },
+                      ] as const
+                    ).map((l) => (
+                      <button
+                        key={l.code}
+                        type='button'
+                        onClick={() => {
+                          setAudioLang(l.code)
+                          if (isPlayingAudio) {
+                            window.speechSynthesis?.cancel()
+                            setIsPlayingAudio(false)
+                          }
+                        }}
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-mono transition-all ${
+                          audioLang === l.code
+                            ? 'bg-white text-black font-semibold shadow-xs'
+                            : 'bg-white/5 text-white/60 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        {l.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  size='lg'
+                  onClick={() => handlePlayAudio()}
+                  className={`w-full sm:w-auto h-11 px-5 rounded-lg font-mono text-xs gap-2 transition-all ${
+                    isPlayingAudio
+                      ? 'bg-white/20 text-white border border-white/40 animate-pulse'
+                      : 'bg-white text-black hover:bg-white/90 shadow-none'
+                  }`}
+                >
+                  {isPlayingAudio ? (
+                    <>
+                      <VolumeX className='h-4 w-4' />
+                      <span>Pause Audio Readout</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className='h-4 w-4' />
+                      <span>
+                        {audioLang === 'te'
+                          ? '🔊 నివేదికను వినండి (Telugu)'
+                          : audioLang === 'hi'
+                          ? '🔊 रिपोर्ट सुनें (Hindi)'
+                          : audioLang === 'ta'
+                          ? '🔊 கேட்க (Tamil)'
+                          : '🔊 Listen to Audio Report'}
+                      </span>
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
-            <div className={`mt-4 text-xl font-bold tracking-[-0.02em] ${bandColor(data.risk_band)}`}>
-              {data.risk_band}
-            </div>
-            <Badge variant='outline' className='mt-2'>
-              {data.tier}
-            </Badge>
-          </CardContent>
-        </Card>
 
-        <Card className='md:col-span-2'>
-          <CardHeader>
-            <CardTitle className='text-base'>What Affected Your Score</CardTitle>
-            <CardDescription>
-              How each factor contributed (baseline: 600). Click any row for a detailed explanation.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='max-h-[500px] overflow-y-auto'>
-            {sortedShap.map((feat) => (
-              <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} />
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+            {/* Plain-Language Explanations (Zero Jargon) */}
+            <div className='border-t border-white/10 bg-white/[0.01] p-6 grid sm:grid-cols-2 gap-4'>
+              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-1.5'>
+                <div className='flex items-center gap-2 text-xs font-semibold text-white'>
+                  <Sparkles className='h-3.5 w-3.5 text-white/70' />
+                  <span>Why You Qualify</span>
+                </div>
+                <p className='text-xs text-white/70 leading-relaxed'>
+                  {personalizeData?.borrower_summary?.plain_summary ||
+                    "Based on your long-term residency and disciplined everyday bill payments, you have built verified financial trust without traditional bank papers."}
+                </p>
+              </div>
+
+              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-1.5'>
+                <div className='flex items-center gap-2 text-xs font-semibold text-white'>
+                  <ShieldCheck className='h-3.5 w-3.5 text-white/70' />
+                  <span>Everyday Tip to Grow Limit</span>
+                </div>
+                <p className='text-xs text-white/70 leading-relaxed'>
+                  {personalizeData?.borrower_summary?.plain_tip ||
+                    "Keep paying your mobile recharges and electricity bills before the 5th of each month to unlock a higher credit limit."}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Action Row */}
+          <div className='flex flex-col sm:flex-row items-center gap-3 justify-between pt-2'>
+            <Button
+              size='lg'
+              onClick={() => setOfficerModalOpen(true)}
+              className='w-full sm:w-auto h-11 px-5 rounded-lg bg-white text-black hover:bg-white/90 font-mono text-xs gap-2 shadow-none'
+            >
+              <PhoneCall className='h-3.5 w-3.5' />
+              <span>Talk to Local Loan Officer</span>
+            </Button>
+
+            <div className='flex items-center gap-2.5 w-full sm:w-auto'>
+              <Link
+                to='/eligibility'
+                search={{ userId, score: String(data.score), band: data.risk_band }}
+                className='flex-1 sm:flex-none'
+              >
+                <Button variant='outline' size='lg' className='w-full h-11 rounded-lg text-xs font-mono gap-2 border-white/10 hover:bg-white/5'>
+                  <IndianRupee className='h-3.5 w-3.5' />
+                  <span>View Loan Options</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ================= TECHNICAL UNDERWRITER VIEW (SHAP FACTORS & ADVANCED METRICS) ================= */
+        <div className='grid gap-4 md:grid-cols-3 animate-fade-up'>
+          <Card className='md:col-span-1'>
+            <CardContent className='flex flex-col items-center justify-center py-8'>
+              <div className='relative flex h-40 w-40 items-center justify-center'>
+                <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
+                  <circle
+                    cx='50' cy='50' r='42'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='6'
+                    className='text-muted'
+                  />
+                  <circle
+                    cx='50' cy='50' r='42'
+                    fill='none'
+                    strokeWidth='6'
+                    strokeLinecap='round'
+                    strokeDasharray={`${(data.score / 850) * 264} 264`}
+                    stroke={scoreGradient(data.score)}
+                    className='transition-all duration-1000'
+                  />
+                </svg>
+                <div className='text-center'>
+                  <div className='text-4xl font-bold tracking-[-0.04em]'>{data.score}</div>
+                  <div className='text-xs text-muted-foreground'>of 850</div>
+                </div>
+              </div>
+              <div className={`mt-4 text-xl font-bold tracking-[-0.02em] ${bandColor(data.risk_band)}`}>
+                {data.risk_band}
+              </div>
+              <Badge variant='outline' className='mt-2'>
+                {data.tier}
+              </Badge>
+            </CardContent>
+          </Card>
+
+          <Card className='md:col-span-2'>
+            <CardHeader>
+              <CardTitle className='text-base'>What Affected Your Score (SHAP Attribution)</CardTitle>
+              <CardDescription>
+                How each alternative data factor contributed (baseline: 600 pts). Click any row for mathematical explanation.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='max-h-[500px] overflow-y-auto'>
+              {sortedShap.map((feat) => (
+                <ShapBar key={feat.label} feature={feat} maxAbs={maxAbs} />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {data.has_hard_cap && (
         <Alert variant='destructive' className='mt-4'>
@@ -841,6 +1108,66 @@ export function ScorePage() {
               )}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Field Officer Contact Request Modal - Vercel Minimalist */}
+      <Dialog open={officerModalOpen} onOpenChange={setOfficerModalOpen}>
+        <DialogContent className='sm:max-w-[420px] p-6 rounded-xl border border-white/10 bg-black text-white shadow-2xl'>
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2 text-base font-medium tracking-tight text-white'>
+              <PhoneCall className='h-4 w-4 text-white/80' />
+              <span>Connect with Field Loan Officer</span>
+            </DialogTitle>
+            <DialogDescription className='text-xs text-white/50 leading-relaxed'>
+              A local Business Correspondent or MFI Field Officer will assist you with paperwork and government subsidy enrollment.
+            </DialogDescription>
+          </DialogHeader>
+
+          {officerRequested ? (
+            <div className='py-6 text-center space-y-3'>
+              <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white border border-white/20'>
+                <CheckCircle2 className='h-5 w-5' />
+              </div>
+              <h4 className='text-sm font-semibold text-white'>Request Dispatched</h4>
+              <p className='text-xs text-white/60 max-w-xs mx-auto leading-relaxed'>
+                Your local field representative will call you or visit your village location within 24–48 hours.
+              </p>
+              <Button size='sm' className='font-mono text-xs bg-white text-black hover:bg-white/90 rounded-md px-4 h-9' onClick={() => { setOfficerModalOpen(false); setOfficerRequested(false); }}>
+                Close
+              </Button>
+            </div>
+          ) : (
+            <div className='space-y-4 py-2'>
+              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-3.5 space-y-1 text-xs'>
+                <div className='font-mono font-medium text-white'>Assigned Branch Officer</div>
+                <div className='text-white/60'>Anand Varma (District MFI Agent • Kovvur/Madurai Zone)</div>
+                <div className='text-[11px] text-white/80 font-mono flex items-center gap-1.5 pt-0.5'>
+                  <span className='h-1.5 w-1.5 rounded-full bg-white'></span>
+                  Available for in-person village visit
+                </div>
+              </div>
+
+              <div className='space-y-2 text-xs'>
+                <label className='font-mono text-[11px] text-white/60'>Your Contact Number:</label>
+                <input
+                  type='text'
+                  defaultValue={phone || '98765 43215'}
+                  className='w-full h-9 rounded-md border border-white/15 bg-black px-3 text-xs text-white font-mono focus:border-white/40 focus:outline-none'
+                />
+              </div>
+
+              <Button
+                className='w-full rounded-md bg-white text-black hover:bg-white/90 font-mono text-xs h-10'
+                onClick={() => {
+                  setOfficerRequested(true)
+                  toast.success('Field officer visit request dispatched!')
+                }}
+              >
+                Confirm Field Visit Request
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
