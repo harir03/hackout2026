@@ -140,7 +140,7 @@ function sanitizeText(text: string): string {
 
 const SCORE_I18N = {
   en: {
-    pageTitle: 'Your Sanctioned Credit Result',
+    pageTitle: 'Online Banking for All — Your Sanctioned Credit Result',
     pageSubtitle: 'Verified alternative financial footprint • Pre-approved credit limit & government subsidies',
     technicalView: 'Technical Breakdown (Advanced)',
     simpleView: 'Simple Banking View',
@@ -184,7 +184,7 @@ const SCORE_I18N = {
     officerNoteGeneral: "We've verified your digital payment discipline and recommended instant collateral-free disbursement.",
   },
   gu: {
-    pageTitle: 'તમારું મંજૂર થયેલ ક્રેડિટ પરિણામ',
+    pageTitle: 'બધા માટે ઓનલાઇન બેંકિંગ — તમારું મંજૂર થયેલ ક્રેડિટ પરિણામ',
     pageSubtitle: 'ચકાસાયેલ વૈકલ્પિક નાણાકીય માહિતી • પૂર્વ-મંજૂર ક્રેડિટ મર્યાદા અને સરકારી સબસિડી',
     technicalView: 'તકનીકી વિશ્લેષણ (વિગતવાર)',
     simpleView: 'સરળ બેંકિંગ દૃશ્ય',
@@ -228,7 +228,7 @@ const SCORE_I18N = {
     officerNoteGeneral: 'અમે તમારી નિયમિત ચુકવણી ચકાસી છે અને ત્વરિત જામીનમુક્ત વિતરણની ભલામણ કરી છે.',
   },
   hi: {
-    pageTitle: 'आपका स्वीकृत क्रेडिट परिणाम',
+    pageTitle: 'सभी के लिए ऑनलाइन बैंकिंग — आपका स्वीकृत क्रेडिट परिणाम',
     pageSubtitle: 'सत्यापित वैकल्पिक वित्तीय पदचिह्न • पूर्व-स्वीकृत क्रेडिट सीमा और सरकारी सब्सिडी',
     technicalView: 'तकनीकी विश्लेषण (उन्नत)',
     simpleView: 'सरल बैंकिंग दृश्य',
