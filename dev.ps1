@@ -21,7 +21,8 @@ switch ($Command) {
     "backend" {
         Write-Host "Starting FastAPI backend..." -ForegroundColor Cyan
         Push-Location "$ROOT\backend"
-        .\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+        $py = if (Test-Path ".\.venv\Scripts\python.exe") { ".\.venv\Scripts\python" } else { "python" }
+        & $py -m uvicorn app.main:app --reload --port 8000
         Pop-Location
     }
     "frontend" {
@@ -32,12 +33,17 @@ switch ($Command) {
     }
     "dev" {
         Write-Host "Starting full dev stack..." -ForegroundColor Cyan
-        Write-Host "1. docker compose up" -ForegroundColor DarkGray
-        docker compose up -d
+        Write-Host "1. Checking infrastructure (Docker)..." -ForegroundColor DarkGray
+        try {
+            docker compose up -d 2>$null
+        } catch {
+            Write-Host "   (Docker not running - running standalone in SQLite/JSON mode)" -ForegroundColor Yellow
+        }
+        $py = if (Test-Path "$ROOT\backend\.venv\Scripts\python.exe") { "$ROOT\backend\.venv\Scripts\python" } else { "python" }
         Write-Host "2. Backend on :8000" -ForegroundColor DarkGray
-        Start-Process powershell -ArgumentList "-Command", "cd '$ROOT\backend'; .\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000"
+        Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ROOT\backend'; $py -m uvicorn app.main:app --reload --port 8000"
         Write-Host "3. Frontend on :5173" -ForegroundColor DarkGray
-        Start-Process powershell -ArgumentList "-Command", "cd '$ROOT\frontend'; npm run dev"
+        Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ROOT\frontend'; npm run dev"
         Write-Host "Dev stack started. Backend: http://localhost:8000  Frontend: http://localhost:5173" -ForegroundColor Green
     }
     "stop" {

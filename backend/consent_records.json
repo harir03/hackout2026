@@ -1211,5 +1211,108 @@
       "d6_merchant"
     ],
     "consented_at": "2026-09-11T18:25:55.350189+00:00"
+  },
+  "f72fd21b-c75f-46ad-8854-9e2df753e6d7": {
+    "consent_id": "f72fd21b-c75f-46ad-8854-9e2df753e6d7",
+    "user_id": "farmer@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-09-12T21:55:08.581274+00:00"
+  },
+  "58f7e6b2-8344-4ea1-a3d7-79a787da3c67": {
+    "consent_id": "58f7e6b2-8344-4ea1-a3d7-79a787da3c67",
+    "user_id": "farmer@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-09-12T21:55:12.678814+00:00"
+  },
+  "49627bbd-12f0-48cd-bc88-ba8f059a6340": {
+    "consent_id": "49627bbd-12f0-48cd-bc88-ba8f059a6340",
+    "user_id": "farmer@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-09-12T22:58:01.418287+00:00"
+  },
+  "3e4f9021-1cca-48d5-96c7-3079b4e2dbef": {
+    "consent_id": "3e4f9021-1cca-48d5-96c7-3079b4e2dbef",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce",
+      "d6_merchant"
+    ],
+    "consented_at": "2026-09-12T23:07:29.457798+00:00"
+  },
+  "89b56081-7839-4c4e-b651-f7ba409538cc": {
+    "consent_id": "89b56081-7839-4c4e-b651-f7ba409538cc",
+    "user_id": "hari@altgrade.in",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-09-12T23:29:28.734181+00:00"
+  },
+  "219901d7-208e-4afa-aeaa-17477287423e": {
+    "consent_id": "219901d7-208e-4afa-aeaa-17477287423e",
+    "user_id": "officer@altgrade.com",
+    "name": "Anonymous",
+    "email": "",
+    "phone": "",
+    "consented_sources": [
+      "d2_telecom",
+      "d4_location",
+      "d5_questionnaire",
+      "d1_bank",
+      "d3_ecommerce"
+    ],
+    "consented_at": "2026-09-13T00:39:16.527721+00:00"
+  },
+  "1b185650-15df-4de6-8f51-100117bf6f41": {
+    "consent_id": "1b185650-15df-4de6-8f51-100117bf6f41",
+    "user_id": "test-user-123",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "consented_sources": [
+      "D1 Bank/UPI",
+      "D2 Telecom"
+    ],
+    "consented_at": "2026-09-13T00:53:56.296472+00:00"
   }
 }
