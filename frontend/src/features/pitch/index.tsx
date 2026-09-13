@@ -172,11 +172,11 @@ export function PitchDeckPage() {
             <span className='font-signifier text-sm font-semibold tracking-tight'>AltGrade</span>
           </div>
           <div className='flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
-            <span className='text-amber-300/90 font-medium'>Bharat Edition</span>
+            <span className='text-amber-300/90 font-medium'>Minions</span>
             <span className='h-3 w-px bg-white/10' />
             <div className='flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2'>
               <a
-                href="https://www.canva.com/design/DAHOFJi2fbo/gQAI6SX4laigaYkKSK2eqA/edit?utm_content=DAHOFJi2fbo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"
+                href="https://canva.link/r9fg4t8p2s37lqy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-black text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full border border-[#222] font-medium transition-colors hover:bg-neutral-900 cursor-pointer whitespace-nowrap"
@@ -523,7 +523,7 @@ export function PitchDeckPage() {
                 Hyper-personalized<br />banking for everyone.
               </h2>
               <p className='text-xs text-muted-foreground font-mono mt-4'>
-                AltGrade • AI-Powered Lending & Inclusion Platform
+                AltGrade • AI-Powered Lending & Inclusion Platform • Team Minions
               </p>
             </div>
 
