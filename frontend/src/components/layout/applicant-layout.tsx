@@ -106,10 +106,7 @@ export function ApplicantLayout() {
               <div className='flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-xs font-bold text-background'>
                 AG
               </div>
-              <div className='flex flex-col'>
-                <span className='text-sm font-semibold tracking-[-0.02em] leading-none'>{t('nav.brand', 'AltGrade')}</span>
-                <span className='text-[9px] text-muted-foreground font-mono leading-tight tracking-wider uppercase'>Online Banking for All</span>
-              </div>
+              <span className='text-sm font-semibold tracking-[-0.02em]'>{t('nav.brand', 'AltGrade')}</span>
             </Link>
           </div>
 

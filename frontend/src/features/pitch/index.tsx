@@ -9,7 +9,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Database,
-  Sparkles,
   HeartHandshake,
   MessageSquareText,
   BadgePercent,
@@ -171,8 +170,6 @@ export function PitchDeckPage() {
         >
           <div className='flex items-center gap-2.5'>
             <span className='font-signifier text-sm font-semibold tracking-tight'>AltGrade</span>
-            <span className='h-3 w-px bg-white/20 hidden sm:inline' />
-            <span className='text-[10px] text-white/70 font-mono tracking-wider uppercase hidden sm:inline'>Online Banking for All</span>
           </div>
           <div className='flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground font-mono'>
             <span className='text-amber-300/90 font-medium'>Bharat Edition</span>
@@ -230,14 +227,9 @@ export function PitchDeckPage() {
         <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10'>
           
           <div className='lg:col-span-9 space-y-6 text-left'>
-            <div className='inline-flex items-center gap-2 bg-white/5 border border-[#333] px-3.5 py-1.5 rounded-full text-[10px] text-white font-mono hero-fade-in'>
-              <Sparkles className='h-3.5 w-3.5 text-amber-400' />
-              AI-POWERED HYPER-PERSONALIZED BANKING FOR BHARAT • ONLINE BANKING FOR ALL
-            </div>
-            
             <h1 className='text-5xl sm:text-7xl font-signifier tracking-tighter leading-[0.95] uppercase flex flex-col items-start'>
               <span className='block hero-title-char overflow-hidden'>Online Banking</span>
-              <span className='block hero-title-char overflow-hidden text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-300 to-neutral-500'>For All Citizens</span>
+              <span className='block hero-title-char overflow-hidden text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-300 to-neutral-500'>For All</span>
               <span className='inline-flex items-center gap-3 hero-title-char overflow-hidden whitespace-nowrap'>
                 <span>Across</span>
                 <RotatingText
