@@ -20,9 +20,7 @@ import {
   Eye,
   EyeOff,
   Wallet,
-  MessageCircle,
   ArrowUpRight,
-  TrendingUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -128,10 +126,6 @@ function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) 
   )
 }
 
-function cleanPersonaTitle(name: string): string {
-  if (!name) return 'Agricultural Producer'
-  return name.replace(/\s*\/\s*Farmer/i, '').replace(/\s*\/\s*MSME/i, '').trim()
-}
 
 function sanitizeText(text: string): string {
   if (!text) return ''
@@ -410,7 +404,6 @@ export function ScorePage() {
     timestamp: string
     status: string
   }>>([])
-  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'simple' | 'technical'>('simple')
   const [audioLang, setAudioLang] = useState<'gu' | 'hi' | 'ta' | 'en'>(() => {
     const l = i18n.language?.split('-')[0]

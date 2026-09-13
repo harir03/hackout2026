@@ -6,18 +6,13 @@ import { useGSAP } from '@gsap/react'
 import Lenis from 'lenis'
 import {
   Cpu,
-  Layers,
   ArrowRight,
   ShieldCheck,
-  FileText,
-  AlertCircle,
   Database,
-  TrendingDown,
   Sparkles,
   HeartHandshake,
   MessageSquareText,
   BadgePercent,
-  CheckCircle2,
   PhoneCall,
   Languages,
   Activity
@@ -280,7 +275,9 @@ export function PitchDeckPage() {
                 <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
               </Button>
               <button
-                onClick={() => navigate({ to: '/score?userId=msme@altgrade.in' })}
+                onClick={() => {
+                  window.location.href = '/score?userId=msme@altgrade.in'
+                }}
                 className='text-xs text-white/90 border border-white/20 rounded-md px-6 h-12 flex items-center hover:bg-white/10 transition-all font-mono'
               >
                 [ Personalized Banking Hub ]
