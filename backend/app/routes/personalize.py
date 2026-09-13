@@ -159,8 +159,9 @@ async def get_user_intelligence(user_id: str):
             "ta": f"வணக்கம்! உங்கள் கிராமிய குடியிருப்பு நிலைத்தன்மை மற்றும் சரியான நேர கட்டணங்களின் அடிப்படையில், உங்கள் கடன் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை விவசாயக் கடன் மற்றும் பயிர் காப்பீட்டிற்கு தகுதியுடையவர்.",
             "en": f"Good news! Based on your long-term land stability and regular bill payments, your AltGrade score is {score}. You qualify for agricultural credit up to ₹{credit_limit:,} and PM crop insurance."
         }
-        plain_summary = f"You qualify for up to ₹{credit_limit:,} agricultural credit with harvest-aligned repayments."
+        plain_summary = f"Based on your long-term land stability and disciplined utility payments, you qualify for up to ₹{credit_limit:,} subsidized agricultural credit."
         plain_tip = "Keep paying your mobile recharges and electricity bills on time to unlock a higher credit limit."
+        officer_note = "We've pre-attached PMFBY crop insurance and activated a 60-day harvest grace period on your repayments."
     elif segment_name == "msme":
         audio_scripts = {
             "gu": f"નમસ્તે! તમારા વ્યવસાયિક ટર્નઓવર અને નિયમિત UPI વેચાણના આધારે, તમારો સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની મુદ્રા બિઝનેસ લોન માટે પાત્ર છો.",
@@ -170,6 +171,17 @@ async def get_user_intelligence(user_id: str):
         }
         plain_summary = f"You qualify for up to ₹{credit_limit:,} collateral-free MUDRA business credit."
         plain_tip = "Continue accepting digital UPI customer payments to verify higher monthly sales."
+        officer_note = "We've pre-approved collateral-free MUDRA working capital with flexible turnover-aligned repayments."
+    elif segment_name == "gig_worker":
+        audio_scripts = {
+            "gu": f"નમસ્તે! તમારી નિયમિત પ્લેટફોર્મ ડિલિવરી કમાણીના આધારે, તમારો સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની વર્કિંગ કેપિટલ લોન માટે પાત્ર છો.",
+            "hi": f"नमस्ते! आपकी नियमित डिलीवरी कमाई के आधार पर, आपका स्कोर {score} है। आप ₹{credit_limit:,} तक के कार्यशील पूंजी ऋण के पात्र हैं।",
+            "ta": f"வணக்கம்! உங்கள் வழக்கமான விநியோக வருவாயின் அடிப்படையில், உங்கள் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை கடன் பெறலாம்.",
+            "en": f"Good news! Based on your consistent platform inflows, your AltGrade score is {score}. You qualify for working capital up to ₹{credit_limit:,}."
+        }
+        plain_summary = f"You qualify for up to ₹{credit_limit:,} flexible credit based on your platform payout consistency."
+        plain_tip = "Maintain active gig deliveries across peak cycles to unlock higher revolving limits."
+        officer_note = "We've enabled a zero-prepayment digital credit facility with daily platform earnings sweep."
     else:
         audio_scripts = {
             "gu": f"નમસ્તે! તમારી સમયસર બિલ ચુકવણી અને બેંક રેકોર્ડના આધારે, તમારો સ્કોર {score} છે. તમે ₹{credit_limit:,} સુધીની લોન માટે પાત્ર છો.",
@@ -177,8 +189,9 @@ async def get_user_intelligence(user_id: str):
             "ta": f"வணக்கம்! உங்கள் சரியான நேர கட்டணங்களின் அடிப்படையில், உங்கள் மதிப்பீடு {score}. நீங்கள் ₹{credit_limit:,} வரை கடன் பெறலாம்.",
             "en": f"Good news! Based on your consistent bill payments, your AltGrade score is {score}. You qualify for credit up to ₹{credit_limit:,}."
         }
-        plain_summary = f"You qualify for up to ₹{credit_limit:,} credit with simple terms."
+        plain_summary = f"You qualify for up to ₹{credit_limit:,} credit with priority low-interest banking terms."
         plain_tip = "Pay electricity and utility bills before the 5th of each month to keep growing your score."
+        officer_note = "We've verified your digital payment discipline and recommended instant collateral-free disbursement."
 
     return {
         "user_id": user_id,
@@ -192,6 +205,7 @@ async def get_user_intelligence(user_id: str):
             "headline": f"Score: {score} — Eligible for Credit",
             "plain_summary": plain_summary,
             "plain_tip": plain_tip,
+            "officer_note": officer_note,
             "audio_scripts": audio_scripts,
         },
         "features": features
