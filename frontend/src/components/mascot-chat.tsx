@@ -195,7 +195,6 @@ export function MascotChat() {
     const curr = i18n.language
     return (curr === 'hi' || curr === 'gu' || curr === 'ta' || curr === 'en') ? curr : 'en'
   })
-  const t = MASCOT_I18N[selectedLang] || MASCOT_I18N.en
   const [showCallbackForm, setShowCallbackForm] = useState(false)
   const [callbackPhone, setCallbackPhone] = useState(() => getDefaultPhone())
   const [isPhoneMasked, setIsPhoneMasked] = useState(true)
