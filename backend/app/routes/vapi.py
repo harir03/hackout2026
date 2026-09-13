@@ -735,6 +735,7 @@ async def vapi_webhook(request: Request) -> dict[str, Any]:
         if customer_name:
             existing_store = call_results_store.get(customer_name, {})
             retry_count = existing_store.get("retry_count", 0)
+            stored_call_type = existing_store.get("call_type", "assessment")
 
             if ended_reason in FAILED_REASONS and not transcript:
                 call_results_store[customer_name] = {
@@ -747,6 +748,23 @@ async def vapi_webhook(request: Request) -> dict[str, Any]:
                     "retry_count": retry_count,
                     "current_question_index": 0,
                     "questions_completed": 0,
+                    "call_type": stored_call_type,
+                }
+            elif stored_call_type == "on_call_banking":
+                # On-call banking has no fixed question count — any call with a
+                # transcript (i.e. the customer actually spoke) is "completed".
+                call_results_store[customer_name] = {
+                    "call_id": call_id or f"vapi-{customer_name}",
+                    "transcript": transcript,
+                    "summary": summary,
+                    "analysis": analysis,
+                    "completed": True,
+                    "failed": False,
+                    "status": "completed",
+                    "call_type": "on_call_banking",
+                    "current_question_index": 0,
+                    "questions_completed": 0,
+                    "retry_count": retry_count,
                 }
             else:
                 existing_answers = existing_store.get("answers", {})
@@ -761,6 +779,7 @@ async def vapi_webhook(request: Request) -> dict[str, Any]:
                         "completed": True,
                         "failed": False,
                         "status": "completed",
+                        "call_type": "assessment",
                         "current_question_index": 9,
                         "questions_completed": 10,
                         "answers": existing_answers,
@@ -775,6 +794,7 @@ async def vapi_webhook(request: Request) -> dict[str, Any]:
                         "completed": False,
                         "failed": False,
                         "status": "incomplete",
+                        "call_type": "assessment",
                         "current_question_index": max(questions_answered - 1, 0),
                         "questions_completed": questions_answered,
                         "answers": existing_answers,
@@ -905,10 +925,28 @@ async def get_call_results(user_id: str) -> dict[str, Any]:
             )
             result["ai_suggestion"] = suggestion
 
+        if call_type == "on_call_banking":
+            return {
+                "status": "completed",
+                "user_id": user_id,
+                "call_type": "on_call_banking",
+                "completed": True,
+                "failed": False,
+                "current_question_index": 0,
+                "questions_completed": 0,
+                "summary": result.get("summary", "On-call banking consultation complete."),
+                "retry_count": result.get("retry_count", 0),
+                "ai_suggestion": suggestion,
+                "loan_offer": suggestion,
+                "redirect_to": "/score",
+                "stage": "offer_delivered",
+                "message": "On-Call Banking Complete! Transferring to Loan Dashboard...",
+            }
+
         return {
             "status": "completed",
             "user_id": user_id,
-            "call_type": call_type,
+            "call_type": "assessment",
             "completed": True,
             "failed": False,
             "current_question_index": 9,

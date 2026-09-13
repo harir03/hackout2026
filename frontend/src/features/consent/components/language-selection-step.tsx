@@ -23,14 +23,19 @@ export function LanguageSelectionStep({ onContinue }: LanguageSelectionStepProps
   return (
     <Card className="mx-auto max-w-xl border-dove/40 shadow-subtle text-foreground">
       <CardHeader className="text-center pb-4">
+        <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full border border-brand-blue/30 bg-brand-blue/10 px-3 py-1 text-[11px] font-medium text-brand-blue">
+          <span>Online Banking for All</span>
+          <span className="text-muted-foreground">•</span>
+          <span>Bharat Edition</span>
+        </div>
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
           <Languages className="h-6 w-6" />
         </div>
         <CardTitle className="font-signifier text-xl font-normal leading-snug sm:text-2xl text-foreground">
           Select Your Preferred Language
         </CardTitle>
-        <CardDescription className="text-xs text-muted-foreground sm:text-sm mt-0.5">
-          Choose the language for assessment screens, voice assistant, and AI phone callbacks.
+        <CardDescription className="text-xs text-muted-foreground sm:text-sm mt-1 max-w-md mx-auto">
+          AI-Powered Hyper-Personalized Banking for Bharat. Choose your preferred language for vernacular onboarding, hands-free voice assistance, and AI callbacks.
         </CardDescription>
       </CardHeader>
 

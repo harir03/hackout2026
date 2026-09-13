@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { Send, BookOpen, Loader2, Bot, User } from 'lucide-react'
+import { Send, BookOpen, Loader2, Bot, User, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -29,8 +29,15 @@ const SUGGESTED_QUESTIONS = [
   'What happens if I withdraw consent for a data source?',
 ]
 
+const LANG_BCP47: Record<string, string> = {
+  en: 'en-IN',
+  hi: 'hi-IN',
+  gu: 'gu-IN',
+  ta: 'ta-IN',
+}
+
 export function AdvisorPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const search = useSearch({ strict: false }) as { userId?: string }
   const userId = search.userId || 'test-user-001'
 
@@ -38,6 +45,62 @@ export function AdvisorPage() {
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState<ChatEntry[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null)
+
+  function handleToggleSpeak(index: number, text: string) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel()
+      setSpeakingIndex(null)
+      return
+    }
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    const lang = i18n?.language || 'en'
+    utterance.lang = LANG_BCP47[lang] || 'en-IN'
+    utterance.rate = 0.95
+    utterance.onend = () => setSpeakingIndex(null)
+    utterance.onerror = () => setSpeakingIndex(null)
+    setSpeakingIndex(index)
+    window.speechSynthesis.speak(utterance)
+  }
+
+  function toggleListening() {
+    if (typeof window === 'undefined') return
+    const win = window as any
+    const SpeechRecognitionClass = win.SpeechRecognition || win.webkitSpeechRecognition
+    if (!SpeechRecognitionClass) {
+      setError(t('advisor.speechNotSupported', 'Voice recognition is not supported in this browser.'))
+      return
+    }
+
+    if (isListening) {
+      setIsListening(false)
+      return
+    }
+
+    try {
+      const rec = new SpeechRecognitionClass()
+      rec.continuous = false
+      rec.interimResults = false
+      const lang = i18n?.language || 'en'
+      rec.lang = LANG_BCP47[lang] || 'en-IN'
+
+      rec.onstart = () => setIsListening(true)
+      rec.onresult = (event: any) => {
+        const transcript = event.results?.[0]?.[0]?.transcript || ''
+        if (transcript.trim()) {
+          setInput((prev) => (prev ? `${prev} ${transcript.trim()}` : transcript.trim()))
+        }
+      }
+      rec.onerror = () => setIsListening(false)
+      rec.onend = () => setIsListening(false)
+      rec.start()
+    } catch {
+      setIsListening(false)
+    }
+  }
 
   async function handleAsk(question: string) {
     if (!question.trim()) return
@@ -104,7 +167,23 @@ export function AdvisorPage() {
                           : 'bg-sky-wash text-ink dark:bg-sky-wash/10 dark:text-foreground'
                       }`}
                     >
-                      <div className='whitespace-pre-wrap text-sm'>{entry.content}</div>
+                      <div className='flex items-start justify-between gap-3'>
+                        <div className='whitespace-pre-wrap text-sm leading-relaxed'>{entry.content}</div>
+                        {entry.role === 'advisor' && (
+                          <button
+                            type='button'
+                            onClick={() => handleToggleSpeak(i, entry.content)}
+                            className='shrink-0 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-background/60 transition-colors'
+                            title={speakingIndex === i ? 'Stop readout' : 'Read answer aloud'}
+                          >
+                            {speakingIndex === i ? (
+                              <VolumeX className='h-4 w-4 text-brand-blue animate-pulse' />
+                            ) : (
+                              <Volume2 className='h-4 w-4' />
+                            )}
+                          </button>
+                        )}
+                      </div>
                       {entry.sources && entry.sources.length > 0 && (
                         <div className='mt-3 border-t border-border/50 pt-2'>
                           <p className='mb-1 text-xs font-semibold text-muted-foreground'>
@@ -176,6 +255,18 @@ export function AdvisorPage() {
                       }
                     }}
                   />
+                  <button
+                    type='button'
+                    onClick={toggleListening}
+                    className={`shrink-0 h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      isListening
+                        ? 'bg-rose-500 text-white animate-pulse'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                    title={isListening ? 'Listening… click to stop' : 'Click to speak your question'}
+                  >
+                    {isListening ? <MicOff className='h-4 w-4' /> : <Mic className='h-4 w-4' />}
+                  </button>
                   <Button
                     onClick={() => handleAsk(input)}
                     disabled={!input.trim() || loading}

@@ -195,6 +195,7 @@ export function MascotChat() {
     const curr = i18n.language
     return (curr === 'hi' || curr === 'gu' || curr === 'ta' || curr === 'en') ? curr : 'en'
   })
+  const t = MASCOT_I18N[selectedLang] || MASCOT_I18N.en
   const [showCallbackForm, setShowCallbackForm] = useState(false)
   const [callbackPhone, setCallbackPhone] = useState(() => getDefaultPhone())
   const [isPhoneMasked, setIsPhoneMasked] = useState(true)
@@ -223,6 +224,7 @@ export function MascotChat() {
   const [speakingId, setSpeakingId] = useState<string | null>(null)
   const [isLocalModel, setIsLocalModel] = useState<boolean>(true)
   const [bubbleVisible, setBubbleVisible] = useState(true)
+  const [isBubbleDismissed, setIsBubbleDismissed] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -489,17 +491,28 @@ export function MascotChat() {
   return (
     <div className='fixed bottom-6 right-6 z-50 flex flex-col items-end'>
       {/* Floating Cycling Speech Bubble (when chat is closed) */}
-      {!isOpen && (
+      {!isOpen && !isBubbleDismissed && (
         <div
           onClick={() => {
             setSelectedLang(currentBubble.lang as any)
             setIsOpen(true)
           }}
-          className={`mb-3 max-w-xs cursor-pointer rounded-xl border border-white/10 bg-black/90 p-3 shadow-2xl backdrop-blur-md transition-all duration-200 hover:border-white/30 hover:scale-[1.02] ${
-            bubbleVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+          className={`relative mb-3 max-w-xs cursor-pointer rounded-xl border border-white/15 bg-black/95 p-3 shadow-2xl backdrop-blur-md transition-all duration-200 hover:border-white/30 hover:scale-[1.02] ${
+            bubbleVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 pointer-events-none'
           }`}
         >
-          <div className='flex items-center gap-2 mb-1.5'>
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsBubbleDismissed(true)
+            }}
+            className='absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors'
+            title='Dismiss'
+          >
+            <X className='h-3 w-3' />
+          </button>
+          <div className='flex items-center gap-2 mb-1.5 pr-5'>
             <span className='flex h-1.5 w-1.5 rounded-full bg-white animate-pulse' />
             <span className='text-[10px] font-mono tracking-widest uppercase text-white/70'>
               MITRA AI • {currentBubble.label}
@@ -509,8 +522,8 @@ export function MascotChat() {
             {currentBubble.text}
           </p>
           <div className='mt-2.5 flex items-center justify-between text-[10px] font-mono text-white/40 border-t border-white/5 pt-1.5'>
-            <span>Click to chat</span>
-            <span className='text-white/80 hover:text-white transition-colors'>Assistant →</span>
+            <span>{t.clickToChat}</span>
+            <span className='text-white/80 hover:text-white transition-colors'>{t.assistantArrow}</span>
           </div>
         </div>
       )}
@@ -578,7 +591,7 @@ export function MascotChat() {
                       {isLocalModel ? 'Local AI' : 'Edge AI'}
                     </Badge>
                   </div>
-                  <p className='text-[11px] text-white/45 font-mono'>Vernacular Credit Intelligence</p>
+                  <p className='text-[11px] text-white/45 font-mono'>{t.vernacularSubtitle}</p>
                 </div>
               </div>
 
@@ -595,7 +608,7 @@ export function MascotChat() {
                   title='Request Voice Callback'
                 >
                   <PhoneCall className='h-3 w-3' />
-                  <span className='hidden xs:inline'>Request Call</span>
+                  <span className='hidden xs:inline'>{t.requestCallHeaderBtn}</span>
                 </button>
 
                 {/* Window Controls */}
@@ -653,7 +666,7 @@ export function MascotChat() {
 
               <div className='hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-white/40'>
                 <span className='h-1.5 w-1.5 rounded-full bg-white/80 animate-pulse' />
-                <span>Zero Bureau Required</span>
+                <span>{t.zeroBureau}</span>
               </div>
             </div>
           </div>
@@ -667,8 +680,8 @@ export function MascotChat() {
                     <PhoneCall className='h-3.5 w-3.5' />
                   </div>
                   <div>
-                    <h4 className='text-xs font-semibold text-white font-sans'>Request Spoken Assistance</h4>
-                    <p className='text-[10px] text-white/50 font-mono'>Direct phone connection in your language</p>
+                    <h4 className='text-xs font-semibold text-white font-sans'>{t.drawerTitle}</h4>
+                    <p className='text-[10px] text-white/50 font-mono'>{t.drawerDesc}</p>
                   </div>
                 </div>
                 <button
@@ -690,7 +703,7 @@ export function MascotChat() {
                       : 'text-white/60 hover:text-white'
                   }`}
                 >
-                  AI Voice Officer (Immediate)
+                  {t.voiceOption}
                 </button>
                 <button
                   type='button'
@@ -701,7 +714,7 @@ export function MascotChat() {
                       : 'text-white/60 hover:text-white'
                   }`}
                 >
-                  Field Officer Visit
+                  {t.officerOption}
                 </button>
               </div>
 
@@ -720,7 +733,7 @@ export function MascotChat() {
                         setIsPhoneMasked(false)
                       }
                     }}
-                    placeholder='98765 43215'
+                    placeholder={t.phonePlaceholder}
                     className='h-9 pl-11 pr-9 text-xs font-mono bg-white/[0.04] border-white/15 text-white placeholder:text-white/30 rounded-xl focus-visible:ring-1 focus-visible:ring-white'
                   />
                   <button
@@ -742,7 +755,7 @@ export function MascotChat() {
                   {isRequestingCall ? (
                     <Loader2 className='h-3.5 w-3.5 animate-spin text-black' />
                   ) : (
-                    'Call Me Now'
+                    callbackType === 'voice' ? t.callBtn : t.scheduleBtn
                   )}
                 </Button>
               </div>
@@ -787,17 +800,23 @@ export function MascotChat() {
                       {(msg.id === 'welcome' ||
                         msg.id.startsWith('lang-switch-') ||
                         msg.content.toLowerCase().includes('on-call banking') ||
-                        msg.content.toLowerCase().includes('call back')) && (
+                        msg.content.toLowerCase().includes('call back') ||
+                        msg.content.includes('કૉલ બૅક') ||
+                        msg.content.includes('કૉલ બેક') ||
+                        msg.content.includes('બેંકિંગ સેવા') ||
+                        msg.content.includes('કૉલબેક') ||
+                        msg.content.includes('कॉल बैक') ||
+                        msg.content.includes('கால் பேக்')) && (
                         <div className='mt-3.5 space-y-2.5 pt-3 border-t border-white/[0.08]'>
                           <div className='rounded-xl border border-white/15 bg-white/[0.04] p-3 transition-all hover:border-white/25'>
                             <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5'>
                               <div className='space-y-0.5'>
                                 <div className='flex items-center gap-1.5 text-xs font-semibold text-white'>
                                   <PhoneCall className='h-3.5 w-3.5 text-white' />
-                                  <span>Prefer an on-call banking service?</span>
+                                  <span>{t.cardTitle}</span>
                                 </div>
                                 <p className='text-[11px] text-white/60 font-mono leading-relaxed'>
-                                  Speak directly with our AI Voice Officer in your language or request a field visit.
+                                  {t.cardDesc}
                                 </p>
                               </div>
                               <button
@@ -806,7 +825,7 @@ export function MascotChat() {
                                 className='shrink-0 rounded-lg bg-white px-3 py-1.5 text-[11px] font-mono font-semibold text-black hover:bg-white/90 transition-all active:scale-95 shadow-sm flex items-center gap-1.5'
                               >
                                 <PhoneCall className='h-3 w-3' />
-                                <span>Request Call Back</span>
+                                <span>{t.cardBtn}</span>
                               </button>
                             </div>
                           </div>
@@ -838,12 +857,12 @@ export function MascotChat() {
                             {speakingId === msg.id ? (
                               <>
                                 <VolumeX className='h-3 w-3 text-white animate-pulse' />
-                                <span className='text-white'>Stop</span>
+                                <span className='text-white'>{t.stopBtn}</span>
                               </>
                             ) : (
                               <>
                                 <Volume2 className='h-3 w-3' />
-                                <span>Listen</span>
+                                <span>{t.listenBtn}</span>
                               </>
                             )}
                           </button>
@@ -865,7 +884,7 @@ export function MascotChat() {
                   <div className='flex h-6 w-6 items-center justify-center rounded-md bg-white/10 text-white'>
                     <Loader2 className='h-3.5 w-3.5 animate-spin' />
                   </div>
-                  <span>Thinking in {selectedLang.toUpperCase()}...</span>
+                  <span>{t.thinking}</span>
                 </div>
               )}
 
@@ -887,15 +906,7 @@ export function MascotChat() {
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={
-                    selectedLang === 'hi'
-                      ? 'ऋण या ब्याज दर के बारे में कुछ भी पूछें...'
-                      : selectedLang === 'gu'
-                      ? 'લોન અથવા વ્યાજ દર વિશે કંઈપણ પૂછો...'
-                      : selectedLang === 'ta'
-                      ? 'கடன் அல்லது வட்டி பற்றி ஏதேனும் கேளுங்கள்...'
-                      : 'Ask anything about alternative credit, loans or score...'
-                  }
+                  placeholder={t.inputPlaceholder}
                   className='h-10 text-xs sm:text-[13px] bg-transparent border-0 text-white placeholder:text-white/35 focus-visible:ring-0 focus-visible:outline-none shadow-none py-1.5'
                   disabled={isLoading}
                 />
@@ -914,7 +925,7 @@ export function MascotChat() {
               </form>
 
               <p className='mt-2 text-center text-[10px] font-mono text-white/30 tracking-wide'>
-                Mitra Vernacular AI • Verified by AltGrade Engine
+                {t.footerTagline}
               </p>
             </div>
           </div>

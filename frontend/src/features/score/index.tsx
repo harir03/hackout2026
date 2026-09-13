@@ -20,9 +20,7 @@ import {
   Eye,
   EyeOff,
   Wallet,
-  MessageCircle,
   ArrowUpRight,
-  TrendingUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -128,8 +126,193 @@ function ShapBar({ feature, maxAbs }: { feature: ShapFeature; maxAbs: number }) 
   )
 }
 
+
+function sanitizeText(text: string): string {
+  if (!text) return ''
+  return text.replace(/_+$/, '').trim()
+}
+
+const SCORE_I18N = {
+  en: {
+    pageTitle: 'Your Sanctioned Credit Result',
+    pageSubtitle: 'Verified alternative financial footprint • Pre-approved credit limit & government subsidies',
+    technicalView: 'Technical Breakdown (Advanced)',
+    simpleView: 'Simple Banking View',
+    sanctionApproved: 'Loan Sanction Approved',
+    scoreCalculated: 'Score Calculated',
+    subsidizedApr: '10.5% Subsidized APR',
+    tenure36: '36 Months Tenure',
+    listen: 'Listen',
+    pause: 'Pause',
+    outOf850: 'Out of 850',
+    eligibleBanking: 'Eligible for Regulated Banking Products',
+    highTrust: 'High Financial Trust',
+    goodStanding: 'Good Financial Standing',
+    preApprovedLimit: 'Pre-Approved Credit Limit',
+    speakLoanOfficer: 'Speak with Loan Officer',
+    askAiAdvisor: 'Ask AI Credit Advisor →',
+    whyQualified: 'Why You Qualified',
+    officerNoteTitle: "Officer Anand's Advisory Note",
+    topSchemesTitle: 'Top Matched Schemes',
+    topSchemesSubtitle: 'Subsidized government safety nets and credit lines selected for your economic profile',
+    match: 'Match',
+    portal: 'Portal',
+    enroll: 'Enroll',
+    officerModalTitle: 'Connect with Field Loan Officer',
+    officerModalDesc: 'A local Business Correspondent or MFI Field Officer will assist you with paperwork and government subsidy enrollment.',
+    assignedOfficer: 'Assigned Branch Officer',
+    officerDetails: 'Anand Varma (District MFI Agent • Kovvur/Madurai Zone)',
+    availableVisit: 'Available for in-person village visit',
+    contactNumber: 'Your Contact Number:',
+    confirmFieldVisit: 'Confirm Field Visit Request',
+    requestDispatched: 'Request Dispatched',
+    requestDispatchedDesc: 'Your local field representative will call you or visit your village location within 24–48 hours.',
+    close: 'Close',
+    whyQualifiedFarmer: 'Based on your long-term land stability and disciplined utility payments, you qualify for subsidized agricultural credit.',
+    whyQualifiedMsme: 'You qualify for up to ₹200,000 collateral-free MUDRA business credit.',
+    whyQualifiedGig: 'Based on your platform payout consistency, you qualify for instant revolving credit lines.',
+    whyQualifiedGeneral: 'Based on your verified digital payment discipline, you qualify for low-interest credit.',
+    officerNoteFarmer: "We've pre-attached PMFBY crop insurance and activated a 60-day harvest grace period on your repayments.",
+    officerNoteMsme: "We've pre-approved collateral-free MUDRA working capital with flexible turnover-aligned repayments.",
+    officerNoteGig: "We've enabled a zero-prepayment digital credit facility with daily platform earnings sweep.",
+    officerNoteGeneral: "We've verified your digital payment discipline and recommended instant collateral-free disbursement.",
+  },
+  gu: {
+    pageTitle: 'તમારું મંજૂર થયેલ ક્રેડિટ પરિણામ',
+    pageSubtitle: 'ચકાસાયેલ વૈકલ્પિક નાણાકીય માહિતી • પૂર્વ-મંજૂર ક્રેડિટ મર્યાદા અને સરકારી સબસિડી',
+    technicalView: 'તકનીકી વિશ્લેષણ (વિગતવાર)',
+    simpleView: 'સરળ બેંકિંગ દૃશ્ય',
+    sanctionApproved: 'લોન મંજૂરી સ્વીકૃત',
+    scoreCalculated: 'સ્કોર ગણતરી પૂર્ણ',
+    subsidizedApr: '10.5% સબસિડીયુક્ત વાર્ષિક વ્યાજદર',
+    tenure36: '36 મહિનાની મુદત',
+    listen: 'સાંભળો',
+    pause: 'રોકો',
+    outOf850: '850 માંથી',
+    eligibleBanking: 'નિયમનકારી બેંકિંગ ઉત્પાદનો માટે પાત્ર',
+    highTrust: 'ઉચ્ચ નાણાકીય વિશ્વસનીયતા',
+    goodStanding: 'સારી નાણાકીય સ્થિતિ',
+    preApprovedLimit: 'પૂર્વ-મંજૂર ક્રેડિટ મર્યાદા',
+    speakLoanOfficer: 'લોન અધિકારી સાથે વાત કરો',
+    askAiAdvisor: 'એઆઈ ક્રેડિટ સલાહકારને પૂછો →',
+    whyQualified: 'તમે શા માટે પાત્ર બન્યા',
+    officerNoteTitle: 'અધિકારી આનંદની સલાહ નોંધ',
+    topSchemesTitle: 'શ્રેષ્ઠ મેળ ખાતી સરકારી યોજનાઓ',
+    topSchemesSubtitle: 'તમારી આર્થિક પ્રોફાઇલ માટે પસંદ કરાયેલ સબસિડીયુક્ત સરકારી સહાય અને ક્રેડિટ સુવિધાઓ',
+    match: 'મેળ',
+    portal: 'પોર્ટલ',
+    enroll: 'નોંધણી કરો',
+    officerModalTitle: 'ફિલ્ડ લોન અધિકારી સાથે જોડાઓ',
+    officerModalDesc: 'સ્થાનિક બિઝનેસ કોરેસ્પોન્ડન્ટ અથવા એમએફઆઈ ફિલ્ડ અધિકારી તમને કાગળકામ અને સરકારી સબસિડી નોંધણીમાં મદદ કરશે.',
+    assignedOfficer: 'સોંપાયેલ શાખા અધિકારી',
+    officerDetails: 'આનંદ વર્મા (જિલ્લા એમએફઆઈ એજન્ટ • કોવ્વુર/મદુરાઇ ઝોન)',
+    availableVisit: 'રૂબરૂ ગામ મુલાકાત માટે ઉપલબ્ધ',
+    contactNumber: 'તમારો સંપર્ક નંબર:',
+    confirmFieldVisit: 'રૂબરૂ મુલાકાતની વિનંતી કન્ફર્મ કરો',
+    requestDispatched: 'વિનંતી મોકલાઈ ગઈ છે',
+    requestDispatchedDesc: 'તમારા સ્થાનિક ફિલ્ડ પ્રતિનિધિ 24-48 કલાકમાં તમને કૉલ કરશે અથવા તમારા ગામની મુલાકાત લેશે.',
+    close: 'બંધ કરો',
+    whyQualifiedFarmer: 'તમારા લાંબા ગાળાના રહેઠાણ અને નિયમિત બિલ ચુકવણીના આધારે, તમે સબસિડીયુક્ત કૃષિ લોન માટે પાત્ર છો.',
+    whyQualifiedMsme: 'તમે ₹2,00,000 સુધીની જામીનમુક્ત મુદ્રા બિઝનેસ લોન માટે પાત્ર છો.',
+    whyQualifiedGig: 'તમારી પ્લેટફોર્મ કમાણી સાતત્યના આધારે, તમે ત્વરિત ક્રેડિટ લાઇન માટે પાત્ર છો.',
+    whyQualifiedGeneral: 'તમારી ચકાસાયેલ ચુકવણી શિસ્તના આધારે, તમે ઓછા વ્યાજની લોન માટે પાત્ર છો.',
+    officerNoteFarmer: 'અમે પીએમએફબીવાય પાક વીમો જોડી દીધો છે અને ચુકવણી પર 60 દિવસનો લણણી ગ્રેસ પીરિયડ સક્રિય કર્યો છે.',
+    officerNoteMsme: 'અમે ટર્નઓવર-આધારિત લવચીક ચુકવણી સાથે જામીનમુક્ત મુદ્રા વર્કિંગ કેપિટલ મંજૂર કર્યું છે.',
+    officerNoteGig: 'અમે દૈનિક કમાણી સ્વીપ સાથે શૂન્ય-પ્રીપેમેન્ટ ડિજિટલ ક્રેડિટ સુવિધા સક્ષમ કરી છે.',
+    officerNoteGeneral: 'અમે તમારી નિયમિત ચુકવણી ચકાસી છે અને ત્વરિત જામીનમુક્ત વિતરણની ભલામણ કરી છે.',
+  },
+  hi: {
+    pageTitle: 'आपका स्वीकृत क्रेडिट परिणाम',
+    pageSubtitle: 'सत्यापित वैकल्पिक वित्तीय पदचिह्न • पूर्व-स्वीकृत क्रेडिट सीमा और सरकारी सब्सिडी',
+    technicalView: 'तकनीकी विश्लेषण (उन्नत)',
+    simpleView: 'सरल बैंकिंग दृश्य',
+    sanctionApproved: 'ऋण स्वीकृति स्वीकृत',
+    scoreCalculated: 'स्कोर गणना पूर्ण',
+    subsidizedApr: '10.5% रियायती वार्षिक ब्याज दर',
+    tenure36: '36 महीने की अवधि',
+    listen: 'सुनें',
+    pause: 'रोकें',
+    outOf850: '850 में से',
+    eligibleBanking: 'विनियमित बैंकिंग उत्पादों के लिए पात्र',
+    highTrust: 'उच्च वित्तीय विश्वास',
+    goodStanding: 'अच्छी वित्तीय स्थिति',
+    preApprovedLimit: 'पूर्व-स्वीकृत क्रेडिट सीमा',
+    speakLoanOfficer: 'ऋण अधिकारी से बात करें',
+    askAiAdvisor: 'एआई क्रेडिट सलाहकार से पूछें →',
+    whyQualified: 'आप क्यों पात्र बने',
+    officerNoteTitle: 'अधिकारी आनंद का परामर्श नोट',
+    topSchemesTitle: 'शीर्ष अनुशंसित सरकारी योजनाएं',
+    topSchemesSubtitle: 'आपकी आर्थिक प्रोफ़ाइल के लिए चुनी गई रियायती सरकारी सुरक्षा योजनाएं और ऋण सुविधाएं',
+    match: 'मैच',
+    portal: 'पोर्टल',
+    enroll: 'आवेदन करें',
+    officerModalTitle: 'फील्ड ऋण अधिकारी से जुड़ें',
+    officerModalDesc: 'एक स्थानीय व्यापार प्रतिनिधि या एमएफआई फील्ड अधिकारी कागजी कार्रवाई और सरकारी सब्सिडी नामांकन में आपकी सहायता करेगा।',
+    assignedOfficer: 'आवंटित शाखा अधिकारी',
+    officerDetails: 'आनंद वर्मा (जिला एमएफआई एजेंट • कोव्वुर/मदुरै जोन)',
+    availableVisit: 'व्यक्तिगत गांव यात्रा के लिए उपलब्ध',
+    contactNumber: 'आपका संपर्क नंबर:',
+    confirmFieldVisit: 'फील्ड विज़िट अनुरोध की पुष्टि करें',
+    requestDispatched: 'अनुरोध भेज दिया गया',
+    requestDispatchedDesc: 'आपका स्थानीय प्रतिनिधि 24-48 घंटों के भीतर आपको कॉल करेगा या आपके गांव का दौरा करेगा।',
+    close: 'बंद करें',
+    whyQualifiedFarmer: 'आपकी दीर्घकालिक भूमि स्थिरता और अनुशासित बिल भुगतान के आधार पर, आप रियायती कृषि ऋण के पात्र हैं।',
+    whyQualifiedMsme: 'आप ₹2,00,000 तक के संपार्श्विक-मुक्त मुद्रा व्यापार ऋण के पात्र हैं।',
+    whyQualifiedGig: 'आपकी नियमित प्लेटफॉर्म डिलीवरी कमाई के आधार पर, आप त्वरित क्रेडिट लाइन के पात्र हैं।',
+    whyQualifiedGeneral: 'आपके सत्यापित भुगतान अनुशासन के आधार पर, आप कम ब्याज वाले ऋण के पात्र हैं।',
+    officerNoteFarmer: 'हमने पीएमएफबीवाई फसल बीमा जोड़ दिया है और पुनर्भुगतान पर 60 दिनों की फसल रियायत अवधि सक्रिय की है।',
+    officerNoteMsme: 'हमने टर्नओवर-संरेखित लचीले पुनर्भुगतान के साथ संपार्श्विक-मुक्त मुद्रा कार्यशील पूंजी स्वीकृत की है।',
+    officerNoteGig: 'हमने दैनिक प्लेटफॉर्म कमाई स्वीप के साथ शून्य-प्रीपेमेंट डिजिटल क्रेडिट सुविधा सक्षम की है।',
+    officerNoteGeneral: 'हमने आपके नियमित डिजिटल भुगतान को सत्यापित किया है और त्वरित संपार्श्विक-मुक्त संवितरण की सिफारिश की है।',
+  },
+  ta: {
+    pageTitle: 'உங்கள் அனுமதிக்கப்பட்ட கடன் முடிவு',
+    pageSubtitle: 'சரிபார்க்கப்பட்ட மாற்று நிதி விவரங்கள் • முன் அங்கீகரிக்கப்பட்ட கடன் வரம்பு & அரசு மானியங்கள்',
+    technicalView: 'தொழில்நுட்ப பகுப்பாய்வு (மேம்பட்ட)',
+    simpleView: 'எளிய வங்கி பார்வை',
+    sanctionApproved: 'கடன் அனுமதி வழங்கப்பட்டது',
+    scoreCalculated: 'மதிப்பீடு கணக்கிடப்பட்டது',
+    subsidizedApr: '10.5% மானிய வருடாந்திர வட்டி விகிதம்',
+    tenure36: '36 மாத தவணைக்காலம்',
+    listen: 'கேளுங்கள்',
+    pause: 'நிறுத்து',
+    outOf850: '850 இல்',
+    eligibleBanking: 'ஒழுங்குபடுத்தப்பட்ட வங்கி தயாரிப்புகளுக்கு தகுதியுடையவர்',
+    highTrust: 'உயர் நிதி நம்பிக்கை',
+    goodStanding: 'நல்ல நிதி நிலை',
+    preApprovedLimit: 'முன் அங்கீகரிக்கப்பட்ட கடன் வரம்பு',
+    speakLoanOfficer: 'கடன் அதிகாரியுடன் பேசுங்கள்',
+    askAiAdvisor: 'AI கடன் ஆலோசகரிடம் கேளுங்கள் →',
+    whyQualified: 'நீங்கள் ஏன் தகுதி பெற்றீர்கள்',
+    officerNoteTitle: 'அதிகாரி ஆனந்தின் ஆலோசனை குறிப்பு',
+    topSchemesTitle: 'சிறந்த அரசு திட்டங்கள்',
+    topSchemesSubtitle: 'உங்கள் பொருளாதார நிலைக்கு தேர்ந்தெடுக்கப்பட்ட மானிய அரசு பாதுகாப்பு மற்றும் கடன் திட்டங்கள்',
+    match: 'பொருத்தம்',
+    portal: 'இணையதளம்',
+    enroll: 'விண்ணப்பிக்கவும்',
+    officerModalTitle: 'கள கடன் அதிகாரியுடன் இணையுங்கள்',
+    officerModalDesc: 'உள்ளூர் வணிக நிருபர் அல்லது கள அதிகாரி உங்களுக்கு ஆவணங்கள் மற்றும் அரசு திட்டங்களில் விண்ணப்பிக்க உதவுவார்.',
+    assignedOfficer: 'ஒதுக்கப்பட்ட கிளை அதிகாரி',
+    officerDetails: 'ஆனந்த் வர்மா (மாவட்ட கள முகவர் • மதுரை மண்டலம்)',
+    availableVisit: 'நேரடி கிராம வருகைக்கு கிடைக்கும்',
+    contactNumber: 'உங்கள் தொடர்பு எண்:',
+    confirmFieldVisit: 'கள வருகை கோரிக்கையை உறுதிப்படுத்தவும்',
+    requestDispatched: 'கோரிக்கை அனுப்பப்பட்டது',
+    requestDispatchedDesc: 'உங்கள் உள்ளூர் பிரதிநிதி 24-48 மணி நேரத்திற்குள் உங்களை தொடர்புகொள்வார் அல்லது கிராமத்திற்கு வருவார்.',
+    close: 'மூடுக',
+    whyQualifiedFarmer: 'உங்கள் நீண்ட கால நில நிலைத்தன்மை மற்றும் முறையான கட்டணங்களின் அடிப்படையில் விவசாயக் கடனுக்கு தகுதியுடையவர்.',
+    whyQualifiedMsme: 'நீங்கள் ₹2,00,000 வரை பிணையில்லா முத்ரா வணிகக் கடனுக்கு தகுதியுடையவர்.',
+    whyQualifiedGig: 'உங்கள் வழக்கமான வருவாயின் அடிப்படையில் விரைவு கடனுக்கு தகுதியுடையவர்.',
+    whyQualifiedGeneral: 'உங்கள் முறையான கட்டணங்களின் அடிப்படையில் குறைந்த வட்டிக் கடனுக்கு தகுதியுடையவர்.',
+    officerNoteFarmer: 'பயிர் காப்பீடு இணைக்கப்பட்டுள்ளது மற்றும் 60 நாட்கள் அறுவடை சலுகைக்காலம் செயல்படுத்தப்பட்டுள்ளது.',
+    officerNoteMsme: 'நெகிழ்வான தவணைகளுடன் பிணையில்லா முத்ரா மூலதன கடன் முன் அனுமதிக்கப்பட்டுள்ளது.',
+    officerNoteGig: 'முன்கூட்டியே கட்டண அபராதம் இல்லாத எளிய கடன் வசதி செயல்படுத்தப்பட்டுள்ளது.',
+    officerNoteGeneral: 'உங்கள் கட்டண ஒழுங்கு சரிபார்க்கப்பட்டு உடனடி பிணையில்லா கடன் பரிந்துரைக்கப்பட்டுள்ளது.',
+  },
+}
+
 export function ScorePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const search = useSearch({ strict: false }) as {
     userId?: string
     sources?: string
@@ -221,12 +404,57 @@ export function ScorePage() {
     timestamp: string
     status: string
   }>>([])
-  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'simple' | 'technical'>('simple')
-  const [audioLang, setAudioLang] = useState<'gu' | 'hi' | 'ta' | 'en'>('gu')
+  const [audioLang, setAudioLang] = useState<'gu' | 'hi' | 'ta' | 'en'>(() => {
+    const l = i18n.language?.split('-')[0]
+    if (l === 'gu' || l === 'hi' || l === 'ta' || l === 'en') return l as any
+    return 'gu'
+  })
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [officerModalOpen, setOfficerModalOpen] = useState(false)
   const [officerRequested, setOfficerRequested] = useState(false)
+
+  // Synchronize when i18n language changes globally
+  useEffect(() => {
+    const l = i18n.language?.split('-')[0]
+    if (l === 'gu' || l === 'hi' || l === 'ta' || l === 'en') {
+      setAudioLang(l as any)
+    }
+  }, [i18n.language])
+
+  const handleLanguageSwitch = (code: 'gu' | 'hi' | 'ta' | 'en') => {
+    setAudioLang(code)
+    i18n.changeLanguage(code)
+    if (isPlayingAudio) {
+      window.speechSynthesis?.cancel()
+      setIsPlayingAudio(false)
+    }
+  }
+
+  const cur = SCORE_I18N[audioLang] || SCORE_I18N.en
+  const isSanctionApproved = notification?.decision === 'approved' || (data && data.score >= 500)
+  const seg = personalizeData?.segment?.segment || (userId.includes('msme') ? 'msme' : userId.includes('farmer') ? 'farmer' : 'msme')
+
+  const whyQualifiedText = audioLang === 'en' && personalizeData?.borrower_summary?.plain_summary
+    ? personalizeData.borrower_summary.plain_summary
+    : seg === 'msme'
+    ? cur.whyQualifiedMsme
+    : seg === 'farmer'
+    ? cur.whyQualifiedFarmer
+    : seg === 'gig_worker'
+    ? cur.whyQualifiedGig
+    : cur.whyQualifiedGeneral
+
+  const officerNoteText = officerMessages?.[0]?.message
+    || (audioLang === 'en' && personalizeData?.borrower_summary?.officer_note
+      ? personalizeData.borrower_summary.officer_note
+      : seg === 'msme'
+      ? cur.officerNoteMsme
+      : seg === 'farmer'
+      ? cur.officerNoteFarmer
+      : seg === 'gig_worker'
+      ? cur.officerNoteGig
+      : cur.officerNoteGeneral)
 
   const handlePlayAudio = (langToPlay?: 'gu' | 'hi' | 'ta' | 'en') => {
     const targetLang = langToPlay || audioLang
@@ -243,7 +471,11 @@ export function ScorePage() {
 
     window.speechSynthesis.cancel()
     const script = personalizeData?.borrower_summary?.audio_scripts?.[targetLang] ||
-      personalizeData?.borrower_summary?.plain_summary ||
+      (targetLang === 'gu'
+        ? (seg === 'msme' ? cur.whyQualifiedMsme + '. ' + cur.officerNoteMsme : cur.whyQualifiedFarmer + '. ' + cur.officerNoteFarmer)
+        : targetLang === 'hi'
+        ? (seg === 'msme' ? cur.whyQualifiedMsme + '. ' + cur.officerNoteMsme : cur.whyQualifiedFarmer + '. ' + cur.officerNoteFarmer)
+        : personalizeData?.borrower_summary?.plain_summary) ||
       `Your AltGrade credit score is ${data?.score || 700}. You qualify for loan approval.`
 
     const utterance = new SpeechSynthesisUtterance(script)
@@ -694,8 +926,8 @@ export function ScorePage() {
   }
 
   return (
-    <div>
-      {notification?.has_notification && (
+    <div className='pb-24 sm:pb-32'>
+      {notification?.has_notification && viewMode === 'technical' && (
         <div className='mb-6 rounded-lg border border-white/20 bg-black p-4 flex items-start gap-3 animate-fade-up text-white'>
           <div className='mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-white/10 text-white border border-white/20'>
             {notification.decision === 'approved' ? (
@@ -720,11 +952,11 @@ export function ScorePage() {
       <div className='mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
         <div>
           <h1 className='font-signifier text-[36px] sm:text-[44px] font-normal leading-[1.1] tracking-[-0.66px] text-foreground'>
-            {viewMode === 'simple' ? 'Your Banking & Financial Health Hub' : t('score.title', 'AltGrade Alternate Credit Score')}
+            {viewMode === 'simple' ? cur.pageTitle : t('score.title', 'AltGrade Alternate Credit Score')}
           </h1>
           <p className='text-sm text-muted-foreground mt-1'>
             {viewMode === 'simple'
-              ? 'Personalized banking products, savings buffers, and credit lines based on your everyday financial footprint'
+              ? cur.pageSubtitle
               : t('score.subtitle', 'Explainable risk estimation based on multi-source non-traditional financial data')}
           </p>
         </div>
@@ -737,93 +969,96 @@ export function ScorePage() {
           {viewMode === 'simple' ? (
             <>
               <Eye className='h-3.5 w-3.5 text-white/80' />
-              <span>Technical Breakdown (Advanced)</span>
+              <span>{cur.technicalView}</span>
             </>
           ) : (
             <>
               <EyeOff className='h-3.5 w-3.5 text-white/80' />
-              <span>Simple Banking View</span>
+              <span>{cur.simpleView}</span>
             </>
           )}
         </Button>
       </div>
 
       {viewMode === 'simple' ? (
-        /* ================= INCLUSIVE BANKING PRODUCTS & BORROWER HUB (VERCEL MINIMALIST) ================= */
-        <div className='space-y-5 animate-fade-up'>
-          {/* Officer Messages & Empathetic Outreach */}
-          {officerMessages.length > 0 && (
-            <Card className='border border-white/20 bg-black shadow-none animate-fade-up'>
-              <CardHeader className='pb-2 pt-4 px-5'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <div className='flex h-6 w-6 items-center justify-center rounded-full bg-white text-black'>
-                      <MessageCircle className='h-3.5 w-3.5' />
-                    </div>
-                    <div>
-                      <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
-                        Messages from your Assigned Loan Officer ({officerMessages.length})
-                      </CardTitle>
-                      <CardDescription className='text-[11px] text-white/50'>
-                        Personalized guidance, restructuring options, and account support
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <Badge variant='outline' className='text-[10px] font-mono border-white/20 text-white/80 bg-white/5'>
-                    Support Active
-                  </Badge>
+        /* ================= STREAMLINED, UNCLUTTERED RESULT VIEW ================= */
+        <div className='space-y-6 animate-fade-up'>
+          {/* 1. CORE SANCTION CARD (Score + Approved Limit + Audio + Key Insights) */}
+          <Card className='overflow-hidden border border-white/15 bg-black shadow-xl'>
+            {/* Top Clean Status Strip */}
+            <div className='flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] px-6 py-3'>
+              <div className='flex items-center gap-2 text-xs font-mono'>
+                <div className='flex h-4 w-4 items-center justify-center rounded-full bg-white text-black'>
+                  <CheckCircle2 className='h-3 w-3' />
                 </div>
-              </CardHeader>
-              <CardContent className='px-5 pb-4 space-y-2.5'>
-                {officerMessages.map((m, idx) => (
-                  <div
-                    key={idx}
-                    className='rounded-lg border border-white/10 bg-white/[0.02] p-3.5 space-y-2 transition-all hover:border-white/20'
-                  >
-                    <div className='flex items-center justify-between text-[11px] font-mono'>
-                      <div className='flex items-center gap-2'>
-                        <span className='font-semibold text-white'>{m.officer_name || 'Bank Loan Officer'}</span>
-                        <span className='px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-[9px] uppercase tracking-wider text-white/70'>
-                          {m.category?.replace(/_/g, ' ')}
-                        </span>
-                        <span className='px-1.5 py-0.5 rounded border border-white/10 text-[9px] uppercase tracking-wider text-white/50'>
-                          via {m.channel?.toUpperCase()}
-                        </span>
-                      </div>
-                      <span className='text-[10px] text-white/40'>
-                        {new Date(m.timestamp).toLocaleDateString('en-IN', {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                    <p className='text-xs text-white/80 leading-relaxed font-mono'>
-                      {m.message}
-                    </p>
-                    <div className='flex items-center justify-end gap-2 pt-1 border-t border-white/5'>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => setOfficerModalOpen(true)}
-                        className='h-7 text-[10px] font-mono rounded border-white/15 hover:bg-white hover:text-black gap-1'
-                      >
-                        <PhoneCall className='h-2.5 w-2.5' /> Reply / Speak with Officer
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                <span className='font-semibold uppercase tracking-wider text-white'>
+                  {isSanctionApproved ? cur.sanctionApproved : cur.scoreCalculated}
+                </span>
+                <span className='text-white/30'>•</span>
+                <span className='text-white/70'>
+                  {notification?.interest_rate ? `${notification.interest_rate}% ${cur.subsidizedApr}` : cur.subsidizedApr}
+                </span>
+                <span className='text-white/30'>•</span>
+                <span className='text-white/70'>
+                  {notification?.terms || cur.tenure36}
+                </span>
+              </div>
 
-          {/* Main Hero Card */}
-          <Card className='overflow-hidden border border-white/10 bg-black shadow-none'>
-            <div className='p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 justify-between'>
-              {/* Left: Big Score & Trust Badge */}
-              <div className='flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left'>
-                <div className='relative flex h-36 w-36 shrink-0 items-center justify-center rounded-full bg-black border border-white/15 shadow-none'>
+              {/* Minimalist Audio & Language Control */}
+              <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-1 border border-white/15 rounded-md p-0.5 bg-black'>
+                  {(
+                    [
+                      { code: 'gu', label: 'ગુજરાતી' },
+                      { code: 'hi', label: 'हिंदी' },
+                      { code: 'ta', label: 'தமிழ்' },
+                      { code: 'en', label: 'Eng' },
+                    ] as const
+                  ).map((l) => (
+                    <button
+                      key={l.code}
+                      type='button'
+                      onClick={() => handleLanguageSwitch(l.code)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors ${
+                        audioLang === l.code
+                          ? 'bg-white text-black font-semibold'
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  size='sm'
+                  onClick={() => handlePlayAudio()}
+                  className={`h-7 px-2.5 rounded-md text-[11px] font-mono gap-1.5 transition-all ${
+                    isPlayingAudio
+                      ? 'bg-white text-black animate-pulse font-semibold'
+                      : 'border border-white/20 bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  {isPlayingAudio ? (
+                    <>
+                      <VolumeX className='h-3 w-3' />
+                      <span>{cur.pause}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className='h-3 w-3' />
+                      <span>{cur.listen}</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Score & Sanction Amount */}
+            <div className='p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6'>
+              <div className='flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left'>
+                {/* Radial Gauge */}
+                <div className='relative flex h-32 w-32 shrink-0 items-center justify-center rounded-full bg-black border border-white/15'>
                   <svg className='absolute h-full w-full -rotate-90' viewBox='0 0 100 100'>
                     <circle
                       cx='50' cy='50' r='42'
@@ -844,318 +1079,147 @@ export function ScorePage() {
                   </svg>
                   <div className='flex flex-col items-center justify-center'>
                     <span className='text-3xl font-extrabold tracking-tight text-white font-mono'>{data.score}</span>
-                    <span className='text-[10px] uppercase tracking-widest text-white/50 font-mono'>Score</span>
+                    <span className='text-[9px] uppercase tracking-widest text-white/50 font-mono'>{cur.outOf850}</span>
                   </div>
                 </div>
 
+                {/* Score Details & Limit */}
                 <div className='space-y-2'>
-                  <div className='inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-3 py-1 text-xs font-medium text-white/90 font-mono'>
-                    <CheckCircle2 className='h-3.5 w-3.5 text-white' />
-                    <span>Eligible for Regulated Banking Products</span>
+                  <div className='inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/15 px-2.5 py-0.5 text-[11px] font-mono text-white/80'>
+                    <CheckCircle2 className='h-3 w-3 text-white' />
+                    <span>{cur.eligibleBanking}</span>
                   </div>
-                  <h2 className='text-xl sm:text-2xl font-bold tracking-tight text-white'>
-                    {data.score >= 700 ? 'High Financial Trust' : 'Good Financial Standing'}
+                  <h2 className='text-2xl font-bold tracking-tight text-white'>
+                    {data.score >= 700 ? cur.highTrust : cur.goodStanding}
                   </h2>
-                  <p className='text-xs text-white/60 max-w-sm leading-relaxed'>
-                    Pre-approved credit line limit up to{' '}
-                    <span className='font-bold text-white font-mono'>
-                      ₹{personalizeData?.credit_limit ? personalizeData.credit_limit.toLocaleString('en-IN') : '50,000'}
-                    </span>{' '}
-                    plus subsidized zero-balance accounts and crop/life insurance.
-                  </p>
+                  <div className='pt-1'>
+                    <span className='text-[10px] font-mono uppercase tracking-wider text-white/50'>
+                      {cur.preApprovedLimit}
+                    </span>
+                    <div className='text-3xl font-bold font-mono text-white'>
+                      ₹{personalizeData?.credit_limit ? personalizeData.credit_limit.toLocaleString('en-IN') : '1,00,000'}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right: Unmissable Vernacular Voice Audio Narration */}
-              <div className='w-full md:w-auto shrink-0 flex flex-col items-center sm:items-end gap-3'>
-                <div className='flex items-center gap-1.5 text-xs text-white/50 font-mono'>
-                  <span>Audio Language:</span>
-                  <div className='flex gap-1'>
-                    {(
-                      [
-                        { code: 'gu', label: 'ગુજરાતી' },
-                        { code: 'hi', label: 'हिंदी' },
-                        { code: 'ta', label: 'தமிழ்' },
-                        { code: 'en', label: 'Eng' },
-                      ] as const
-                    ).map((l) => (
-                      <button
-                        key={l.code}
-                        type='button'
-                        onClick={() => {
-                          setAudioLang(l.code)
-                          if (isPlayingAudio) {
-                            window.speechSynthesis?.cancel()
-                            setIsPlayingAudio(false)
-                          }
-                        }}
-                        className={`px-2 py-0.5 rounded-full text-[11px] font-mono transition-all ${
-                          audioLang === l.code
-                            ? 'bg-white text-black font-semibold shadow-xs'
-                            : 'bg-white/5 text-white/60 hover:text-white border border-white/10'
-                        }`}
-                      >
-                        {l.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+              {/* Direct Action Buttons */}
+              <div className='flex flex-col gap-2 w-full sm:w-auto shrink-0'>
                 <Button
                   size='lg'
-                  onClick={() => handlePlayAudio()}
-                  className={`w-full sm:w-auto h-11 px-5 rounded-lg font-mono text-xs gap-2 transition-all ${
-                    isPlayingAudio
-                      ? 'bg-white/20 text-white border border-white/40 animate-pulse'
-                      : 'bg-white text-black hover:bg-white/90 shadow-none'
-                  }`}
+                  onClick={() => setOfficerModalOpen(true)}
+                  className='h-11 px-6 rounded-md bg-white text-black hover:bg-white/90 font-mono text-xs font-semibold gap-2 shadow-none'
                 >
-                  {isPlayingAudio ? (
-                    <>
-                      <VolumeX className='h-4 w-4' />
-                      <span>Pause Audio Readout</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className='h-4 w-4' />
-                      <span>
-                        {audioLang === 'gu'
-                          ? '🔊 અહેવાલ સાંભળો (Gujarati)'
-                          : audioLang === 'hi'
-                          ? '🔊 रिपोर्ट सुनें (Hindi)'
-                          : audioLang === 'ta'
-                          ? '🔊 கேட்க (Tamil)'
-                          : '🔊 Listen to Audio Report'}
-                      </span>
-                    </>
-                  )}
+                  <PhoneCall className='h-3.5 w-3.5' />
+                  <span>{cur.speakLoanOfficer}</span>
                 </Button>
+                <Link
+                  to='/advisor'
+                  search={{ userId }}
+                  className='w-full'
+                >
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='w-full h-9 rounded-md text-xs font-mono gap-1.5 border-white/15 hover:bg-white/5 text-white/80'
+                  >
+                    <Bot className='h-3.5 w-3.5' />
+                    <span>{cur.askAiAdvisor}</span>
+                  </Button>
+                </Link>
               </div>
             </div>
 
-            {/* Plain-Language Explanations (Zero Jargon) */}
-            <div className='border-t border-white/10 bg-white/[0.01] p-6 grid sm:grid-cols-2 gap-4'>
-              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-1.5'>
-                <div className='flex items-center gap-2 text-xs font-semibold text-white'>
-                  <Sparkles className='h-3.5 w-3.5 text-white/70' />
-                  <span>Why You Qualify</span>
+            {/* Bottom Shelf: Why You Qualify + Officer Recommendation (Compact & Clean) */}
+            <div className='border-t border-white/10 bg-white/[0.01] p-5 grid sm:grid-cols-2 gap-4'>
+              <div className='space-y-1'>
+                <div className='flex items-center gap-1.5 text-xs font-semibold text-white'>
+                  <Sparkles className='h-3.5 w-3.5 text-white/80' />
+                  <span>{cur.whyQualified}</span>
                 </div>
-                <p className='text-xs text-white/70 leading-relaxed'>
-                  {personalizeData?.borrower_summary?.plain_summary ||
-                    "Based on your long-term residency and disciplined everyday bill payments, you have built verified financial trust without traditional bank papers."}
+                <p className='text-xs text-white/70 leading-relaxed font-sans'>
+                  {whyQualifiedText}
                 </p>
               </div>
 
-              <div className='rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-1.5'>
-                <div className='flex items-center gap-2 text-xs font-semibold text-white'>
-                  <ShieldCheck className='h-3.5 w-3.5 text-white/70' />
-                  <span>Everyday Tip to Grow Limit</span>
+              <div className='space-y-1'>
+                <div className='flex items-center gap-1.5 text-xs font-semibold text-white'>
+                  <ShieldCheck className='h-3.5 w-3.5 text-white/80' />
+                  <span>{cur.officerNoteTitle}</span>
                 </div>
-                <p className='text-xs text-white/70 leading-relaxed'>
-                  {personalizeData?.borrower_summary?.plain_tip ||
-                    "Keep paying your mobile recharges and electricity bills before the 5th of each month to unlock a higher credit limit."}
+                <p className='text-xs text-white/70 leading-relaxed font-sans'>
+                  {officerNoteText}
                 </p>
               </div>
             </div>
           </Card>
 
-          {/* Financial Health & Resilience Pulse */}
-          {personalizeData?.health && (
-            <Card className='border border-white/10 bg-black shadow-none'>
-              <CardHeader className='pb-2 pt-4 px-5'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <TrendingUp className='h-4 w-4 text-white/80' />
-                    <CardTitle className='text-xs font-mono uppercase tracking-widest text-white'>
-                      Financial Health Pulse & Resilience
-                    </CardTitle>
-                  </div>
-                  <Badge variant='outline' className='text-[10px] font-mono border-white/15 text-white/80 bg-white/5'>
-                    Stability Score: {personalizeData.health.stability_score ?? 75}/100
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className='px-5 pb-4'>
-                <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-center mb-3'>
-                  <div className='rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
-                    <div className='text-[10px] uppercase text-white/40'>Emergency Buffer</div>
-                    <div className='text-sm font-bold text-white mt-0.5'>
-                      {personalizeData.health.liquidity_buffer_days ?? 6} Days
-                    </div>
-                    <div className='text-[9px] text-white/40'>Available cash reserve</div>
-                  </div>
-                  <div className='rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
-                    <div className='text-[10px] uppercase text-white/40'>Bill Discipline</div>
-                    <div className='text-sm font-bold text-white mt-0.5'>
-                      {personalizeData.health.bill_discipline_pct ?? 92}%
-                    </div>
-                    <div className='text-[9px] text-white/40'>On-time payment rate</div>
-                  </div>
-                  <div className='col-span-2 sm:col-span-1 rounded-lg border border-white/10 bg-white/[0.02] p-2.5'>
-                    <div className='text-[10px] uppercase text-white/40'>Livelihood Persona</div>
-                    <div className='text-sm font-bold text-white mt-0.5 flex items-center justify-center gap-1.5'>
-                      <span className='capitalize font-mono'>{personalizeData.segment?.name || 'General Earner'}</span>
-                      <Badge variant='outline' className='text-[9px] font-mono border-white/15 bg-white/5 text-white/70'>
-                        {personalizeData.segment?.segment?.toUpperCase() || 'GENERAL'}
-                      </Badge>
-                    </div>
-                    <div className='text-[9px] text-white/40 font-mono'>{personalizeData.segment?.tagline || 'Verified Alternative Footprint'}</div>
-                  </div>
-                </div>
-
-                {personalizeData.health.warning_signals && personalizeData.health.warning_signals.length > 0 && (
-                  <div className='rounded-lg border border-white/15 bg-white/[0.03] p-3 text-xs text-white/70 font-mono space-y-1'>
-                    <div className='flex items-center gap-1.5 text-white text-[11px] font-semibold'>
-                      <AlertTriangle className='h-3 w-3 text-white/80' />
-                      <span>Early Caution Note</span>
-                    </div>
-                    <p className='text-[11px] text-white/60 leading-relaxed'>
-                      {personalizeData.health.warning_signals[0]}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Inclusive Banking Products Hub */}
+          {/* 2. TOP 3 RECOMMENDED SCHEMES (CURATED, MINIMALIST, ZERO CLUTTER) */}
           <div className='space-y-3 pt-2'>
-            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2'>
+            <div className='flex items-center justify-between'>
               <div>
                 <h3 className='font-mono text-xs uppercase tracking-widest text-white flex items-center gap-2'>
                   <Wallet className='h-3.5 w-3.5 text-white/80' />
-                  Recommended Banking Products ({personalizeData?.recommendations?.length || 0})
+                  {cur.topSchemesTitle} ({Math.min(3, (personalizeData?.recommendations || []).length)})
                 </h3>
-                <p className='text-xs text-white/50 font-mono'>
-                  Regulated savings accounts, emergency buffers, subsidized credit, and insurance matched to your needs
+                <p className='text-xs text-white/50 font-sans mt-0.5'>
+                  {cur.topSchemesSubtitle}
                 </p>
               </div>
-
-              {/* Category Filter Pills */}
-              <div className='flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0'>
-                {[
-                  { id: 'all', label: 'All Products' },
-                  { id: 'savings', label: 'Savings & RD' },
-                  { id: 'credit', label: 'Credit Lines' },
-                  { id: 'insurance', label: 'Insurance' },
-                  { id: 'pension', label: 'Pensions' },
-                ].map((filter) => (
-                  <button
-                    key={filter.id}
-                    type='button'
-                    onClick={() => setProductCategoryFilter(filter.id)}
-                    className={`px-2.5 py-1 rounded text-[10px] font-mono whitespace-nowrap transition-colors border ${
-                      productCategoryFilter === filter.id
-                        ? 'border-white/40 bg-white text-black font-semibold'
-                        : 'border-white/10 bg-white/[0.02] text-white/60 hover:text-white hover:border-white/20'
-                    }`}
-                  >
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Products Grid */}
-            <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
-              {(personalizeData?.recommendations || [])
-                .filter((rec: any) => {
-                  if (productCategoryFilter === 'all') return true
-                  const cat = (rec.category || '').toLowerCase()
-                  const name = (rec.name || '').toLowerCase()
-                  if (productCategoryFilter === 'savings') return cat.includes('savings') || cat.includes('buffer') || cat.includes('liquidity') || name.includes('saving') || name.includes('deposit') || name.includes('jandhan') || name.includes('pmjdy')
-                  if (productCategoryFilter === 'credit') return cat.includes('credit') || cat.includes('capital') || name.includes('loan') || name.includes('kcc') || name.includes('mudra') || name.includes('svanidhi')
-                  if (productCategoryFilter === 'insurance') return cat.includes('insurance') || cat.includes('protection') || cat.includes('disability') || name.includes('bima')
-                  if (productCategoryFilter === 'pension') return cat.includes('pension') || name.includes('pension') || name.includes('atal')
-                  return true
-                })
-                .map((rec: any, i: number) => (
-                  <div
-                    key={i}
-                    className='rounded-lg border border-white/10 bg-black p-4 flex flex-col justify-between transition-all duration-200 hover:border-white/25 hover:bg-white/[0.01]'
-                  >
-                    <div className='space-y-2'>
-                      <div className='flex items-start justify-between gap-2'>
-                        <span className='font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-white/70'>
-                          {rec.category}
-                        </span>
-                        <Badge variant='outline' className='text-[10px] font-mono border-white/20 text-white bg-white/10 shrink-0'>
-                          {rec.fit_score || 85}% Match
-                        </Badge>
-                      </div>
-
-                      <h4 className='font-mono font-medium text-xs text-white leading-snug'>
-                        {rec.name}
-                      </h4>
-
-                      <div className='rounded border border-white/10 bg-white/[0.02] p-2 space-y-1 text-[11px] font-mono text-white/70'>
-                        <div className='text-white font-semibold flex items-center gap-1.5'>
-                          <Sparkles className='h-3 w-3 text-white/60 shrink-0' />
-                          <span>{rec.max_benefit}</span>
-                        </div>
-                        <div className='text-[10px] text-white/50 pl-4.5'>
-                          {rec.subsidy_rate}
-                        </div>
-                      </div>
-
-                      <p className='text-[11px] text-white/60 leading-relaxed line-clamp-2 font-mono'>
-                        {rec.description}
-                      </p>
-                    </div>
-
-                    <div className='mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2'>
-                      <span className='text-[9px] font-mono text-white/40 truncate max-w-[120px] flex items-center gap-1'>
-                        <ShieldCheck className='h-3 w-3 text-white/40 shrink-0' />
-                        <span className='truncate'>{rec.ministry_or_body || 'Govt of India'}</span>
+            {/* Exactly 3 Clean Cards */}
+            <div className='grid gap-3 sm:grid-cols-3'>
+              {(personalizeData?.recommendations || []).slice(0, 3).map((rec: any, i: number) => (
+                <div
+                  key={i}
+                  className='rounded-lg border border-white/10 bg-black p-4 flex flex-col justify-between space-y-3 transition-all hover:border-white/30'
+                >
+                  <div className='space-y-2'>
+                    <div className='flex items-center justify-between text-[10px] font-mono'>
+                      <span className='px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-white/70 truncate max-w-[140px]'>
+                        {rec.category}
                       </span>
-                      <div className='flex gap-1.5'>
-                        {rec.official_portal && (
-                          <a
-                            href={rec.official_portal}
-                            target='_blank'
-                            rel='noreferrer'
-                            className='inline-flex items-center gap-1 text-[10px] font-mono text-white/60 hover:text-white px-2 py-1 rounded border border-white/10 hover:border-white/20'
-                          >
-                            <span>Info</span>
-                            <ArrowUpRight className='h-2.5 w-2.5' />
-                          </a>
-                        )}
-                        <Button
-                          size='sm'
-                          onClick={() => setOfficerModalOpen(true)}
-                          className='h-7 text-[10px] font-mono bg-white text-black hover:bg-white/90 px-2.5 rounded'
-                        >
-                          Enroll / Apply
-                        </Button>
-                      </div>
+                      <span className='text-white font-semibold'>
+                        {rec.fit_score || 95}% {cur.match}
+                      </span>
                     </div>
+
+                    <h4 className='font-sans font-semibold text-sm text-white leading-snug'>
+                      {rec.name}
+                    </h4>
+
+                    <div className='font-mono text-xs text-white font-medium'>
+                      {rec.max_benefit}
+                    </div>
+
+                    <p className='font-sans text-xs text-white/60 leading-relaxed line-clamp-2'>
+                      {sanitizeText(rec.description)}
+                    </p>
                   </div>
-                ))}
-            </div>
-          </div>
 
-          {/* Action Row */}
-          <div className='flex flex-col sm:flex-row items-center gap-3 justify-between pt-3 border-t border-white/10'>
-            <Button
-              size='lg'
-              onClick={() => setOfficerModalOpen(true)}
-              className='w-full sm:w-auto h-11 px-5 rounded-lg bg-white text-black hover:bg-white/90 font-mono text-xs gap-2 shadow-none'
-            >
-              <PhoneCall className='h-3.5 w-3.5' />
-              <span>Talk to Local Loan Officer</span>
-            </Button>
-
-            <div className='flex items-center gap-2.5 w-full sm:w-auto'>
-              <Link
-                to='/eligibility'
-                search={{ userId, score: String(data.score), band: data.risk_band }}
-                className='flex-1 sm:flex-none'
-              >
-                <Button variant='outline' size='lg' className='w-full h-11 rounded-lg text-xs font-mono gap-2 border-white/10 hover:bg-white/5'>
-                  <IndianRupee className='h-3.5 w-3.5' />
-                  <span>View Subsidized Credit Terms</span>
-                </Button>
-              </Link>
+                  <div className='pt-2 border-t border-white/10 flex items-center justify-between gap-2'>
+                    {rec.official_portal ? (
+                      <a
+                        href={rec.official_portal}
+                        target='_blank'
+                        rel='noreferrer'
+                        className='inline-flex items-center gap-1 text-[10px] font-mono text-white/50 hover:text-white'
+                      >
+                        <span>{cur.portal}</span>
+                        <ArrowUpRight className='h-2.5 w-2.5' />
+                      </a>
+                    ) : <span />}
+                    <Button
+                      size='sm'
+                      onClick={() => setOfficerModalOpen(true)}
+                      className='h-7 text-[10px] font-mono bg-white text-black hover:bg-white/90 px-3 rounded'
+                    >
+                      {cur.enroll}
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1225,7 +1289,7 @@ export function ScorePage() {
         </Alert>
       )}
 
-      {data.has_conflicts && (
+      {data.has_conflicts && viewMode === 'technical' && (
         <Card className='mt-4 border-white/20 bg-black text-white shadow-none'>
           <CardHeader>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
@@ -1369,10 +1433,10 @@ export function ScorePage() {
           <DialogHeader>
             <DialogTitle className='flex items-center gap-2 text-base font-medium tracking-tight text-white'>
               <PhoneCall className='h-4 w-4 text-white/80' />
-              <span>Connect with Field Loan Officer</span>
+              <span>{cur.officerModalTitle}</span>
             </DialogTitle>
             <DialogDescription className='text-xs text-white/50 leading-relaxed'>
-              A local Business Correspondent or MFI Field Officer will assist you with paperwork and government subsidy enrollment.
+              {cur.officerModalDesc}
             </DialogDescription>
           </DialogHeader>
 
@@ -1381,27 +1445,27 @@ export function ScorePage() {
               <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white border border-white/20'>
                 <CheckCircle2 className='h-5 w-5' />
               </div>
-              <h4 className='text-sm font-semibold text-white'>Request Dispatched</h4>
+              <h4 className='text-sm font-semibold text-white'>{cur.requestDispatched}</h4>
               <p className='text-xs text-white/60 max-w-xs mx-auto leading-relaxed'>
-                Your local field representative will call you or visit your village location within 24–48 hours.
+                {cur.requestDispatchedDesc}
               </p>
               <Button size='sm' className='font-mono text-xs bg-white text-black hover:bg-white/90 rounded-md px-4 h-9' onClick={() => { setOfficerModalOpen(false); setOfficerRequested(false); }}>
-                Close
+                {cur.close}
               </Button>
             </div>
           ) : (
             <div className='space-y-4 py-2'>
               <div className='rounded-lg border border-white/10 bg-white/[0.02] p-3.5 space-y-1 text-xs'>
-                <div className='font-mono font-medium text-white'>Assigned Branch Officer</div>
-                <div className='text-white/60'>Anand Varma (District MFI Agent • Kovvur/Madurai Zone)</div>
+                <div className='font-mono font-medium text-white'>{cur.assignedOfficer}</div>
+                <div className='text-white/60'>{cur.officerDetails}</div>
                 <div className='text-[11px] text-white/80 font-mono flex items-center gap-1.5 pt-0.5'>
                   <span className='h-1.5 w-1.5 rounded-full bg-white'></span>
-                  Available for in-person village visit
+                  {cur.availableVisit}
                 </div>
               </div>
 
               <div className='space-y-2 text-xs'>
-                <label className='font-mono text-[11px] text-white/60'>Your Contact Number:</label>
+                <label className='font-mono text-[11px] text-white/60'>{cur.contactNumber}</label>
                 <input
                   type='text'
                   defaultValue={phone || '98765 43215'}
@@ -1416,7 +1480,7 @@ export function ScorePage() {
                   toast.success('Field officer visit request dispatched!')
                 }}
               >
-                Confirm Field Visit Request
+                {cur.confirmFieldVisit}
               </Button>
             </div>
           )}
