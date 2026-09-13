@@ -7,11 +7,11 @@
   "rewrites": [
     {
       "source": "/api",
-      "destination": "https://altgrade-api.onrender.com/"
+      "destination": "https://altgrade-api-production.up.railway.app/"
     },
     {
       "source": "/api/:path*",
-      "destination": "https://altgrade-api.onrender.com/:path*"
+      "destination": "https://altgrade-api-production.up.railway.app/:path*"
     },
     {
       "source": "/((?!api).*)",
